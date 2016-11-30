@@ -10,6 +10,8 @@ public enum ParseError: Error {
     case unsupportedType
     case schemaNotFound
     case unsupportedPortAddress
+    case invalidNamespacePrefix
+    case noTargetNamespace
 }
 
 public func parse(WSDL root: XMLElement) throws -> WSDL {

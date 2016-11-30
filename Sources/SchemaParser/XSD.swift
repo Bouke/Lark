@@ -1,12 +1,12 @@
 import Foundation
 
 public enum Element {
-    case type(name: String, base: String, occurs: CountableRange<Int>)
-    case complex(name: String, occurs: CountableRange<Int>, members: [Element])
+    case type(name: QualifiedName, base: QualifiedName, occurs: CountableRange<Int>)
+    case complex(name: QualifiedName, occurs: CountableRange<Int>, members: [Element])
 }
 
 extension Element: Hashable {
-    public static func == (lhs: Element, rhs: Element) -> Bool {
+    public static func ==(lhs: Element, rhs: Element) -> Bool {
         switch (lhs, rhs) {
         case let (.type(lname, lbase, _), .type(rname, rbase, _)): return lname == rname && lbase == rbase
         case let (.complex(lname, _, _), .complex(rname, _, _)): return lname == rname
@@ -15,9 +15,13 @@ extension Element: Hashable {
     }
 
     public var hashValue: Int {
+        return name.uri.hashValue * 17 + name.localName.hashValue
+    }
+
+    public var name: QualifiedName {
         switch self {
-        case let .type(name, _, _): return name.hashValue
-        case let .complex(name, _, _): return name.hashValue
+        case let .type(name, _, _): return name
+        case let .complex(name, _, _): return name
         }
     }
 }
@@ -36,16 +40,18 @@ func range(_ minOccurs: String?, _ maxOccurs: String?) -> CountableRange<Int> {
 }
 
 func parseElement(node: XMLElement) throws -> Element {
-    guard let name = node.attribute(forLocalName: "name", uri: nil)?.stringValue else {
+    guard let localName = node.attribute(forLocalName: "name", uri: nil)?.stringValue else {
         throw ParseError.noName
     }
+    let name = try QualifiedName(uri: targetNamespace(ofNode: node), localName: localName)
+
     let minOccurs = node.attribute(forLocalName: "minOccurs", uri: nil)?.stringValue
     let maxOccurs = node.attribute(forLocalName: "maxOccurs", uri: nil)?.stringValue
     let occurs = range(minOccurs, maxOccurs)
 
     if node.localName == "element" && node.uri == NS_XSD {
         if let type = node.attribute(forLocalName: "type", uri: nil)?.stringValue {
-            return Element.type(name: name, base: type, occurs: range(minOccurs, maxOccurs))
+            return try Element.type(name: name, base: QualifiedName(type: type, inTree: node), occurs: range(minOccurs, maxOccurs))
         }
         if let complexType = node.elements(forLocalName: "complexType", uri: NS_XSD).first {
             return try parseComplexType(name: name, occurs: occurs, complexType: complexType)
@@ -57,7 +63,7 @@ func parseElement(node: XMLElement) throws -> Element {
     throw ParseError.unsupportedType
 }
 
-func parseComplexType(name: String, occurs: CountableRange<Int>, complexType: XMLElement) throws -> Element {
+func parseComplexType(name: QualifiedName, occurs: CountableRange<Int>, complexType: XMLElement) throws -> Element {
     if let sequence = complexType.elements(forLocalName: "sequence", uri: NS_XSD).first {
         let members = try sequence.elements(forLocalName: "element", uri: NS_XSD)
             .map(parseElement(node:))
@@ -66,12 +72,12 @@ func parseComplexType(name: String, occurs: CountableRange<Int>, complexType: XM
     throw ParseError.unsupportedType
 }
 
-func nameForElement(element: Element) -> String {
-    let name: String
-    switch element {
-    case .type(let n, _, _): name = n
-    case .complex(let n, _, _): name = n
-    }
-
-    return name.capitalized
-}
+//func nameForElement(element: Element) -> String {
+//    let name: String
+//    switch element {
+//    case .type(let n, _, _): name = n
+//    case .complex(let n, _, _): name = n
+//    }
+//
+//    return name.capitalized
+//}
