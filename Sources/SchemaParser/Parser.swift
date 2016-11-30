@@ -2,24 +2,19 @@ import Foundation
 
 let NS_WSDL = "http://schemas.xmlsoap.org/wsdl/"
 let NS_XSD = "http://www.w3.org/2001/XMLSchema"
+let NS_SOAP = "http://schemas.xmlsoap.org/wsdl/soap/"
+let NS_SOAP12 = "http://schemas.xmlsoap.org/wsdl/soap12/"
 
 public enum ParseError: Error {
     case noName
     case unsupportedType
     case schemaNotFound
+    case unsupportedPortAddress
 }
 
-public func parse(WSDL root: XMLElement) throws {
+public func parse(WSDL root: XMLElement) throws -> WSDL {
     precondition(root.localName == "definitions" && root.uri == NS_WSDL)
-
-    guard let schema = root
-        .elements(forLocalName: "types", uri: NS_WSDL)
-        .first?
-        .elements(forLocalName: "schema", uri: NS_XSD)
-        .first else {
-        throw ParseError.schemaNotFound
-    }
-    print(try parse(XSD: schema))
+    return try WSDL(deserialize: root)
 }
 
 public func parse(XSD root: XMLElement) throws -> XSD {
