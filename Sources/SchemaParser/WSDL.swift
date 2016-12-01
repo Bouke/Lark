@@ -12,11 +12,11 @@ public struct Message {
     }
 
     public let name: QualifiedName
-    public let part: Part
+    public let parts: [Part]
 
     init(deserialize element: XMLElement) throws {
         self.name = QualifiedName(uri: try targetNamespace(ofNode: element), localName: element.attribute(forName: "name")!.stringValue!)
-        self.part = try Part(deserialize: element.elements(forLocalName: "part", uri: NS_WSDL).first!)
+        self.parts = try element.elements(forLocalName: "part", uri: NS_WSDL).map(Part.init(deserialize:))
     }
 }
 

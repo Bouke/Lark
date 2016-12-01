@@ -1,36 +1,93 @@
 import Foundation
 
-public enum Element {
-    case type(name: QualifiedName, base: QualifiedName, occurs: CountableRange<Int>)
-    case complex(name: QualifiedName, occurs: CountableRange<Int>, members: [Element])
-}
+public struct XSD {
+    public let elements: [Element]
+    public let complexes: [Complex]
 
-extension Element: Hashable {
-    public static func ==(lhs: Element, rhs: Element) -> Bool {
-        switch (lhs, rhs) {
-        case let (.type(lname, lbase, _), .type(rname, rbase, _)): return lname == rname && lbase == rbase
-        case let (.complex(lname, _, _), .complex(rname, _, _)): return lname == rname
-        default: return false
-        }
-    }
-
-    public var hashValue: Int {
-        return name.uri.hashValue * 17 + name.localName.hashValue
-    }
-
-    public var name: QualifiedName {
-        switch self {
-        case let .type(name, _, _): return name
-        case let .complex(name, _, _): return name
-        }
+    init(deserialize node: XMLElement) throws {
+        elements = try node
+            .elements(forLocalName: "element", uri: NS_XSD)
+            .map(Element.init(deserialize:))
+        complexes = try node
+            .elements(forLocalName: "complexType", uri: NS_XSD)
+            .map(Complex.init(deserialize:))
     }
 }
 
-public typealias XSD = [Element]
+public struct Element {
+    public enum Content {
+        case base(QualifiedName)
+        case complex(Complex)
 
-func range(_ minOccurs: String?, _ maxOccurs: String?) -> CountableRange<Int> {
+        public var name: QualifiedName? {
+            switch self {
+            case let .base(base): return base
+            case let .complex(complex): return complex.name
+            }
+        }
+    }
+
+    public let name: QualifiedName
+    public let content: Content
+    public let occurs: CountableRange<Int>?
+}
+
+extension Element {
+    init(deserialize node: XMLElement) throws {
+        guard let localName = node.attribute(forLocalName: "name", uri: nil)?.stringValue else {
+            throw ParseError.noName
+        }
+        name = try QualifiedName(uri: targetNamespace(ofNode: node), localName: localName)
+
+        if let base = node.attribute(forLocalName: "type", uri: nil)?.stringValue {
+            content = .base(try QualifiedName(type: base, inTree: node))
+        } else if let complex = node.elements(forLocalName: "complexType", uri: NS_XSD).first {
+            content = .complex(try Complex(deserialize: complex))
+        } else {
+            throw ParseError.unsupportedType
+        }
+
+        occurs = range(node.attribute(forLocalName: "minOccurs", uri: nil)?.stringValue,
+                       node.attribute(forLocalName: "maxOccurs", uri: nil)?.stringValue)
+    }
+}
+
+public struct Complex {
+    public enum Content {
+        public struct Sequence {
+            public let elements: [Element]
+        }
+        case sequence(Sequence)
+    }
+
+    public let name: QualifiedName?
+    public let content: Content
+}
+
+extension Complex {
+    init(deserialize node: XMLElement) throws {
+        guard let localName = node.attribute(forLocalName: "name", uri: nil)?.stringValue else {
+            throw ParseError.noName
+        }
+        name = try QualifiedName(uri: targetNamespace(ofNode: node), localName: localName)
+
+        if let sequence = node.elements(forLocalName: "sequence", uri: NS_XSD).first {
+            content = .sequence(try Content.Sequence(deserialize: sequence))
+        } else {
+            throw ParseError.unsupportedType
+        }
+    }
+}
+
+extension Complex.Content.Sequence {
+    init(deserialize node: XMLElement) throws {
+        elements = try node.elements(forLocalName: "element", uri: NS_XSD).map(Element.init(deserialize:))
+    }
+}
+
+func range(_ minOccurs: String?, _ maxOccurs: String?) -> CountableRange<Int>? {
     switch (minOccurs, maxOccurs) {
-    case (.none, .none): return 1..<1
+    case (.none, .none): return nil
     case (.none, "unbounded"?): return 1..<Int.max
     case (.none, let max?): return 1..<Int(max)!
     case (let min?, .none): return Int(min)!..<1
@@ -38,46 +95,3 @@ func range(_ minOccurs: String?, _ maxOccurs: String?) -> CountableRange<Int> {
     case (let min?, let max?): return Int(min)!..<Int(max)!
     }
 }
-
-func parseElement(node: XMLElement) throws -> Element {
-    guard let localName = node.attribute(forLocalName: "name", uri: nil)?.stringValue else {
-        throw ParseError.noName
-    }
-    let name = try QualifiedName(uri: targetNamespace(ofNode: node), localName: localName)
-
-    let minOccurs = node.attribute(forLocalName: "minOccurs", uri: nil)?.stringValue
-    let maxOccurs = node.attribute(forLocalName: "maxOccurs", uri: nil)?.stringValue
-    let occurs = range(minOccurs, maxOccurs)
-
-    if node.localName == "element" && node.uri == NS_XSD {
-        if let type = node.attribute(forLocalName: "type", uri: nil)?.stringValue {
-            return try Element.type(name: name, base: QualifiedName(type: type, inTree: node), occurs: range(minOccurs, maxOccurs))
-        }
-        if let complexType = node.elements(forLocalName: "complexType", uri: NS_XSD).first {
-            return try parseComplexType(name: name, occurs: occurs, complexType: complexType)
-        }
-    }
-    if node.localName == "complexType" && node.uri == NS_XSD {
-        return try parseComplexType(name: name, occurs: occurs, complexType: node)
-    }
-    throw ParseError.unsupportedType
-}
-
-func parseComplexType(name: QualifiedName, occurs: CountableRange<Int>, complexType: XMLElement) throws -> Element {
-    if let sequence = complexType.elements(forLocalName: "sequence", uri: NS_XSD).first {
-        let members = try sequence.elements(forLocalName: "element", uri: NS_XSD)
-            .map(parseElement(node:))
-        return Element.complex(name: name, occurs: occurs, members: members)
-    }
-    throw ParseError.unsupportedType
-}
-
-//func nameForElement(element: Element) -> String {
-//    let name: String
-//    switch element {
-//    case .type(let n, _, _): name = n
-//    case .complex(let n, _, _): name = n
-//    }
-//
-//    return name.capitalized
-//}

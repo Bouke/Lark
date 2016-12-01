@@ -29,3 +29,9 @@ extension QualifiedName: Equatable {
         return lhs.uri == rhs.uri && lhs.localName == rhs.localName
     }
 }
+
+extension QualifiedName: Hashable {
+    public var hashValue: Int {
+        return uri.hashValue % 17 + localName.hashValue
+    }
+}
