@@ -12,6 +12,10 @@ typealias Registry = [QualifiedName: Type]
 public func generate(_ print: Writer, wsdl: WSDL, service: Service, binding: Binding) throws {
     var registry: Registry = baseTypes
 
+    print("import Foundation")
+    print("import SOAP")
+    print("")
+
     try generateTypes(print, wsdl: wsdl, binding: binding, registry: &registry)
     try generateClientForBinding(print, wsdl: wsdl, service: service, binding: binding, registry: registry)
 }
@@ -34,8 +38,11 @@ func generateTypes(_ print: Writer, wsdl: WSDL, binding: Binding, registry: inou
 
     func register(element: Element) {
         switch element.content {
-        case let .base(base): usedTypes.insert(base)
-        case .complex: fatalError("Nested complex types not supported")
+        case let .base(base):
+            usedTypes.insert(base)
+        case let .complex(complex):
+            registry[element.name] = .base(element.name.localName)
+            register(complex: complex)
         }
     }
 
@@ -54,10 +61,15 @@ func generateTypes(_ print: Writer, wsdl: WSDL, binding: Binding, registry: inou
     wsdl.schemas.flatMap({ $0.elements }).forEach(register(element:))
     wsdl.schemas.flatMap({ $0.complexes }).forEach(register(complex:))
 
-    let availableTypes = Set(wsdl.schemas
-        .flatMap({ $0.complexes })
-        .flatMap { $0.name }
-    )
+    let availableTypes = Set<QualifiedName>()
+        .union(wsdl.schemas
+            .flatMap({ $0.complexes })
+            .flatMap { $0.name })
+        .union(wsdl.schemas
+            .flatMap({ $0.elements })
+            .flatMap { element -> QualifiedName? in
+                if case .complex = element.content { return element.name } else { return nil }
+            })
 
     let customTypes = usedTypes.subtracting(baseTypes.keys)
     let missingTypes = customTypes.subtracting(availableTypes)
@@ -65,6 +77,7 @@ func generateTypes(_ print: Writer, wsdl: WSDL, binding: Binding, registry: inou
         throw GeneratorError.missingTypes(missingTypes)
     }
 
+    // todo: use customTypes instead
     for complex in wsdl.schemas.flatMap({ $0.complexes }) {
         generateComplex(print, complex: complex, registry: registry)
     }
@@ -97,11 +110,22 @@ func generateComplex(_ print: Writer, complex: Complex, registry: Registry) {
         for (element, _) in elements {
             print("        self.\(element.name.localName) = \(element.name.localName)")
         }
+        print("}")
         print("")
 
         print("    init(deserialize node: XMLElement) throws {")
         for (element, type) in elements {
-            print("     self.\(element.name.localName) = \(type.signature)(deserialize: )")
+            let name = element.name.localName
+
+            switch type {
+            case let .base(type):
+                print("        guard let \(name) = node.elements(forLocalName: \"\(name)\", uri: \"\(element.name.uri)\").first else {")
+                print("            throw XMLDeserializationError.noElementWithName(\"\(name)\")")
+                print("        }")
+                print("        self.\(name) = try \(type)(deserialize: \(name))")
+            default: abort()
+            }
+
         }
         print("    }")
         print("}")
@@ -159,7 +183,7 @@ func generateClientForBinding(_ print: Writer, wsdl: WSDL, service: Service, bin
         let inputType = registry[input.element]!
         let outputType = registry[output.element]!
 
-        print("    func \(operation.name.localName)(input: \(inputType.signature), output: -> (\(outputType.signature)) -> ()){")
+        print("    func \(operation.name.localName)(input: \(inputType.signature), output: (\(outputType.signature)) -> ()){")
         print("    }")
     }
 

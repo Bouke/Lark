@@ -66,10 +66,11 @@ public struct Complex {
 
 extension Complex {
     init(deserialize node: XMLElement) throws {
-        guard let localName = node.attribute(forLocalName: "name", uri: nil)?.stringValue else {
-            throw ParseError.noName
+        if let localName = node.attribute(forLocalName: "name", uri: nil)?.stringValue {
+            name = try QualifiedName(uri: targetNamespace(ofNode: node), localName: localName)
+        } else {
+            name = nil
         }
-        name = try QualifiedName(uri: targetNamespace(ofNode: node), localName: localName)
 
         if let sequence = node.elements(forLocalName: "sequence", uri: NS_XSD).first {
             content = .sequence(try Content.Sequence(deserialize: sequence))
