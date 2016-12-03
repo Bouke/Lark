@@ -17,7 +17,7 @@ public func generate(_ print: Writer, wsdl: WSDL, service: Service, binding: Bin
     print("")
 
     try generateTypes(print, wsdl: wsdl, binding: binding, registry: &registry)
-    try generateClientForBinding(print, wsdl: wsdl, service: service, binding: binding, registry: registry)
+    try generateClient(print, wsdl: wsdl, service: service, binding: binding, registry: registry)
 }
 
 func generateTypes(_ print: Writer, wsdl: WSDL, binding: Binding, registry: inout Registry) throws {
@@ -100,23 +100,25 @@ func generateComplex(_ print: Writer, complex: Complex, registry: Registry) {
 
         print("struct \(name.localName): XMLSerializable, XMLDeserializable {")
 
+        // properties
         for (element, type) in elements {
             print("    let \(element.name.localName): \(type.signature)")
         }
         print("")
 
+        // initialization
         let initSignature = elements.map({ "\($0.name.localName): \($1.signature)" }).joined(separator: ", ")
         print("    init(\(initSignature)) {")
         for (element, _) in elements {
             print("        self.\(element.name.localName) = \(element.name.localName)")
         }
-        print("}")
+        print("    }")
         print("")
 
+        // deserialization
         print("    init(deserialize node: XMLElement) throws {")
         for (element, type) in elements {
             let name = element.name.localName
-
             switch type {
             case let .base(type):
                 print("        guard let \(name) = node.elements(forLocalName: \"\(name)\", uri: \"\(element.name.uri)\").first else {")
@@ -125,9 +127,25 @@ func generateComplex(_ print: Writer, complex: Complex, registry: Registry) {
                 print("        self.\(name) = try \(type)(deserialize: \(name))")
             default: abort()
             }
-
         }
         print("    }")
+        print("")
+
+        // serialization
+        print("    func serialize(_ element: XMLElement) throws {")
+        for (element, type) in elements {
+            let name = element.name.localName
+            switch type {
+            case .base:
+                print("        let \(name) = try element.createElement(localName: \"\(name)\", uri: \"\(element.name.uri)\")")
+                print("        try self.\(name).serialize(\(name))")
+                print("        element.addChild(\(name))")
+            default: abort()
+            }
+        }
+        print("    }")
+
+
         print("}")
         break
     }
@@ -170,10 +188,10 @@ func typeForElement(_ element: Element, registry: [QualifiedName: Type]) -> Type
     }
 }
 
-func generateClientForBinding(_ print: Writer, wsdl: WSDL, service: Service, binding: Binding, registry: Registry) {
+func generateClient(_ print: Writer, wsdl: WSDL, service: Service, binding: Binding, registry: Registry) {
     let port = wsdl.portTypes.first(where: { $0.name == binding.type })!
 
-    print("class \(service.name.localName)Client {")
+    print("class \(service.name.localName)Client: Client {")
 
     for operation in binding.operations {
         let operation2 = port.operations.first(where: { $0.name == operation.name })!
