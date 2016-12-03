@@ -119,6 +119,8 @@ func generateComplex(_ print: Writer, complex: Complex, registry: Registry) {
                 print("            throw XMLDeserializationError.noElementWithName(\"\(name)\")")
                 print("        }")
                 print("        self.\(name) = try \(type)(deserialize: \(name))")
+//            case let .optional(type):
+//                print("        self.\(name) = try node.elements(forLocalName: \"\(name)\", uri: \"\(element.name.uri)\").first.flatMap(\(type).init(deserialize:))")
             default:
                 fatalError("\(type) not implemented")
             }
@@ -174,11 +176,12 @@ func typeForElement(_ element: Element, registry: [QualifiedName: Type]) -> Type
     switch element.content {
     case let .base(base):
         guard let type = registry[base] else { abort() }
-        switch (element.occurs?.startIndex, element.occurs?.endIndex) {
-        case (0?, 1?): return .optional(type)
-        case (nil, nil), (1?, 1?): return type
-        default: return .array(type)
-        }
+        return type
+//        switch (element.occurs?.startIndex, element.occurs?.endIndex) {
+//        case (0?, 1?): return .optional(type)
+//        case (nil, nil), (1?, 1?): return type
+//        default: return .array(type)
+//        }
     case .complex:
         abort()
     }
@@ -201,8 +204,9 @@ func generateClient(_ print: Writer, wsdl: WSDL, service: Service, binding: Bind
         print("        let parameter = XMLElement(prefix: \"ns0\", localName: \"\(input.name.localName)\", uri: \"\(input.name.uri)\")")
         print("        parameter.addNamespace(XMLNode.namespace(withName: \"ns0\", stringValue: \"\(input.name.uri)\") as! XMLNode)")
         print("        try input.serialize(parameter)")
-        print("        try send(parameters: [parameter], output: {")
-        print("            output(\(outputType.signature)(deserialize: $0))")
+        print("        try send(parameters: [parameter], output: { body in")
+        print("            let element = body.elements(forLocalName: \"\(output.name.localName)\", uri: \"\(output.name.uri)\").first!")
+        print("            output(try \(outputType.signature)(deserialize: element))")
         print("        })")
         print("    }")
         print("")
