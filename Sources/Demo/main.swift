@@ -1,7 +1,9 @@
+import Evergreen
 import Foundation
 import LarkRuntime
 
 let client = HelloWorldServiceClient()
+getLogger("Lark").logLevel = .warning
 
 // this currently isn't the expected return type array
 try client.say_hello(input: say_hello(name: "Bouke", times: 2)) {

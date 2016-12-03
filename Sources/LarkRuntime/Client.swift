@@ -1,10 +1,10 @@
 import Foundation
 import Evergreen
 
-var logger = Evergreen.getLogger("Lark")
 
 open class Client {
-    var channel = Channel()
+    open let channel = Channel()
+    open let logger = Evergreen.getLogger("Lark.Client")
 
     public init() {
     }
@@ -18,8 +18,9 @@ open class Client {
     }
 }
 
-public class Channel {
-    let transport = HTTPTransport()
+open class Channel {
+    open let transport = HTTPTransport()
+    open let logger = Evergreen.getLogger("Lark.Channel")
 
     func send(request: Envelope, response callback: (Envelope) throws -> ()) rethrows {
         let serialized = request.serialize()
@@ -33,7 +34,9 @@ public class Channel {
     }
 }
 
-class HTTPTransport {
+open class HTTPTransport {
+    open let logger = Evergreen.getLogger("Lark.HTTPTransport")
+
     func send(message: Data, response callback: (Data) throws -> ()) rethrows {
         var request = URLRequest(url: URL(string: "http://127.0.0.1:8000")!)
         request.httpBody = message
