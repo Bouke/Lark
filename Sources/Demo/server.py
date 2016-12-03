@@ -11,7 +11,7 @@ from spyne.protocol.soap import Soap11
 from spyne.server.wsgi import WsgiApplication
 
 class HelloWorldService(ServiceBase):
-    @rpc(Unicode, Integer, _returns=Iterable(Unicode))
+    @rpc(Unicode, Integer, _returns=Iterable(Unicode, min_occurs=1))
     def say_hello(ctx, name, times):
         for i in range(times):
             yield 'Hello, %s' % name
