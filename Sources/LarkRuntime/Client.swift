@@ -1,4 +1,7 @@
 import Foundation
+import Evergreen
+
+var logger = Evergreen.getLogger("Lark")
 
 open class Client {
     var channel = Channel()
@@ -11,7 +14,6 @@ open class Client {
         for parameter in parameters {
             request.body.addChild(parameter)
         }
-        print(request.serialize())
         try channel.send(request: request, response: { try output($0.body) })
     }
 }
@@ -20,14 +22,14 @@ public class Channel {
     let transport = HTTPTransport()
 
     func send(request: Envelope, response callback: (Envelope) throws -> ()) rethrows {
-        try transport.send(message: request.serialize().xmlData) { response in
+        let serialized = request.serialize()
+        logger.debug("Sending request: \(serialized.xmlString)")
+        try transport.send(message: serialized.xmlData) { response in
             let doc = try! XMLDocument(data: response, options: 0)
+            logger.debug("Received response: \(doc.xmlString)")
             let envelope = Envelope(deserialize: doc)
             try callback(envelope)
         }
-
-//        let doc = try! XMLDocument(xmlString: "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><soap11env:Envelope xmlns:soap11env=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:tns=\"tns\"><soap11env:Body><tns:echoResponse><tns:echoResult><tns:string>Hello</tns:string><tns:string>Hello</tns:string><tns:string>Hello</tns:string><tns:string>Hello</tns:string><tns:string>Hello</tns:string></tns:echoResult></tns:echoResponse></soap11env:Body></soap11env:Envelope>", options: 0)
-//        try callback(Envelope(deserialize: doc))
     }
 }
 
