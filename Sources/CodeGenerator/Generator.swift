@@ -13,7 +13,7 @@ public func generate(_ print: Writer, wsdl: WSDL, service: Service, binding: Bin
     var registry: Registry = baseTypes
 
     print("import Foundation")
-    print("import SOAP")
+    print("import LarkRuntime")
     print("")
 
     try generateTypes(print, wsdl: wsdl, binding: binding, registry: &registry)

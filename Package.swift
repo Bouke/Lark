@@ -1,9 +1,10 @@
 import PackageDescription
 
 let package = Package(
-    name: "SOAP",
+    name: "Lark",
     targets: [
         Target(name: "CodeGenerator", dependencies: ["SchemaParser"]),
         Target(name: "soap-generate-code", dependencies: ["SchemaParser", "CodeGenerator"]),
+        Target(name: "Demo", dependencies: ["LarkRuntime"]),
     ]
 )

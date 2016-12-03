@@ -5,15 +5,13 @@ public protocol XMLDeserializable {
 }
 
 public protocol XMLSerializable {
-    func serialize(_ element: XMLElement)
+    func serialize(_ element: XMLElement) throws
 }
 
 public enum XMLDeserializationError: Error {
     case noElementWithName(String)
 }
 
-extension String: XMLDeserializable {
-    public init(deserialize node: XMLElement) throws {
-        self.init(node.stringValue ?? "")!
-    }
+public enum XMLSerializationError: Error {
+    case invalidNamespace(String)
 }
