@@ -1,7 +1,7 @@
 import Foundation
 
 extension XMLElement {
-    public convenience init(prefix: String, localName: String, uri: String) throws {
+    public convenience init(prefix: String, localName: String, uri: String) {
         if prefix != "" {
             self.init(name: "\(prefix):\(localName)", uri: uri)
         } else {

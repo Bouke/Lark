@@ -92,12 +92,6 @@ func generateComplex(_ print: Writer, complex: Complex, registry: Registry) {
             (element: $0, type: typeForElement($0, registry: registry))
         }
 
-        if(elements.count == 1) {
-            print("typealias \(name.localName) = \(elements[0].type.signature)")
-            print("")
-            return
-        }
-
         print("struct \(name.localName): XMLSerializable, XMLDeserializable {")
 
         // properties
@@ -125,7 +119,8 @@ func generateComplex(_ print: Writer, complex: Complex, registry: Registry) {
                 print("            throw XMLDeserializationError.noElementWithName(\"\(name)\")")
                 print("        }")
                 print("        self.\(name) = try \(type)(deserialize: \(name))")
-            default: abort()
+            default:
+                fatalError("\(type) not implemented")
             }
         }
         print("    }")
@@ -140,7 +135,8 @@ func generateComplex(_ print: Writer, complex: Complex, registry: Registry) {
                 print("        let \(name) = try element.createElement(localName: \"\(name)\", uri: \"\(element.name.uri)\")")
                 print("        try self.\(name).serialize(\(name))")
                 print("        element.addChild(\(name))")
-            default: abort()
+            default:
+                fatalError("\(type) not implemented")
             }
         }
         print("    }")
@@ -201,8 +197,15 @@ func generateClient(_ print: Writer, wsdl: WSDL, service: Service, binding: Bind
         let inputType = registry[input.element]!
         let outputType = registry[output.element]!
 
-        print("    func \(operation.name.localName)(input: \(inputType.signature), output: (\(outputType.signature)) -> ()){")
+        print("    func \(operation.name.localName)(input: \(inputType.signature), output: (\(outputType.signature)) -> ()) throws {")
+        print("        let parameter = XMLElement(prefix: \"ns0\", localName: \"\(input.name.localName)\", uri: \"\(input.name.uri)\")")
+        print("        parameter.addNamespace(XMLNode.namespace(withName: \"ns0\", stringValue: \"\(input.name.uri)\") as! XMLNode)")
+        print("        try input.serialize(parameter)")
+        print("        try send(parameters: [parameter], output: {")
+        print("            output(\(outputType.signature)(deserialize: $0))")
+        print("        })")
         print("    }")
+        print("")
     }
 
     print("}")
