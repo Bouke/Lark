@@ -58,6 +58,7 @@ public struct Complex {
             public let elements: [Element]
         }
         case sequence(Sequence)
+        case empty
     }
 
     public let name: QualifiedName?
@@ -72,10 +73,20 @@ extension Complex {
             name = nil
         }
 
-        if let sequence = node.elements(forLocalName: "sequence", uri: NS_XSD).first {
+        if let _ = node.elements(forLocalName: "simpleContent", uri: NS_XSD).first {
+            throw ParseError.unsupportedType
+        } else if let _ = node.elements(forLocalName: "complexContent", uri: NS_XSD).first {
+            throw ParseError.unsupportedType
+        } else if let _ = node.elements(forLocalName: "group", uri: NS_XSD).first {
+            throw ParseError.unsupportedType
+        } else if let _ = node.elements(forLocalName: "all", uri: NS_XSD).first {
+            throw ParseError.unsupportedType
+        } else if let _ = node.elements(forLocalName: "choice", uri: NS_XSD).first {
+            throw ParseError.unsupportedType
+        } else if let sequence = node.elements(forLocalName: "sequence", uri: NS_XSD).first {
             content = .sequence(try Content.Sequence(deserialize: sequence))
         } else {
-            throw ParseError.unsupportedType
+            content = .empty
         }
     }
 }

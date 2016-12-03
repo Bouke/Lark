@@ -55,6 +55,7 @@ func generateTypes(_ print: Writer, wsdl: WSDL, binding: Binding, registry: inou
             for element in sequence.elements {
                 register(element: element)
             }
+        case .empty: break
         }
     }
 
@@ -86,13 +87,13 @@ func generateTypes(_ print: Writer, wsdl: WSDL, binding: Binding, registry: inou
 func generateComplex(_ print: Writer, complex: Complex, registry: Registry) {
     guard let name = complex.name else { abort() }
 
+    print("struct \(name.localName): XMLSerializable, XMLDeserializable {")
+
     switch complex.content {
     case let .sequence(sequence):
         let elements = sequence.elements.map {
             (element: $0, type: typeForElement($0, registry: registry))
         }
-
-        print("struct \(name.localName): XMLSerializable, XMLDeserializable {")
 
         // properties
         for (element, type) in elements {
@@ -143,11 +144,15 @@ func generateComplex(_ print: Writer, complex: Complex, registry: Registry) {
         }
         print("    }")
 
-
-        print("}")
         break
+
+    case .empty:
+        print("    init() { }")
+        print("    init(deserialize node: XMLElement) throws { }")
+        print("    func serialize(_ element: XMLElement) throws { }")
     }
 
+    print("}")
     print("")
 }
 

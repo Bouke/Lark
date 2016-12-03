@@ -32,6 +32,8 @@ extension Complex.Content: Equatable {
     public static func ==(lhs: Complex.Content, rhs: Complex.Content) -> Bool {
         switch (lhs, rhs) {
         case let (.sequence(lhs), .sequence(rhs)): return lhs == rhs
+        case (.empty, .empty): return true
+        default: return false
         }
     }
 }
