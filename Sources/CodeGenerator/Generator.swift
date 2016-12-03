@@ -122,17 +122,17 @@ func generateComplex(_ print: Writer, complex: Complex, registry: Registry) {
                 print("        }")
                 print("        self.\(name) = try \(type)(deserialize: \(name))")
 
-//            case let .optional(type):
-//                print("        self.\(name) = try node.elements(forLocalName: \"\(name)\", uri: \"\(element.name.uri)\").first.flatMap(\(type).init(deserialize:))")
-
-            case let .array(arrayElement):
-                guard case let .base(arrayType) = arrayElement else {
-                    fatalError("Array element type \(arrayElement) not supported")
+            case let .optional(type):
+                guard case let .base(wrappedType) = type else {
+                    fatalError("Optional wrapped type \(type) not supported")
                 }
-                print("        self.\(name) = try node.elements(forLocalName: \"\(name)\", uri: \"\(element.name.uri)\").map(\(arrayType).init(deserialize:))")
+                print("        self.\(name) = try node.elements(forLocalName: \"\(name)\", uri: \"\(element.name.uri)\").first.flatMap(\(wrappedType).init(deserialize:))")
 
-            default:
-                fatalError("\(type) not implemented")
+            case let .array(type):
+                guard case let .base(elementType) = type else {
+                    fatalError("Array element type \(type) not supported")
+                }
+                print("        self.\(name) = try node.elements(forLocalName: \"\(name)\", uri: \"\(element.name.uri)\").map(\(elementType).init(deserialize:))")
             }
         }
         print("    }")
@@ -144,19 +144,23 @@ func generateComplex(_ print: Writer, complex: Complex, registry: Registry) {
             let name = element.name.localName
             switch type {
             case .base:
-                print("        let \(name) = try element.createElement(localName: \"\(name)\", uri: \"\(element.name.uri)\")")
-                print("        try self.\(name).serialize(\(name))")
-                print("        element.addChild(\(name))")
+                print("        let \(name)Node = try element.createElement(localName: \"\(name)\", uri: \"\(element.name.uri)\")")
+                print("        try self.\(name).serialize(\(name)Node)")
+                print("        element.addChild(\(name)Node)")
+
+            case .optional:
+                print("        if let \(name) = self.\(name) {")
+                print("            let \(name)Node = try element.createElement(localName: \"\(name)\", uri: \"\(element.name.uri)\")")
+                print("            try \(name).serialize(\(name)Node)")
+                print("            element.addChild(\(name)Node)")
+                print("        }")
 
             case .array:
                 print("        for item in self.\(name) {")
-                print("            let \(name) = try element.createElement(localName: \"\(name)\", uri: \"\(element.name.uri)\")")
-                print("            try item.serialize(\(name))")
-                print("            element.addChild(\(name))")
+                print("            let \(name)Node = try element.createElement(localName: \"\(name)\", uri: \"\(element.name.uri)\")")
+                print("            try item.serialize(\(name)Node)")
+                print("            element.addChild(\(name)Node)")
                 print("        }")
-
-            default:
-                fatalError("\(type) not implemented")
             }
         }
         print("    }")
@@ -197,7 +201,7 @@ func typeForElement(_ element: Element, registry: [QualifiedName: Type]) -> Type
     case let .base(base):
         guard let type = registry[base] else { abort() }
         switch (element.occurs?.startIndex, element.occurs?.endIndex) {
-//        case (0?, 1?): return .optional(type)
+        case (0?, 1?): return .optional(type)
         case (nil, nil), (1?, 1?): return type
         default: return .array(type)
         }
