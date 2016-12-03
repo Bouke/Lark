@@ -21,11 +21,15 @@ Limitations
 The current implementation has a lot of limitations. If the library doesn't work for you, rather submit pull requests than issues. The short term wish list is:
 
 * [x] Support simple complexTypes sequence
+* [ ] Support for XSD schema imports
 * [ ] Support all XSD base types: decimal, dateTime etc
 * [ ] Support other content types: simpleTypes, choice etc
-* [ ] Support Array and Optional types
+* [x] Support Array types
+* [ ] Support Optional types
 * [ ] Support multiple ports / bindings
 * [ ] Stricter SOAP 1.0 / 1.1 support
+* [ ] Collapse messages into client methods (instead of passing request objects, pass request's parameters into client method)
+* [ ] Handle sequence correctly (elements are strictly ordered)
 
 Why is it called Lark?
 ----------------------
