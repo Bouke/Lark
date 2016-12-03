@@ -26,117 +26,117 @@ struct stringArray: XMLSerializable, XMLDeserializable {
 
     func serialize(_ element: XMLElement) throws {
         for item in self.string {
-            let string = try element.createElement(localName: "string", uri: "spyne.examples.hello")
-            try item.serialize(string)
-            element.addChild(string)
+            let stringNode = try element.createElement(localName: "string", uri: "spyne.examples.hello")
+            try item.serialize(stringNode)
+            element.addChild(stringNode)
         }
     }
 }
 
 struct say_hello: XMLSerializable, XMLDeserializable {
-    let name: [String]
-    let times: [Int]
+    let name: String?
+    let times: Int?
 
-    init(name: [String], times: [Int]) {
+    init(name: String?, times: Int?) {
         self.name = name
         self.times = times
     }
 
     init(deserialize node: XMLElement) throws {
-        self.name = try node.elements(forLocalName: "name", uri: "spyne.examples.hello").map(String.init(deserialize:))
-        self.times = try node.elements(forLocalName: "times", uri: "spyne.examples.hello").map(Int.init(deserialize:))
+        self.name = try node.elements(forLocalName: "name", uri: "spyne.examples.hello").first.flatMap(String.init(deserialize:))
+        self.times = try node.elements(forLocalName: "times", uri: "spyne.examples.hello").first.flatMap(Int.init(deserialize:))
     }
 
     func serialize(_ element: XMLElement) throws {
-        for item in self.name {
-            let name = try element.createElement(localName: "name", uri: "spyne.examples.hello")
-            try item.serialize(name)
-            element.addChild(name)
+        if let name = self.name {
+            let nameNode = try element.createElement(localName: "name", uri: "spyne.examples.hello")
+            try name.serialize(nameNode)
+            element.addChild(nameNode)
         }
-        for item in self.times {
-            let times = try element.createElement(localName: "times", uri: "spyne.examples.hello")
-            try item.serialize(times)
-            element.addChild(times)
+        if let times = self.times {
+            let timesNode = try element.createElement(localName: "times", uri: "spyne.examples.hello")
+            try times.serialize(timesNode)
+            element.addChild(timesNode)
         }
     }
 }
 
 struct say_maybe_nothing: XMLSerializable, XMLDeserializable {
-    let name: [String]
+    let name: String?
 
-    init(name: [String]) {
+    init(name: String?) {
         self.name = name
     }
 
     init(deserialize node: XMLElement) throws {
-        self.name = try node.elements(forLocalName: "name", uri: "spyne.examples.hello").map(String.init(deserialize:))
+        self.name = try node.elements(forLocalName: "name", uri: "spyne.examples.hello").first.flatMap(String.init(deserialize:))
     }
 
     func serialize(_ element: XMLElement) throws {
-        for item in self.name {
-            let name = try element.createElement(localName: "name", uri: "spyne.examples.hello")
-            try item.serialize(name)
-            element.addChild(name)
+        if let name = self.name {
+            let nameNode = try element.createElement(localName: "name", uri: "spyne.examples.hello")
+            try name.serialize(nameNode)
+            element.addChild(nameNode)
         }
     }
 }
 
 struct say_maybe_nothingResponse: XMLSerializable, XMLDeserializable {
-    let say_maybe_nothingResult: [String]
+    let say_maybe_nothingResult: String?
 
-    init(say_maybe_nothingResult: [String]) {
+    init(say_maybe_nothingResult: String?) {
         self.say_maybe_nothingResult = say_maybe_nothingResult
     }
 
     init(deserialize node: XMLElement) throws {
-        self.say_maybe_nothingResult = try node.elements(forLocalName: "say_maybe_nothingResult", uri: "spyne.examples.hello").map(String.init(deserialize:))
+        self.say_maybe_nothingResult = try node.elements(forLocalName: "say_maybe_nothingResult", uri: "spyne.examples.hello").first.flatMap(String.init(deserialize:))
     }
 
     func serialize(_ element: XMLElement) throws {
-        for item in self.say_maybe_nothingResult {
-            let say_maybe_nothingResult = try element.createElement(localName: "say_maybe_nothingResult", uri: "spyne.examples.hello")
-            try item.serialize(say_maybe_nothingResult)
-            element.addChild(say_maybe_nothingResult)
+        if let say_maybe_nothingResult = self.say_maybe_nothingResult {
+            let say_maybe_nothingResultNode = try element.createElement(localName: "say_maybe_nothingResult", uri: "spyne.examples.hello")
+            try say_maybe_nothingResult.serialize(say_maybe_nothingResultNode)
+            element.addChild(say_maybe_nothingResultNode)
         }
     }
 }
 
 struct say_maybe_something: XMLSerializable, XMLDeserializable {
-    let name: [String]
+    let name: String?
 
-    init(name: [String]) {
+    init(name: String?) {
         self.name = name
     }
 
     init(deserialize node: XMLElement) throws {
-        self.name = try node.elements(forLocalName: "name", uri: "spyne.examples.hello").map(String.init(deserialize:))
+        self.name = try node.elements(forLocalName: "name", uri: "spyne.examples.hello").first.flatMap(String.init(deserialize:))
     }
 
     func serialize(_ element: XMLElement) throws {
-        for item in self.name {
-            let name = try element.createElement(localName: "name", uri: "spyne.examples.hello")
-            try item.serialize(name)
-            element.addChild(name)
+        if let name = self.name {
+            let nameNode = try element.createElement(localName: "name", uri: "spyne.examples.hello")
+            try name.serialize(nameNode)
+            element.addChild(nameNode)
         }
     }
 }
 
 struct say_maybe_somethingResponse: XMLSerializable, XMLDeserializable {
-    let say_maybe_somethingResult: [String]
+    let say_maybe_somethingResult: String?
 
-    init(say_maybe_somethingResult: [String]) {
+    init(say_maybe_somethingResult: String?) {
         self.say_maybe_somethingResult = say_maybe_somethingResult
     }
 
     init(deserialize node: XMLElement) throws {
-        self.say_maybe_somethingResult = try node.elements(forLocalName: "say_maybe_somethingResult", uri: "spyne.examples.hello").map(String.init(deserialize:))
+        self.say_maybe_somethingResult = try node.elements(forLocalName: "say_maybe_somethingResult", uri: "spyne.examples.hello").first.flatMap(String.init(deserialize:))
     }
 
     func serialize(_ element: XMLElement) throws {
-        for item in self.say_maybe_somethingResult {
-            let say_maybe_somethingResult = try element.createElement(localName: "say_maybe_somethingResult", uri: "spyne.examples.hello")
-            try item.serialize(say_maybe_somethingResult)
-            element.addChild(say_maybe_somethingResult)
+        if let say_maybe_somethingResult = self.say_maybe_somethingResult {
+            let say_maybe_somethingResultNode = try element.createElement(localName: "say_maybe_somethingResult", uri: "spyne.examples.hello")
+            try say_maybe_somethingResult.serialize(say_maybe_somethingResultNode)
+            element.addChild(say_maybe_somethingResultNode)
         }
     }
 }
@@ -156,9 +156,9 @@ struct say_helloResponse: XMLSerializable, XMLDeserializable {
     }
 
     func serialize(_ element: XMLElement) throws {
-        let say_helloResult = try element.createElement(localName: "say_helloResult", uri: "spyne.examples.hello")
-        try self.say_helloResult.serialize(say_helloResult)
-        element.addChild(say_helloResult)
+        let say_helloResultNode = try element.createElement(localName: "say_helloResult", uri: "spyne.examples.hello")
+        try self.say_helloResult.serialize(say_helloResultNode)
+        element.addChild(say_helloResultNode)
     }
 }
 
