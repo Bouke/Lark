@@ -109,8 +109,10 @@ public protocol NamedType {
 }
 
 public struct SimpleType: NamedType {
-    public enum Content {
+    public indirect enum Content {
         case restriction(base: QualifiedName)
+        case list(itemType: QualifiedName)
+        case listWrapped(SimpleType)
 //        case list
 //        case union
     }
@@ -128,6 +130,14 @@ extension SimpleType {
                 throw ParseError.unsupportedType
             }
             content = try .restriction(base: QualifiedName(type: base, inTree: node))
+        } else if let list = node.elements(forLocalName: "list", uri: NS_XSD).first {
+            if let itemType = list.attribute(forLocalName: "itemType", uri: nil)?.stringValue {
+                content = try .list(itemType: QualifiedName(type: itemType, inTree: list))
+            } else if let simpleType = list.elements(forLocalName: "simpleType", uri: NS_XSD).first {
+                content = try .listWrapped(SimpleType(deserialize: simpleType))
+            } else {
+                throw ParseError.unsupportedType
+            }
         } else {
             throw ParseError.unsupportedType
         }
