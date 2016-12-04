@@ -17,7 +17,7 @@ public func generate(_ print: Writer, wsdl: WSDL, service: Service, binding: Bin
     print("")
 
     try generateTypes(print, wsdl: wsdl, binding: binding, registry: &registry)
-    try generateClient(print, wsdl: wsdl, service: service, binding: binding, registry: registry)
+    generateClient(print, wsdl: wsdl, service: service, binding: binding, registry: registry)
 }
 
 func generateTypes(_ print: Writer, wsdl: WSDL, binding: Binding, registry: inout Registry) throws {
@@ -217,6 +217,8 @@ func generateClient(_ print: Writer, wsdl: WSDL, service: Service, binding: Bind
 
     for operation in binding.operations {
         let operation2 = port.operations.first(where: { $0.name == operation.name })!
+
+        // No need to guard these calls, the types have been verified before.
         let input = wsdl.messages.first(where: { $0.name == operation2.inputMessage })!.parts.first!
         let output = wsdl.messages.first(where: { $0.name == operation2.outputMessage })!.parts.first!
 
