@@ -1,6 +1,7 @@
 import Foundation
 
 public struct XSD {
+    public let imports: [Import]
     public let elements: [Element]
     public let complexes: [Complex]
 
@@ -11,6 +12,28 @@ public struct XSD {
         complexes = try node
             .elements(forLocalName: "complexType", uri: NS_XSD)
             .map(Complex.init(deserialize:))
+        imports = try node
+            .elements(forLocalName: "import", uri: NS_XSD)
+            .map(Import.init(deserialize:))
+    }
+}
+
+public struct Import {
+    public let namespace: String
+    public let schemaLocation: String
+}
+
+extension Import {
+    init(deserialize node: XMLElement) throws {
+        guard let namespace = node.attribute(forLocalName: "namespace", uri: nil)?.stringValue else {
+            throw ParseError.unsupportedImport
+        }
+        self.namespace = namespace
+
+        guard let schemaLocation = node.attribute(forLocalName: "schemaLocation", uri: nil)?.stringValue else {
+            throw ParseError.unsupportedImport
+        }
+        self.schemaLocation = schemaLocation
     }
 }
 

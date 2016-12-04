@@ -107,14 +107,22 @@ public struct WSDL {
     public let services: [Service]
 
     init(deserialize element: XMLElement) throws {
-        guard let schema = element
+        guard let schemaNode = element
             .elements(forLocalName: "types", uri: NS_WSDL)
             .first?
             .elements(forLocalName: "schema", uri: NS_XSD)
             .first else {
                 throw ParseError.schemaNotFound
         }
-        schemas = [try parse(XSD: schema)]
+        let schema = try XSD(deserialize: schemaNode)
+
+        // resolve imports
+        schemas = try [schema] + schema.imports.map {
+            let url = URL(string: $0.schemaLocation)!
+            let doc = try XMLDocument(contentsOf: url, options: 0)
+            return try XSD(deserialize: doc.rootElement()!)
+        }
+
         messages = try element.elements(forLocalName: "message", uri: NS_WSDL).map(Message.init(deserialize:))
         portTypes = try element.elements(forLocalName: "portType", uri: NS_WSDL).map(PortType.init(deserialize:))
         bindings = try element.elements(forLocalName: "binding", uri: NS_WSDL).map(Binding.init(deserialize:))

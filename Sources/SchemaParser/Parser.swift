@@ -7,6 +7,7 @@ public enum ParseError: Error {
     case unsupportedPortAddress
     case invalidNamespacePrefix
     case noTargetNamespace
+    case unsupportedImport
 }
 
 public func parse(WSDL root: XMLElement) throws -> WSDL {

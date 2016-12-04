@@ -21,7 +21,7 @@ Limitations
 The current implementation has a lot of limitations. If the library doesn't work for you, rather submit pull requests than issues. The short term wish list is:
 
 * [x] Support simple `complexTypes`: `sequence`
-* [ ] Support for `XSD` schema imports
+* [x] Support for `XSD` schema imports
 * [ ] Support all `XSD` base types: `decimal`, `dateTime` etc
 * [ ] Support other content types: `simpleTypes`, `choice` etc
 * [x] Support `Array` and `Optional` types
