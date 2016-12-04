@@ -117,11 +117,13 @@ public struct WSDL {
         let schema = try XSD(deserialize: schemaNode)
 
         // resolve imports
-        schemas = try [schema] + schema.imports.map {
-            let url = URL(string: $0.schemaLocation)!
-            let doc = try XMLDocument(contentsOf: url, options: 0)
-            return try XSD(deserialize: doc.rootElement()!)
-        }
+        schemas = try [schema] + schema.nodes
+            .flatMap { node -> Import? in if case let .import(`import`) = node { return `import` } else { return nil } }
+            .map {
+                let url = URL(string: $0.schemaLocation)!
+                let doc = try XMLDocument(contentsOf: url, options: 0)
+                return try XSD(deserialize: doc.rootElement()!)
+            }
 
         messages = try element.elements(forLocalName: "message", uri: NS_WSDL).map(Message.init(deserialize:))
         portTypes = try element.elements(forLocalName: "portType", uri: NS_WSDL).map(PortType.init(deserialize:))

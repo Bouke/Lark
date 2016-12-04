@@ -22,14 +22,14 @@ extension Element.Content: Equatable {
     }
 }
 
-extension Complex: Equatable {
-    public static func ==(lhs: Complex, rhs: Complex) -> Bool {
+extension ComplexType: Equatable {
+    public static func ==(lhs: ComplexType, rhs: ComplexType) -> Bool {
         return lhs.name == rhs.name && lhs.content == rhs.content
     }
 }
 
-extension Complex.Content: Equatable {
-    public static func ==(lhs: Complex.Content, rhs: Complex.Content) -> Bool {
+extension ComplexType.Content: Equatable {
+    public static func ==(lhs: ComplexType.Content, rhs: ComplexType.Content) -> Bool {
         switch (lhs, rhs) {
         case let (.sequence(lhs), .sequence(rhs)): return lhs == rhs
         case (.empty, .empty): return true
@@ -38,8 +38,8 @@ extension Complex.Content: Equatable {
     }
 }
 
-extension Complex.Content.Sequence: Equatable {
-    public static func ==(lhs: Complex.Content.Sequence, rhs: Complex.Content.Sequence) -> Bool {
+extension ComplexType.Content.Sequence: Equatable {
+    public static func ==(lhs: ComplexType.Content.Sequence, rhs: ComplexType.Content.Sequence) -> Bool {
         return lhs.elements == rhs.elements
     }
 }

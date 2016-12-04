@@ -5,6 +5,7 @@ public enum ParseError: Error {
     case unsupportedType
     case schemaNotFound
     case unsupportedPortAddress
+    case invalidNamespace
     case invalidNamespacePrefix
     case noTargetNamespace
     case unsupportedImport

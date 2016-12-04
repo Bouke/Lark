@@ -16,6 +16,13 @@ public struct QualifiedName {
         uri = namespace.stringValue!
         localName = XMLElement(name: type).localName!
     }
+
+    public static func name(ofElement node: XMLElement) throws -> QualifiedName? {
+        guard let localName = node.attribute(forLocalName: "name", uri: nil)?.stringValue else {
+            return nil
+        }
+        return try QualifiedName(uri: targetNamespace(ofNode: node), localName: localName)
+    }
 }
 
 extension QualifiedName: CustomDebugStringConvertible {

@@ -46,7 +46,7 @@ func generateTypes(_ print: Writer, wsdl: WSDL, binding: Binding, registry: inou
         }
     }
 
-    func register(complex: Complex) {
+    func register(complex: ComplexType) {
         if let name = complex.name {
             registry[name] = .base(name.localName)
         }
@@ -84,7 +84,7 @@ func generateTypes(_ print: Writer, wsdl: WSDL, binding: Binding, registry: inou
     }
 }
 
-func generateComplex(_ print: Writer, complex: Complex, registry: Registry) {
+func generateComplex(_ print: Writer, complex: ComplexType, registry: Registry) {
     guard let name = complex.name else { abort() }
 
     print("struct \(name.localName): XMLSerializable, XMLDeserializable {")

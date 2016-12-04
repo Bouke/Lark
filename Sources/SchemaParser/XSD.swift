@@ -1,20 +1,49 @@
 import Foundation
 
 public struct XSD {
-    public let imports: [Import]
+    public enum Node {
+//        case include
+        case `import`(Import)
+//        case redefine
+//        case annotation
+        case simpleType(SimpleType)
+        case complexType(ComplexType)
+//        case group
+//        case attributeGroup
+        case element(Element)
+//        case attribute
+//        case notation
+    }
+
+    public let nodes: [Node]
+
+    // todo: elements / complexes need to go
     public let elements: [Element]
-    public let complexes: [Complex]
+    public let complexes: [ComplexType]
 
     init(deserialize node: XMLElement) throws {
+        nodes = try (node.children ?? [])
+            .flatMap { $0 as? XMLElement }
+            .flatMap { child -> Node? in
+                guard child.uri == NS_XSD else {
+                    throw ParseError.invalidNamespace
+                }
+
+                switch child.localName {
+                case "import"?: return try .import(Import(deserialize: child))
+                case "simpleType"?: return try .simpleType(SimpleType(deserialize: child))
+                case "complexType"?: return try .complexType(ComplexType(deserialize: child))
+                case "element"?: return try .element(Element(deserialize: child))
+                default: return nil
+                }
+            }
+
         elements = try node
             .elements(forLocalName: "element", uri: NS_XSD)
             .map(Element.init(deserialize:))
         complexes = try node
             .elements(forLocalName: "complexType", uri: NS_XSD)
-            .map(Complex.init(deserialize:))
-        imports = try node
-            .elements(forLocalName: "import", uri: NS_XSD)
-            .map(Import.init(deserialize:))
+            .map(ComplexType.init(deserialize:))
     }
 }
 
@@ -40,7 +69,7 @@ extension Import {
 public struct Element {
     public enum Content {
         case base(QualifiedName)
-        case complex(Complex)
+        case complex(ComplexType)
 
         public var name: QualifiedName? {
             switch self {
@@ -65,7 +94,7 @@ extension Element {
         if let base = node.attribute(forLocalName: "type", uri: nil)?.stringValue {
             content = .base(try QualifiedName(type: base, inTree: node))
         } else if let complex = node.elements(forLocalName: "complexType", uri: NS_XSD).first {
-            content = .complex(try Complex(deserialize: complex))
+            content = .complex(try ComplexType(deserialize: complex))
         } else {
             throw ParseError.unsupportedType
         }
@@ -75,7 +104,38 @@ extension Element {
     }
 }
 
-public struct Complex {
+public protocol NamedType {
+    var name: QualifiedName? { get }
+}
+
+public struct SimpleType: NamedType {
+    public enum Content {
+        case restriction(base: QualifiedName)
+//        case list
+//        case union
+    }
+
+    public let name: QualifiedName?
+    public let content: Content
+}
+
+extension SimpleType {
+    init(deserialize node: XMLElement) throws {
+        name = try .name(ofElement: node)
+
+        if let restriction = node.elements(forLocalName: "restriction", uri: NS_XSD).first {
+            guard let base = restriction.attribute(forLocalName: "base", uri: nil)?.stringValue else {
+                throw ParseError.unsupportedType
+            }
+            content = try .restriction(base: QualifiedName(type: base, inTree: node))
+        } else {
+            throw ParseError.unsupportedType
+        }
+    }
+}
+
+
+public struct ComplexType: NamedType {
     public enum Content {
         public struct Sequence {
             public let elements: [Element]
@@ -88,13 +148,9 @@ public struct Complex {
     public let content: Content
 }
 
-extension Complex {
+extension ComplexType {
     init(deserialize node: XMLElement) throws {
-        if let localName = node.attribute(forLocalName: "name", uri: nil)?.stringValue {
-            name = try QualifiedName(uri: targetNamespace(ofNode: node), localName: localName)
-        } else {
-            name = nil
-        }
+        name = try .name(ofElement: node)
 
         if let _ = node.elements(forLocalName: "simpleContent", uri: NS_XSD).first {
             throw ParseError.unsupportedType
@@ -114,7 +170,7 @@ extension Complex {
     }
 }
 
-extension Complex.Content.Sequence {
+extension ComplexType.Content.Sequence {
     init(deserialize node: XMLElement) throws {
         elements = try node.elements(forLocalName: "element", uri: NS_XSD).map(Element.init(deserialize:))
     }
