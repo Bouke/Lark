@@ -100,31 +100,32 @@ public struct Service {
 }
 
 public struct WSDL {
-    public let schemas: [XSD]
+    public let schema: [XSD.Node]
     public let messages: [Message]
     public let portTypes: [PortType]
     public let bindings: [Binding]
     public let services: [Service]
 
     init(deserialize element: XMLElement) throws {
-        guard let schemaNode = element
-            .elements(forLocalName: "types", uri: NS_WSDL)
-            .first?
-            .elements(forLocalName: "schema", uri: NS_XSD)
-            .first else {
-                throw ParseError.schemaNotFound
-        }
-        let schema = try XSD(deserialize: schemaNode)
-
-        // resolve imports
-        schemas = try [schema] + schema.nodes
-            .flatMap { node -> Import? in if case let .import(`import`) = node { return `import` } else { return nil } }
-            .map {
-                let url = URL(string: $0.schemaLocation)!
-                let doc = try XMLDocument(contentsOf: url, options: 0)
-                return try XSD(deserialize: doc.rootElement()!)
+        var schema: [XSD.Node] = []
+        if let typesNode = element.elements(forLocalName: "types", uri: NS_WSDL).first {
+            var remainingSchemaNodes = typesNode.elements(forLocalName: "schema", uri: NS_XSD)
+            var seenSchemaURLs = Set<URL>()
+            while let schemaNode = remainingSchemaNodes.popLast() {
+                for node in try XSD(deserialize: schemaNode).nodes {
+                    switch node {
+                    case let .import(`import`):
+                        let url = URL(string: `import`.schemaLocation)!
+                        if seenSchemaURLs.insert(url).inserted {
+                            remainingSchemaNodes.append(try XMLDocument(contentsOf: url, options: 0).rootElement()!)
+                        }
+                    default:
+                        schema.append(node)
+                    }
+                }
             }
-
+        }
+        self.schema = schema
         messages = try element.elements(forLocalName: "message", uri: NS_WSDL).map(Message.init(deserialize:))
         portTypes = try element.elements(forLocalName: "portType", uri: NS_WSDL).map(PortType.init(deserialize:))
         bindings = try element.elements(forLocalName: "binding", uri: NS_WSDL).map(Binding.init(deserialize:))

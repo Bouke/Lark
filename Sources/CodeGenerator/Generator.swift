@@ -35,20 +35,24 @@ func generateTypes(_ print: Writer, wsdl: WSDL, binding: Binding, registry: inou
         .map { $0.element }
     )
     var usedTypes = operationTypes
+    var availableTypes = Set<QualifiedName>()
 
-    func register(element: Element) {
-        switch element.content {
-        case let .base(base):
-            usedTypes.insert(base)
-        case let .complex(complex):
-            registry[element.name] = .base(element.name.localName)
-            register(complex: complex)
+    func register(simple: SimpleType) {
+        if let name = simple.name {
+            registry[name] = .base(name.localName)
+            availableTypes.insert(name)
+        }
+        switch simple.content {
+        case let .restriction(base: base): usedTypes.insert(base)
+        case let .list(itemType: itemType): usedTypes.insert(itemType)
+        case let .listWrapped(wrapped): register(simple: wrapped)
         }
     }
 
     func register(complex: ComplexType) {
         if let name = complex.name {
             registry[name] = .base(name.localName)
+            availableTypes.insert(name)
         }
         switch complex.content {
         case let .sequence(sequence):
@@ -59,18 +63,25 @@ func generateTypes(_ print: Writer, wsdl: WSDL, binding: Binding, registry: inou
         }
     }
 
-    wsdl.schemas.flatMap({ $0.elements }).forEach(register(element:))
-    wsdl.schemas.flatMap({ $0.complexes }).forEach(register(complex:))
+    func register(element: Element) {
+        switch element.content {
+        case let .base(base):
+            usedTypes.insert(base)
+        case let .complex(complex):
+            registry[element.name] = .base(element.name.localName)
+            register(complex: complex)
+            availableTypes.insert(element.name)
+        }
+    }
 
-    let availableTypes = Set<QualifiedName>()
-        .union(wsdl.schemas
-            .flatMap({ $0.complexes })
-            .flatMap { $0.name })
-        .union(wsdl.schemas
-            .flatMap({ $0.elements })
-            .flatMap { element -> QualifiedName? in
-                if case .complex = element.content { return element.name } else { return nil }
-            })
+    for node in wsdl.schema {
+        switch node {
+        case .import: break
+        case let .simpleType(simple): register(simple: simple)
+        case let .complexType(complex): register(complex: complex)
+        case let .element(element): register(element: element)
+        }
+    }
 
     let customTypes = usedTypes.subtracting(baseTypes.keys)
     let missingTypes = customTypes.subtracting(availableTypes)
@@ -78,9 +89,20 @@ func generateTypes(_ print: Writer, wsdl: WSDL, binding: Binding, registry: inou
         throw GeneratorError.missingTypes(missingTypes)
     }
 
-    // todo: use customTypes instead
-    for complex in wsdl.schemas.flatMap({ $0.complexes }) {
-        generateComplex(print, complex: complex, registry: registry)
+    for node in wsdl.schema {
+        switch node {
+        case let .simpleType(simple) where usedTypes.contains(simple.name!):
+            fatalError("not implemented")
+        case let .complexType(complex) where usedTypes.contains(complex.name!):
+            generateComplex(print, complex: complex, registry: registry)
+        case let .element(element) where usedTypes.contains(element.name):
+            switch element.content {
+            case .base: break
+            case let .complex(complex): fatalError("not implemented")
+            }
+        default:
+            break
+        }
     }
 }
 
