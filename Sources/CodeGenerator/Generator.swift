@@ -98,7 +98,7 @@ func generateTypes(_ print: Writer, wsdl: WSDL, binding: Binding, registry: inou
         case let .element(element) where usedTypes.contains(element.name):
             switch element.content {
             case .base: break
-            case let .complex(complex): fatalError("not implemented")
+            case .complex: fatalError("not implemented")
             }
         default:
             break
@@ -212,10 +212,28 @@ public indirect enum Type {
 }
 
 let baseTypes: [QualifiedName: Type] = [
+    QualifiedName(uri: NS_XSD, localName: "byte"): .base("Int8"),
+    QualifiedName(uri: NS_XSD, localName: "unsignedByte"): .base("UInt8"),
+    QualifiedName(uri: NS_XSD, localName: "short"): .base("Int16"),
+    QualifiedName(uri: NS_XSD, localName: "unsignedShort"): .base("UInt16"),
+    QualifiedName(uri: NS_XSD, localName: "int"): .base("Int32"),
+    QualifiedName(uri: NS_XSD, localName: "unsignedInt"): .base("UInt32"),
+    QualifiedName(uri: NS_XSD, localName: "long"): .base("Int64"),
     QualifiedName(uri: NS_XSD, localName: "unsignedLong"): .base("UInt64"),
-    QualifiedName(uri: NS_XSD, localName: "integer"): .base("Int"),
-    QualifiedName(uri: NS_XSD, localName: "string"): .base("String"),
+
+    QualifiedName(uri: NS_XSD, localName: "boolean"): .base("Bool"),
+    QualifiedName(uri: NS_XSD, localName: "float"): .base("Float"),
+    QualifiedName(uri: NS_XSD, localName: "double"): .base("Double"),
+    QualifiedName(uri: NS_XSD, localName: "integer"): .base("Int"), // undefined size
     QualifiedName(uri: NS_XSD, localName: "decimal"): .base("Decimal"),
+
+    QualifiedName(uri: NS_XSD, localName: "string"): .base("String"),
+    QualifiedName(uri: NS_XSD, localName: "anyURI"): .base("URL"),
+    QualifiedName(uri: NS_XSD, localName: "base64Binary"): .base("Data"),
+    QualifiedName(uri: NS_XSD, localName: "dateTime"): .base("Date"),
+    QualifiedName(uri: NS_XSD, localName: "duration"): .base("TimeInterval"),
+    QualifiedName(uri: NS_XSD, localName: "QName"): .base("QualifiedName"),
+    QualifiedName(uri: NS_XSD, localName: "anyType"): .base("Any"),
 ]
 
 func typeForElement(_ element: Element, registry: [QualifiedName: Type]) -> Type {
