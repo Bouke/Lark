@@ -8,4 +8,4 @@ let wsdlXml = try XMLDocument(contentsOf: wsdlURL, options: 0)
 let wsdl = try parse(WSDL: wsdlXml.rootElement()!)
 //print(wsdl)
 
-try generate({ print("\($0)") }, wsdl: wsdl, service: wsdl.services.first!, binding: wsdl.bindings.first!)
+try print(generate(wsdl: wsdl, service: wsdl.services.first!, binding: wsdl.bindings.first!))

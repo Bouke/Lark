@@ -2,7 +2,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 
 from spyne import Application, rpc, ServiceBase, \
-    Integer, Unicode
+    Integer, Unicode, Enum
 
 from spyne import Iterable
 
@@ -19,6 +19,10 @@ class HelloWorldService(ServiceBase):
     @rpc()
     def say_nothing(ctx):
         return
+
+    @rpc(Enum("morning", "afternoon", "evening", "night", type_name="PartOfDay"), _returns=Unicode)
+    def greet(ctx, partOfDay):
+        return 'Good %s' % partOfDay
 
     @rpc(Unicode, _returns=Unicode(min_occurs=0))
     def say_maybe_nothing(ctx, name):

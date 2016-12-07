@@ -17,10 +17,6 @@ public struct XSD {
 
     public let nodes: [Node]
 
-    // todo: elements / complexes need to go
-    public let elements: [Element]
-    public let complexes: [ComplexType]
-
     init(deserialize node: XMLElement) throws {
         nodes = try (node.children ?? [])
             .flatMap { $0 as? XMLElement }
@@ -37,13 +33,6 @@ public struct XSD {
                 default: return nil
                 }
             }
-
-        elements = try node
-            .elements(forLocalName: "element", uri: NS_XSD)
-            .map(Element.init(deserialize:))
-        complexes = try node
-            .elements(forLocalName: "complexType", uri: NS_XSD)
-            .map(ComplexType.init(deserialize:))
     }
 }
 
@@ -109,8 +98,26 @@ public protocol NamedType {
 }
 
 public struct SimpleType: NamedType {
+    public struct Restriction {
+        public let base: QualifiedName
+        public let enumeration: [String]
+
+        init(deserialize node: XMLElement) throws {
+            guard let base = node.attribute(forLocalName: "base", uri: nil)?.stringValue else {
+                throw ParseError.unsupportedType
+            }
+            self.base = try QualifiedName(type: base, inTree: node)
+            self.enumeration = try node.elements(forLocalName: "enumeration", uri: NS_XSD).map {
+                guard let value = $0.attribute(forLocalName: "value", uri: nil)?.stringValue else {
+                    throw ParseError.unsupportedType
+                }
+                return value
+            }
+        }
+    }
+
     public indirect enum Content {
-        case restriction(base: QualifiedName)
+        case restriction(Restriction)
         case list(itemType: QualifiedName)
         case listWrapped(SimpleType)
 //        case list
@@ -126,10 +133,7 @@ extension SimpleType {
         name = try .name(ofElement: node)
 
         if let restriction = node.elements(forLocalName: "restriction", uri: NS_XSD).first {
-            guard let base = restriction.attribute(forLocalName: "base", uri: nil)?.stringValue else {
-                throw ParseError.unsupportedType
-            }
-            content = try .restriction(base: QualifiedName(type: base, inTree: node))
+            content = try .restriction(Restriction(deserialize: restriction))
         } else if let list = node.elements(forLocalName: "list", uri: NS_XSD).first {
             if let itemType = list.attribute(forLocalName: "itemType", uri: nil)?.stringValue {
                 content = try .list(itemType: QualifiedName(type: itemType, inTree: list))

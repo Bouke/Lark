@@ -6,7 +6,15 @@ public let NS_SOAP = "http://schemas.xmlsoap.org/wsdl/soap/"
 public let NS_SOAP12 = "http://schemas.xmlsoap.org/wsdl/soap12/"
 
 extension Sequence {
-    func dictionary<Key, Value>(key: (Iterator.Element) -> Key, value: (Iterator.Element) -> Value) -> [Key: Value] where Key: Hashable {
+    public func dictionary<Key, Value>(_ pair: (Iterator.Element) -> (Key, Value)) -> [Key: Value] where Key: Hashable {
+        var result: [Key: Value] = [:]
+        for (key, value) in self.map(pair) {
+            result[key] = value
+        }
+        return result
+    }
+
+    public func dictionary<Key, Value>(key: (Iterator.Element) -> Key, value: (Iterator.Element) -> Value) -> [Key: Value] where Key: Hashable {
         var result: [Key: Value] = [:]
         for element in self {
             result[key(element)] = value(element)
