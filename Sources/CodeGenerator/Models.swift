@@ -1,8 +1,10 @@
 import Foundation
 import SchemaParser
 
+typealias Identifier = String
+
 indirect enum SwiftType {
-    case identifier(String)
+    case identifier(Identifier)
     case optional(SwiftType)
     case array(SwiftType)
 
@@ -20,61 +22,40 @@ struct SwiftProperty {
     let type: SwiftType
 }
 
-protocol SwiftMetaType {
+protocol SwiftMetaType: LinesOfCodeConvertible {
     var name: String { get }
-
-    func toSwiftCode(indentedBy indentChars: String) -> SwiftCode
-    func toLinesOfCode(at indentation: Indentation) -> [LineOfCode]
 }
 
+
 struct SwiftClass: SwiftMetaType {
-    let name: String
+    let name: Identifier
+    let superName: String?
+    let protocols: [String]
     let properties: [SwiftProperty]
     let nestedTypes: [SwiftMetaType]
+    let members: [LinesOfCodeConvertible]
+
+    public init(name: String, superName: String? = nil, protocols: [String] = [], properties: [SwiftProperty] = [], nestedTypes: [SwiftMetaType] = [], members: [LinesOfCodeConvertible] = []) {
+        self.name = name
+        self.superName = superName
+        self.protocols = protocols
+        self.properties = properties
+        self.nestedTypes = nestedTypes
+        self.members = members
+    }
 }
 
 struct SwiftEnum: SwiftMetaType {
-    let name: String
+    let name: Identifier
     let rawType: SwiftType
     let cases: [String: String]
 }
 
-extension ComplexType {
-    func toSwift() -> SwiftClass {
-        let name = self.name!.localName.toSwiftTypeName()
-        var properties = [SwiftProperty]()
-        var nestedTypes = [SwiftMetaType]()
-        switch self.content {
-        case let .sequence(sequence):
-            for element in sequence.elements {
-                switch element.content {
-                case let .base(base):
-                    properties.append(SwiftProperty(name: element.name.localName.toSwiftPropertyName(), type: .init(type: base.localName.toSwiftTypeName(), element: element)))
-                case let .complex(complex):
-                    nestedTypes.append(complex.toSwift())
-                    properties.append(SwiftProperty(name: element.name.localName.toSwiftPropertyName(), type: .init(type: "UNNAMED", element: element)))
-                }
-            }
-        case .empty: break
-        }
-
-        return SwiftClass(name: name, properties: properties, nestedTypes: nestedTypes)
-    }
+struct SwiftInitializer {
+    let parameters: [SwiftParameter]
 }
 
-extension SimpleType {
-    func toSwift(name: String? = nil) -> SwiftMetaType {
-        print(self)
-        switch self.content {
-        case .list: fatalError()
-        case let .listWrapped(wrapped):
-
-            print(wrapped)
-            fatalError()
-        case let .restriction(restriction):
-            let name = name ?? self.name!.localName.toSwiftTypeName()
-            let cases = restriction.enumeration.dictionary({ ($0.toSwiftPropertyName(), $0) })
-            return SwiftEnum(name: name, rawType: .identifier("String"), cases: cases)
-        }
-    }
+struct SwiftParameter {
+    let name: String
+    let type: SwiftType
 }

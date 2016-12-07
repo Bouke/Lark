@@ -11,9 +11,10 @@ struct Graph {
     let nodes: Set<Node>
     typealias Edge = (from: Node, to: Node)
     let edges: [Edge]
+    let baseNodes = baseTypes.keys.map { Node.type($0) }
 
     init(wsdl: WSDL) throws {
-        var nodes = Set<Node>(baseTypes.keys.map { .type($0) })
+        var nodes = Set<Node>()
         var edges: [(from: Node, to: Node)] = []
 
         nodes.formUnion(wsdl.portTypes
@@ -61,6 +62,10 @@ struct Graph {
         try verify()
     }
 
+    var connectedNodes: Set<Node> {
+        return nodes.intersection(edges.flatMap { [$0.from, $0.to] })
+    }
+
     func edges(to: Node) -> Set<Node> {
         return Set(edges.filter { $0.to == to }.map { $0.from })
     }
@@ -93,7 +98,6 @@ struct Graph {
         }
     }
 
-
     func verify() throws {
         var missing = Set<Node>()
         for edge in edges {
@@ -104,7 +108,7 @@ struct Graph {
                 missing.insert(edge.to)
             }
         }
-        if missing.count > 0 {
+        if missing.subtracting(baseNodes).count > 0 {
             throw GeneratorError.missingNodes(missing)
         }
     }

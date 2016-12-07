@@ -1,6 +1,22 @@
+protocol SwiftCodeConvertible {
+    func toSwiftCode(indentedBy indentChars: String) -> SwiftCode
+}
+
+protocol LinesOfCodeConvertible: SwiftCodeConvertible {
+    func toLinesOfCode(at indentation: Indentation) -> [LineOfCode]
+}
+
+extension LinesOfCodeConvertible {
+    func toSwiftCode(indentedBy indentChars: String = "    ") -> SwiftCode {
+        let indentation = Indentation(chars: indentChars)
+        let linesOfCode = toLinesOfCode(at: indentation)
+        return linesOfCode.joined(separator: "\n")
+    }
+}
+
 struct SwiftCodeGenerator {
     /// This method is used when only one Swift file is being generated.
-    static func generateCode(for types: [SwiftMetaType]) -> String {
+    static func generateCode(for types: [SwiftCodeConvertible]) -> String {
         return [
             preamble,
             "//",
@@ -61,12 +77,6 @@ struct Indentation {
 
 
 extension SwiftClass {
-    func toSwiftCode(indentedBy indentChars: String = "    ") -> SwiftCode {
-        let indentation = Indentation(chars: indentChars)
-        let linesOfCode = toLinesOfCode(at: indentation)
-        return linesOfCode.joined(separator: "\n")
-    }
-
     func toLinesOfCode(at indentation: Indentation) -> [LineOfCode] {
         return indentation.apply(
             toFirstLine: "class \(name) {",
@@ -76,9 +86,11 @@ extension SwiftClass {
 
     private func linesOfCodeForMembers(at indentation: Indentation) -> [LineOfCode] {
         return linesOfCodeForProperties(at: indentation)
+            + ["init() { abort() }"].map(indentation.apply(toLineOfCode:))
 //            + initializer.toLinesOfCode(at: indentation)
 //            + failableInitializer.toLinesOfCode(at: indentation)
             + linesOfCodeForNestedClasses(at: indentation)
+            + members.flatMap { $0.toLinesOfCode(at: indentation) }
     }
 
     private func linesOfCodeForProperties(at indentation: Indentation) -> [LineOfCode] {
@@ -105,7 +117,7 @@ extension SwiftClass {
     }
 }
 
-fileprivate extension SwiftType {
+extension SwiftType {
     func toSwiftCode() -> SwiftCode {
         switch self {
         case let .identifier(name): return name
@@ -115,19 +127,19 @@ fileprivate extension SwiftType {
     }
 }
 
-fileprivate extension SwiftProperty {
+extension SwiftProperty {
     func toLineOfCode() -> LineOfCode {
         return "let \(name): \(type.toSwiftCode())"
     }
 }
 
-extension SwiftEnum {
-    func toSwiftCode(indentedBy indentChars: String = "    ") -> SwiftCode {
-        let indentation = Indentation(chars: indentChars)
-        let linesOfCode = toLinesOfCode(at: indentation)
-        return linesOfCode.joined(separator: "\n")
+extension SwiftParameter {
+    func toSwiftCode() -> SwiftCode {
+        return "\(name): \(type.toSwiftCode())"
     }
+}
 
+extension SwiftEnum {
     func toLinesOfCode(at indentation: Indentation) -> [LineOfCode] {
         return indentation.apply(
             toFirstLine: "enum \(name): \(rawType.toSwiftCode()) {",
@@ -137,7 +149,7 @@ extension SwiftEnum {
 
     private func linesOfCodeForCases(at indentation: Indentation) -> [LineOfCode] {
         return sortedCases.map { (name, rawValue) in
-            return indentation.apply(toLineOfCode: "case \(name): \"\(rawValue)\"")
+            return indentation.apply(toLineOfCode: "case \(name) = \"\(rawValue)\"")
         }
     }
 
