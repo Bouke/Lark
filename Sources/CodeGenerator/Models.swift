@@ -3,6 +3,8 @@ import SchemaParser
 
 typealias Identifier = String
 
+// MARK:- SOAP Types
+
 indirect enum SwiftType {
     case identifier(Identifier)
     case optional(SwiftType)
@@ -27,7 +29,7 @@ protocol SwiftMetaType: LinesOfCodeConvertible {
 }
 
 
-struct SwiftClass: SwiftMetaType {
+struct SwiftTypeClass: SwiftMetaType {
     let name: Identifier
     let superName: String?
     let protocols: [String]
@@ -51,11 +53,27 @@ struct SwiftEnum: SwiftMetaType {
     let cases: [String: String]
 }
 
-struct SwiftInitializer {
-    let parameters: [SwiftParameter]
-}
-
 struct SwiftParameter {
     let name: String
     let type: SwiftType
+}
+
+
+// MARK:- SOAP Client
+
+struct SwiftClientClass: SwiftMetaType {
+    let name: Identifier
+    let methods: [ServiceMethod]
+}
+
+struct ServiceMethod {
+    let name: String
+    let input: Message
+    let output: Message
+
+    init(operation: PortType.Operation, input: Message, output: Message) {
+        name = operation.name.localName.toSwiftPropertyName()
+        self.input = input
+        self.output = output
+    }
 }

@@ -1,3 +1,5 @@
+import SchemaParser
+
 protocol SwiftCodeConvertible {
     func toSwiftCode(indentedBy indentChars: String) -> SwiftCode
 }
@@ -16,7 +18,7 @@ extension LinesOfCodeConvertible {
 
 struct SwiftCodeGenerator {
     /// This method is used when only one Swift file is being generated.
-    static func generateCode(for types: [SwiftCodeConvertible]) -> String {
+    static func generateCode(for types: [SwiftCodeConvertible], _ clients: [SwiftClientClass]) -> String {
         return [
             preamble,
             "//",
@@ -27,7 +29,7 @@ struct SwiftCodeGenerator {
             "//",
             "// MARK: - SOAP Client",
             "//",
-            // todo
+            clients.map { $0.toSwiftCode(indentedBy: "    ") }.joined(separator: "\n\n"),
             ""].joined(separator: "\n")
     }
 
@@ -76,7 +78,9 @@ struct Indentation {
 }
 
 
-extension SwiftClass {
+// MARK:- SOAP Types
+
+extension SwiftTypeClass {
     func toLinesOfCode(at indentation: Indentation) -> [LineOfCode] {
         return indentation.apply(
             toFirstLine: "class \(name) {",
@@ -155,6 +159,71 @@ extension SwiftEnum {
 
     private var sortedCases: [(String, String)] {
         return cases.sorted(by: { return $0.key < $1.key } )
+    }
+}
+
+// MARK:- SOAP Client
+
+extension SwiftClientClass {
+    func toLinesOfCode(at indentation: Indentation) -> [LineOfCode] {
+        return indentation.apply(
+            toFirstLine: "class \(name) {",
+            nestedLines:      linesOfCodeForMembers(at:),
+            andLastLine: "}")
+    }
+
+    private func linesOfCodeForMembers(at indentation: Indentation) -> [LineOfCode] {
+        return ["init() {", "}"].map(indentation.apply(toLineOfCode:))
+            + methods.flatMap { $0.toLinesOfCode(at: indentation) }
+    }
+}
+
+extension ServiceMethod: LinesOfCodeConvertible {
+    func toLinesOfCode(at indentation: Indentation) -> [LineOfCode] {
+        return indentation.apply(
+            toFirstLine: "func \(name)(\(parameterList)) throws {",
+            nestedLines:     linesOfCodeForBody(at:),
+            andLastLine: "}")
+    }
+
+    private func linesOfCodeForBody(at indentation: Indentation) -> [LineOfCode] {
+        return [indentation.apply(toLineOfCode: "let parameters = [XMLElement]()")]
+            + linesOfCodeForParameters(at: indentation)
+            + linesOfCodeForSend(at: indentation)
+    }
+
+    private func linesOfCodeForParameters(at indentation: Indentation) -> [LineOfCode] {
+        return input.parts.flatMap(linesOfCodeForParameter(part:)).map(indentation.apply(toLineOfCode:))
+    }
+
+    private func linesOfCodeForParameter(part: Message.Part) -> [LineOfCode] {
+        let property = part.name.localName.toSwiftPropertyName()
+        return [
+            "let \(property)Node = XMLElement(prefix: \"ns0\", localName: \"\(part.name.localName)\", uri: \"\(part.name.uri)\")",
+            "\(property)Node.addNamespace(XMLNode.namespace(withName: \"ns0\", stringValue: \"\(part.name.uri)\") as! XMLNode)",
+            "try \(property).serialize(\(property)Node)",
+            "parameters.append(\(property)Node)"
+        ]
+    }
+
+    func linesOfCodeForSend(at indentation: Indentation) -> [LineOfCode] {
+        return [
+            "try send(parameters: parameters, output: { body in",
+            "    let outputNode = body.elements(forLocalName: \"\(output.name.localName)\", uri: \"\(output.name.uri)\").first!",
+            "    output(try \(output.name.localName.toSwiftTypeName())(deserialize: outputNode))",
+            "})"
+            ].map(indentation.apply(toLineOfCode:))
+    }
+
+    private var parameterList: String {
+        return parameters.map { $0.toSwiftCode() }.joined(separator: ", ")
+    }
+
+    var parameters: [SwiftParameter] {
+        return input.parts.map {
+            SwiftParameter(name: $0.name.localName.toSwiftPropertyName(), type: .identifier($0.element.localName.toSwiftTypeName()))
+            }
+            + [SwiftParameter(name: "output", type: .identifier("() -> ()"))]
     }
 }
 

@@ -1,7 +1,9 @@
 import SchemaParser
 
+// MARK:- SOAP Types
+
 extension ComplexType {
-    func toSwift(name: String? = nil, mapping: TypeMapping) -> SwiftClass {
+    func toSwift(name: String? = nil, mapping: TypeMapping) -> SwiftTypeClass {
         let name = name ?? mapping[self.name!]!
         var properties = [SwiftProperty]()
         var nestedTypes = [SwiftMetaType]()
@@ -19,7 +21,7 @@ extension ComplexType {
         case .empty: break
         }
 
-        return SwiftClass(name: name, properties: properties, nestedTypes: nestedTypes)
+        return SwiftTypeClass(name: name, properties: properties, nestedTypes: nestedTypes)
     }
 }
 
@@ -29,7 +31,7 @@ extension SimpleType {
         switch self.content {
         case .list: fatalError()
         case let .listWrapped(wrapped):
-            return SwiftClass(
+            return SwiftTypeClass(
                 name: "ArrayOf\(name)",
                 properties: [SwiftProperty(name: "items", type: .array(.identifier(name)))],
                 nestedTypes: [wrapped.toSwift(name: name, mapping: mapping)]
@@ -42,11 +44,33 @@ extension SimpleType {
 }
 
 extension Element {
-    func toSwift(mapping: TypeMapping) -> SwiftClass {
+    func toSwift(mapping: TypeMapping) -> SwiftTypeClass {
         let name = mapping[self.name]!
         switch self.content {
-        case let .base(base): return SwiftClass(name: name, superName: mapping[base]!, protocols: [], properties: [], nestedTypes: [], members: [])
+        case let .base(base): return SwiftTypeClass(name: name, superName: mapping[base]!, protocols: [], properties: [], nestedTypes: [], members: [])
         case let .complex(complex): return complex.toSwift(name: name, mapping: mapping)
         }
+    }
+}
+
+
+// MARK:- SOAP Client
+
+extension Service {
+    func toSwift(wsdl: WSDL) -> SwiftClientClass {
+        // SOAP 1.1 port
+        let port = ports.first { if case .soap = $0.address { return true } else { return false } }!
+        let binding = wsdl.bindings.first { $0.name == port.binding }!
+        let portType = wsdl.portTypes.first { $0.name == binding.type }!
+
+        let name = "\(self.name.localName.toSwiftTypeName())Client"
+
+        let methods = portType.operations.map { operation -> ServiceMethod in
+            let input = wsdl.messages.first { $0.name == operation.inputMessage }!
+            let output = wsdl.messages.first { $0.name == operation.outputMessage }!
+            return ServiceMethod(operation: operation, input: input, output: output)
+        }
+
+        return SwiftClientClass(name: name, methods: methods)
     }
 }

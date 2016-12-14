@@ -13,8 +13,6 @@ public func generate(wsdl: WSDL, service: Service, binding: Binding) throws -> S
     let graph = try Graph(wsdl: wsdl)
     let connectedNodes = graph.connectedNodes
 
-    var types = [SwiftMetaType]()
-
     var mapping = baseTypes
     for case let .type(node) in connectedNodes {
         mapping[node] = node.localName.toSwiftTypeName()
@@ -27,6 +25,7 @@ public func generate(wsdl: WSDL, service: Service, binding: Binding) throws -> S
         mapping[element.name] = element.name.localName.toSwiftTypeName()
     }
 
+    var types = [SwiftMetaType]()
     for case let .complexType(complex) in wsdl.schema {
         types.append(complex.toSwift(mapping: mapping))
     }
@@ -37,11 +36,12 @@ public func generate(wsdl: WSDL, service: Service, binding: Binding) throws -> S
         types.append(element.toSwift(mapping: mapping))
     }
 
+    var clients = [SwiftClientClass]()
     for service in wsdl.services {
-        types.append(service.toSwift(wsdl: wsdl))
+        clients.append(service.toSwift(wsdl: wsdl))
     }
 
-    return SwiftCodeGenerator.generateCode(for: types)
+    return SwiftCodeGenerator.generateCode(for: types, clients)
 }
 
 // todo: cleanup
