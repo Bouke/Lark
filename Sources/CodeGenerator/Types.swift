@@ -1,8 +1,8 @@
 import SchemaParser
 
 extension ComplexType {
-    func toSwift(mapping: TypeMapping) -> SwiftClass {
-        let name = mapping[self.name!]!
+    func toSwift(name: String? = nil, mapping: TypeMapping) -> SwiftClass {
+        let name = name ?? mapping[self.name!]!
         var properties = [SwiftProperty]()
         var nestedTypes = [SwiftMetaType]()
         switch self.content {
@@ -37,6 +37,16 @@ extension SimpleType {
         case let .restriction(restriction):
             let cases = restriction.enumeration.dictionary({ ($0.toSwiftPropertyName(), $0) })
             return SwiftEnum(name: name, rawType: .identifier("String"), cases: cases)
+        }
+    }
+}
+
+extension Element {
+    func toSwift(mapping: TypeMapping) -> SwiftClass {
+        let name = mapping[self.name]!
+        switch self.content {
+        case let .base(base): return SwiftClass(name: name, superName: mapping[base]!, protocols: [], properties: [], nestedTypes: [], members: [])
+        case let .complex(complex): return complex.toSwift(name: name, mapping: mapping)
         }
     }
 }

@@ -13,6 +13,11 @@ public struct XSD {
         case element(Element)
 //        case attribute
 //        case notation
+
+        public var element: Element? {
+            guard case let .element(element) = self else { return nil }
+            return element
+        }
     }
 
     public let nodes: [Node]

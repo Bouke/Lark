@@ -11,12 +11,20 @@ typealias TypeMapping = [QualifiedName: Identifier]
 
 public func generate(wsdl: WSDL, service: Service, binding: Binding) throws -> String {
     let graph = try Graph(wsdl: wsdl)
+    let connectedNodes = graph.connectedNodes
 
     var types = [SwiftMetaType]()
 
     var mapping = baseTypes
-    for case let .type(node) in graph.connectedNodes {
+    for case let .type(node) in connectedNodes {
         mapping[node] = node.localName.toSwiftTypeName()
+    }
+
+    let complexElements = wsdl.schema
+        .flatMap { $0.element }
+        .filter { if case .complex(_) = $0.content, connectedNodes.contains(.element($0.name)) { return true } else { return false } }
+    for element in complexElements {
+        mapping[element.name] = element.name.localName.toSwiftTypeName()
     }
 
     for case let .complexType(complex) in wsdl.schema {
@@ -24,6 +32,9 @@ public func generate(wsdl: WSDL, service: Service, binding: Binding) throws -> S
     }
     for case let .simpleType(simple) in wsdl.schema {
         types.append(simple.toSwift(mapping: mapping))
+    }
+    for case let .element(element) in wsdl.schema {
+        types.append(element.toSwift(mapping: mapping))
     }
 
     for service in wsdl.services {
