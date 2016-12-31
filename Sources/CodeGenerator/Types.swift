@@ -4,7 +4,7 @@ import SchemaParser
 
 extension ComplexType {
     func toSwift(name: String? = nil, mapping: TypeMapping) -> SwiftTypeClass {
-        let name = name ?? mapping[self.name!]!
+        let name = name ?? mapping[.type(self.name!)]!
         var properties = [SwiftProperty]()
         var nestedTypes = [SwiftMetaType]()
         switch self.content {
@@ -12,7 +12,7 @@ extension ComplexType {
             for element in sequence.elements {
                 switch element.content {
                 case let .base(base):
-                    properties.append(SwiftProperty(name: element.name.localName.toSwiftPropertyName(), type: .init(type: mapping[base]!, element: element)))
+                    properties.append(SwiftProperty(name: element.name.localName.toSwiftPropertyName(), type: .init(type: mapping[.type(base)]!, element: element)))
                 case let .complex(complex):
                     nestedTypes.append(complex.toSwift(mapping: mapping))
                     properties.append(SwiftProperty(name: element.name.localName.toSwiftPropertyName(), type: .init(type: "UNNAMED", element: element)))
@@ -27,7 +27,7 @@ extension ComplexType {
 
 extension SimpleType {
     func toSwift(name: String? = nil, mapping: TypeMapping) -> SwiftMetaType {
-        let name = name ?? mapping[self.name!]!
+        let name = name ?? mapping[.type(self.name!)]!
         switch self.content {
         case .list: fatalError()
         case let .listWrapped(wrapped):
@@ -45,9 +45,9 @@ extension SimpleType {
 
 extension Element {
     func toSwift(mapping: TypeMapping) -> SwiftTypeClass {
-        let name = mapping[self.name]!
+        let name = mapping[.element(self.name)]!
         switch self.content {
-        case let .base(base): return SwiftTypeClass(name: name, superName: mapping[base]!, protocols: [], properties: [], nestedTypes: [], members: [])
+        case let .base(base): return SwiftTypeClass(name: name, superName: mapping[.type(base)]!)
         case let .complex(complex): return complex.toSwift(name: name, mapping: mapping)
         }
     }

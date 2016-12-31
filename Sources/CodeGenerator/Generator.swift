@@ -7,33 +7,58 @@ enum GeneratorError: Error {
     case missingNodes(Set<Graph.Node>)
 }
 
-typealias TypeMapping = [QualifiedName: Identifier]
+typealias TypeMapping = [Graph.Node: Identifier]
 
 public func generate(wsdl: WSDL, service: Service, binding: Binding) throws -> String {
     let graph = try Graph(wsdl: wsdl)
     let connectedNodes = graph.connectedNodes
 
-    var mapping = baseTypes
-    for case let .type(node) in connectedNodes {
-        mapping[node] = node.localName.toSwiftTypeName()
+    var mapping = baseTypes.dictionary { (Graph.Node.type($0), $1) }
+    var scope = Set<String>()
+
+    // Assign unique names to all nodes. First, elements are given a name. Sometimes 
+    // elements have the same name as their implementing types, and we give give preference
+    // to elements.
+
+    // Note that we could collapse elements having only a base type. At the moment we handle
+    // this using inheritance.
+    for case let .element(node) in connectedNodes {
+        let className = node.localName.toSwiftTypeName()
+
+        guard !scope.contains(className) else {
+            fatalError("Element name must be unique")
+        }
+
+        mapping[.element(node)] = className
+        scope.insert(className)
     }
 
-    let complexElements = wsdl.schema
-        .flatMap { $0.element }
-        .filter { if case .complex(_) = $0.content, connectedNodes.contains(.element($0.name)) { return true } else { return false } }
-    for element in complexElements {
-        mapping[element.name] = element.name.localName.toSwiftTypeName()
+    for case let .type(node) in connectedNodes {
+        let className: String
+        let baseName = node.localName.toSwiftTypeName()
+        if !scope.contains(baseName) {
+            className = baseName
+        } else if !scope.contains("\(baseName)Type") {
+            className = "\(baseName)Type"
+        } else {
+            className = (2...Int.max).lazy.map { "\(baseName)Type\($0)" }.first { !scope.contains($0) }!
+        }
+
+        mapping[.type(node)] = className
+        scope.insert(className)
     }
 
     var types = [SwiftMetaType]()
+    for case let .element(element) in wsdl.schema {
+        types.append(element.toSwift(mapping: mapping))
+    }
+
     for case let .complexType(complex) in wsdl.schema {
         types.append(complex.toSwift(mapping: mapping))
     }
+
     for case let .simpleType(simple) in wsdl.schema {
         types.append(simple.toSwift(mapping: mapping))
-    }
-    for case let .element(element) in wsdl.schema {
-        types.append(element.toSwift(mapping: mapping))
     }
 
     var clients = [SwiftClientClass]()
@@ -45,7 +70,7 @@ public func generate(wsdl: WSDL, service: Service, binding: Binding) throws -> S
 }
 
 // todo: cleanup
-let baseTypes: TypeMapping = [
+let baseTypes: [QualifiedName: Identifier] = [
     QualifiedName(uri: NS_XSD, localName: "byte"): "Int8",
     QualifiedName(uri: NS_XSD, localName: "unsignedByte"): "UInt8",
     QualifiedName(uri: NS_XSD, localName: "short"): "Int16",
