@@ -12,10 +12,10 @@ extension ComplexType {
             for element in sequence.elements {
                 switch element.content {
                 case let .base(base):
-                    properties.append(SwiftProperty(name: element.name.localName.toSwiftPropertyName(), type: .init(type: mapping[.type(base)]!, element: element)))
+                    properties.append(SwiftProperty(name: element.name.localName.toSwiftPropertyName(), type: .init(type: mapping[.type(base)]!, element: element), element: element))
                 case let .complex(complex):
                     nestedTypes.append(complex.toSwift(mapping: mapping))
-                    properties.append(SwiftProperty(name: element.name.localName.toSwiftPropertyName(), type: .init(type: "UNNAMED", element: element)))
+                    properties.append(SwiftProperty(name: element.name.localName.toSwiftPropertyName(), type: .init(type: "UNNAMED", element: element), element: element))
                 }
             }
         case .empty: break
@@ -31,11 +31,12 @@ extension SimpleType {
         switch self.content {
         case .list: fatalError()
         case let .listWrapped(wrapped):
-            return SwiftTypeClass(
-                name: "ArrayOf\(name)",
-                properties: [SwiftProperty(name: "items", type: .array(.identifier(name)))],
-                nestedTypes: [wrapped.toSwift(name: name, mapping: mapping)]
-            )
+            fatalError("Not implemented")
+//            return SwiftTypeClass(
+//                name: "ArrayOf\(name)",
+//                properties: [SwiftProperty(name: "items", type: .array(.identifier(name)))],
+//                nestedTypes: [wrapped.toSwift(name: name, mapping: mapping)]
+//            )
         case let .restriction(restriction):
             let cases = restriction.enumeration.dictionary({ ($0.toSwiftPropertyName(), $0) })
             return SwiftEnum(name: name, rawType: .identifier("String"), cases: cases)

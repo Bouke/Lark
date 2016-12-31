@@ -22,6 +22,7 @@ indirect enum SwiftType {
 struct SwiftProperty {
     let name: String
     let type: SwiftType
+    let element: Element
 }
 
 protocol SwiftMetaType: LinesOfCodeConvertible {

@@ -64,6 +64,15 @@ struct Indentation {
     }
 
     func apply(toFirstLine firstLine: LineOfCode,
+               nestedLines: [LineOfCode],
+               andLastLine lastLine: LineOfCode) -> [LineOfCode] {
+        return apply(
+            toFirstLine: firstLine,
+            nestedLines: { indentation in nestedLines.map { line in indentation.apply(toLineOfCode: line) } },
+            andLastLine: lastLine)
+    }
+
+    func apply(toFirstLine firstLine: LineOfCode,
                nestedLines generateNestedLines: (Indentation) -> [LineOfCode],
                andLastLine lastLine: LineOfCode) -> [LineOfCode] {
         let first  = apply(toLineOfCode: firstLine)
@@ -82,19 +91,43 @@ struct Indentation {
 
 extension SwiftTypeClass {
     func toLinesOfCode(at indentation: Indentation) -> [LineOfCode] {
+        let superType = superName ?? "XMLDeserializable"
         return indentation.apply(
-            toFirstLine: "class \(name) {",
+            toFirstLine: "class \(name): \(superType) {",
             nestedLines:      linesOfCodeForMembers(at:),
             andLastLine: "}")
     }
 
     private func linesOfCodeForMembers(at indentation: Indentation) -> [LineOfCode] {
         return linesOfCodeForProperties(at: indentation)
-            + ["init() { abort() }"].map(indentation.apply(toLineOfCode:))
+//            + ["init() { abort() }"].map(indentation.apply(toLineOfCode:))
+            + deserializer(at: indentation)
 //            + initializer.toLinesOfCode(at: indentation)
 //            + failableInitializer.toLinesOfCode(at: indentation)
             + linesOfCodeForNestedClasses(at: indentation)
             + members.flatMap { $0.toLinesOfCode(at: indentation) }
+    }
+
+    private func deserializer(at indentation: Indentation) -> [LineOfCode] {
+        let superInit: [LineOfCode] = superName.map { _ in ["try super.init(deserialize: element)"] } ?? []
+
+        return indentation.apply(
+            toFirstLine: "required init(deserialize element: XMLElement) throws {",
+            nestedLines:
+                properties.map { property in
+                    let element = property.element.name
+                    switch property.type {
+                    case let .identifier(identifier):
+                        return "self.\(property.name) = try \(identifier)(deserialize: element.elements(forLocalName: \"\(element.localName)\", uri: \"\(element.uri)\").first!)"
+                    case let .optional(.identifier(identifier)):
+                        return "self.\(property.name) = try element.elements(forLocalName: \"\(element.localName)\", uri: \"\(element.uri)\").first?.map(\(identifier).init(deserialize:))"
+                    case let .array(.identifier(identifier)):
+                        return "self.\(property.name) = try element.elements(forLocalName: \"\(element.localName)\", uri: \"\(element.uri)\").map(\(identifier).init(deserialize:))"
+                    default:
+                        fatalError("Type \(property.type) not supported")
+                    }
+                } + superInit,
+            andLastLine: "}")
     }
 
     private func linesOfCodeForProperties(at indentation: Indentation) -> [LineOfCode] {
