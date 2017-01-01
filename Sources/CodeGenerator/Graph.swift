@@ -29,6 +29,20 @@ struct Graph<T: Hashable> {
     func edges(from: Node) -> Set<Node> {
         return Set(edges.filter { $0.from == from }.map { $0.to })
     }
+
+    var traverse: AnyIterator<Node> {
+        var remaining = nodes
+        var seen = Set<Node>()
+        return AnyIterator {
+            guard let next = remaining.first(where: { node in self.edges(from: node).isSubset(of: seen) }) else {
+                if remaining.count != 0 { fatalError("Did not traverse complete graph") }
+                return nil
+            }
+            remaining.remove(next)
+            seen.insert(next)
+            return next
+        }
+    }
 }
 
 
@@ -38,6 +52,14 @@ extension WSDL {
         case message(QualifiedName)
         case element(QualifiedName)
         case type(QualifiedName)
+
+        var element: QualifiedName? {
+            if case let .element(name) = self {
+                return name
+            } else {
+                return nil
+            }
+        }
     }
 
     typealias Graph = CodeGenerator.Graph<Node>

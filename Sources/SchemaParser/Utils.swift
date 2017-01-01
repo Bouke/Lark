@@ -21,6 +21,14 @@ extension Sequence {
         }
         return result
     }
+
+    public func single(_ `where`: (Self.Iterator.Element) throws -> Bool) throws -> Self.Iterator.Element {
+        let matches = try filter(`where`)
+        guard matches.count == 1 else {
+            fatalError("more than 1 matching element")
+        }
+        return matches.first!
+    }
 }
 
 func targetNamespace(ofNode node: XMLElement) throws -> String {

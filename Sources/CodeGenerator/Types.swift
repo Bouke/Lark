@@ -3,7 +3,7 @@ import SchemaParser
 // MARK:- SOAP Types
 
 extension ComplexType {
-    func toSwift(name: String? = nil, mapping: TypeMapping) -> SwiftTypeClass {
+    func toSwift(name: String? = nil, mapping: TypeMapping, types: Types) -> SwiftTypeClass {
         let name = name ?? mapping[.type(self.name!)]!
         var properties = [SwiftProperty]()
         var nestedTypes = [SwiftMetaType]()
@@ -14,7 +14,7 @@ extension ComplexType {
                 case let .base(base):
                     properties.append(SwiftProperty(name: element.name.localName.toSwiftPropertyName(), type: .init(type: mapping[.type(base)]!, element: element), element: element))
                 case let .complex(complex):
-                    nestedTypes.append(complex.toSwift(mapping: mapping))
+                    nestedTypes.append(complex.toSwift(mapping: mapping, types: types))
                     properties.append(SwiftProperty(name: element.name.localName.toSwiftPropertyName(), type: .init(type: "UNNAMED", element: element), element: element))
                 }
             }
@@ -26,11 +26,11 @@ extension ComplexType {
 }
 
 extension SimpleType {
-    func toSwift(name: String? = nil, mapping: TypeMapping) -> SwiftMetaType {
+    func toSwift(name: String? = nil, mapping: TypeMapping, types: Types) -> SwiftMetaType {
         let name = name ?? mapping[.type(self.name!)]!
         switch self.content {
         case .list: fatalError()
-        case let .listWrapped(wrapped):
+        case .listWrapped:
             fatalError("Not implemented")
 //            return SwiftTypeClass(
 //                name: "ArrayOf\(name)",
@@ -45,11 +45,11 @@ extension SimpleType {
 }
 
 extension Element {
-    func toSwift(mapping: TypeMapping) -> SwiftTypeClass {
+    func toSwift(mapping: TypeMapping, types: Types) -> SwiftTypeClass {
         let name = mapping[.element(self.name)]!
         switch self.content {
-        case let .base(base): return SwiftTypeClass(name: name, superName: mapping[.type(base)]!)
-        case let .complex(complex): return complex.toSwift(name: name, mapping: mapping)
+        case let .base(base): return SwiftTypeClass(name: name, base: types[.type(base)]! as! SwiftTypeClass)
+        case let .complex(complex): return complex.toSwift(name: name, mapping: mapping, types: types)
         }
     }
 }

@@ -18,7 +18,17 @@ public struct XSD {
             guard case let .element(element) = self else { return nil }
             return element
         }
-    }
+
+        public var simpleType: SimpleType? {
+            guard case let .simpleType(simpleType) = self else { return nil }
+            return simpleType
+        }
+
+        public var complexType: ComplexType? {
+            guard case let .complexType(complexType) = self else { return nil }
+            return complexType
+        }
+}
 
     public let nodes: [Node]
 

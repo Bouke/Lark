@@ -91,9 +91,9 @@ struct Indentation {
 
 extension SwiftTypeClass {
     func toLinesOfCode(at indentation: Indentation) -> [LineOfCode] {
-        let superType = superName ?? "XMLDeserializable"
+        let baseType = base?.name ?? "XMLDeserializable"
         return indentation.apply(
-            toFirstLine: "class \(name): \(superType) {",
+            toFirstLine: "class \(name): \(baseType) {",
             nestedLines:      linesOfCodeForMembers(at:),
             andLastLine: "}")
     }
@@ -108,13 +108,13 @@ extension SwiftTypeClass {
     }
 
     private func initializer(at indentation: Indentation) -> [LineOfCode] {
-        if properties.count == 0 && superName != nil {
+        if properties.count == 0 && base != nil {
             return []
         }
 
         // TODO: check if signature is same as parent
         // TODO: lookup super type
-        let superInit: [LineOfCode] = superName.map { _ in ["fatalError()"] } ?? []
+        let superInit: [LineOfCode] = base.map { _ in ["fatalError()"] } ?? []
 
         let signature = properties
             .map { "\($0.name): \($0.type.toSwiftCode())" }
@@ -130,7 +130,7 @@ extension SwiftTypeClass {
     }
 
     private func deserializer(at indentation: Indentation) -> [LineOfCode] {
-        let superInit: [LineOfCode] = superName.map { _ in ["try super.init(deserialize: element)"] } ?? []
+        let superInit: [LineOfCode] = base.map { _ in ["try super.init(deserialize: element)"] } ?? []
         return indentation.apply(
             toFirstLine: "required init(deserialize element: XMLElement) throws {",
             nestedLines:
@@ -151,8 +151,8 @@ extension SwiftTypeClass {
     }
 
     private func serializer(at indentation: Indentation) -> [LineOfCode] {
-        let override = superName.map { _ in "override " } ?? ""
-        let superSerialize: [LineOfCode] = superName.map { _ in ["try super.serialize(element)"] } ?? []
+        let override = base.map { _ in "override " } ?? ""
+        let superSerialize: [LineOfCode] = base.map { _ in ["try super.serialize(element)"] } ?? []
         return indentation.apply(
             toFirstLine: "\(override)func serialize(_ element: XMLElement) throws {",
             nestedLines:

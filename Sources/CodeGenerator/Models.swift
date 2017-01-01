@@ -29,18 +29,17 @@ protocol SwiftMetaType: LinesOfCodeConvertible {
     var name: String { get }
 }
 
-
-struct SwiftTypeClass: SwiftMetaType {
+class SwiftTypeClass: SwiftMetaType {
     let name: Identifier
-    let superName: String?
+    let base: SwiftTypeClass?
     let protocols: [String]
     let properties: [SwiftProperty]
     let nestedTypes: [SwiftMetaType]
     let members: [LinesOfCodeConvertible]
 
-    public init(name: String, superName: String? = nil, protocols: [String] = [], properties: [SwiftProperty] = [], nestedTypes: [SwiftMetaType] = [], members: [LinesOfCodeConvertible] = []) {
+    public init(name: String, base: SwiftTypeClass? = nil, protocols: [String] = [], properties: [SwiftProperty] = [], nestedTypes: [SwiftMetaType] = [], members: [LinesOfCodeConvertible] = []) {
         self.name = name
-        self.superName = superName
+        self.base = base
         self.protocols = protocols
         self.properties = properties
         self.nestedTypes = nestedTypes

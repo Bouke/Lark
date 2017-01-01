@@ -8,8 +8,9 @@ enum GeneratorError: Error {
 }
 
 typealias TypeMapping = [WSDL.Node: Identifier]
+typealias Types = [WSDL.Node: SwiftMetaType]
 
-struct ElementHierarchy {
+enum ElementHierarchy {
     typealias Node = WSDL.Node
     typealias Edge = (from: Node, to: Node)
     typealias Graph = CodeGenerator.Graph<Node>
@@ -22,6 +23,9 @@ struct ClassHierarchy {
 }
 
 public func generate(wsdl: WSDL, service: Service, binding: Binding) throws -> String {
+    // This graph is only used for verification.
+    // TODO: deprecate this graph, or restrict usage. We used it to calculate "connectedNodes",
+    // but it introduces a lot of complexity. Simple replace it with the HierarchyGraph.
     let graph = try wsdl.createGraph()
     let connectedNodes = graph.connectedNodes
 
@@ -39,23 +43,25 @@ public func generate(wsdl: WSDL, service: Service, binding: Binding) throws -> S
     var scope = Set<String>()
     var hierarchy = ElementHierarchy.Graph()
 
-    let elements = wsdl.schema.flatMap { $0.element }
-    for element in elements {
-        let className = element.name.localName.toSwiftTypeName()
+    let elements = wsdl.schema.flatMap { $0.element }.dictionary { ($0.name, $0) }
+    let complexes = wsdl.schema.flatMap { $0.complexType }.dictionary { ($0.name!, $0) }
+    let simples = wsdl.schema.flatMap { $0.simpleType }.dictionary { ($0.name!, $0) }
 
+    for case let .element(name) in connectedNodes {
+        let className = name.localName.toSwiftTypeName()
         guard !scope.contains(className) else {
             fatalError("Element name must be unique")
         }
-
-        switch element.content {
-        case let .base(base): hierarchy.insertEdge((.element(element.name), .type(base)))
-        case .complex: hierarchy.nodes.insert(.element(element.name))
-        }
-
-        mapping[.element(element.name)] = className
+        mapping[.element(name)] = className
         scope.insert(className)
+
+        switch elements[name]!.content {
+        case let .base(base): hierarchy.insertEdge((.element(name), .type(base)))
+        case .complex: hierarchy.nodes.insert(.element(name))
+        }
     }
 
+    // TODO: add these nodes to hierarchy as well.
     for case let .type(node) in connectedNodes {
         let className: String
         let baseName = node.localName.toSwiftTypeName()
@@ -66,22 +72,33 @@ public func generate(wsdl: WSDL, service: Service, binding: Binding) throws -> S
         } else {
             className = (2...Int.max).lazy.map { "\(baseName)Type\($0)" }.first { !scope.contains($0) }!
         }
-
         mapping[.type(node)] = className
         scope.insert(className)
     }
 
-    var types = [SwiftMetaType]()
-    for case let .element(element) in wsdl.schema {
-        types.append(element.toSwift(mapping: mapping))
+    for case let .simpleType(type) in wsdl.schema {
+        switch type.content {
+        case let .list(itemType: itemType): hierarchy.insertEdge((.type(type.name!), .type(itemType)))
+        default: break
+        }
     }
 
-    for case let .complexType(complex) in wsdl.schema {
-        types.append(complex.toSwift(mapping: mapping))
-    }
-
-    for case let .simpleType(simple) in wsdl.schema {
-        types.append(simple.toSwift(mapping: mapping))
+    var types: [WSDL.Node: SwiftMetaType] = [:]
+    for node in hierarchy.traverse {
+        switch node {
+        case let .element(name):
+            types[node] = elements[name]!.toSwift(mapping: mapping, types: types)
+        case let .type(name):
+            if let complex = complexes[name] {
+                types[node] = complex.toSwift(mapping: mapping, types: types)
+            } else if let simple = simples[name] {
+                types[node] = simple.toSwift(mapping: mapping, types: types)
+            } else {
+                fallthrough
+            }
+        default:
+            fatalError("unsupported type")
+        }
     }
 
     var clients = [SwiftClientClass]()
@@ -89,7 +106,7 @@ public func generate(wsdl: WSDL, service: Service, binding: Binding) throws -> S
         clients.append(service.toSwift(wsdl: wsdl))
     }
 
-    return SwiftCodeGenerator.generateCode(for: types, clients)
+    return SwiftCodeGenerator.generateCode(for: Array(types.values), clients)
 }
 
 // todo: cleanup
