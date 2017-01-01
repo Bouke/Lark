@@ -102,6 +102,7 @@ extension SwiftTypeClass {
         return linesOfCodeForProperties(at: indentation)
 //            + ["init() { abort() }"].map(indentation.apply(toLineOfCode:))
             + deserializer(at: indentation)
+            + serializer(at: indentation)
 //            + initializer.toLinesOfCode(at: indentation)
 //            + failableInitializer.toLinesOfCode(at: indentation)
             + linesOfCodeForNestedClasses(at: indentation)
@@ -110,7 +111,6 @@ extension SwiftTypeClass {
 
     private func deserializer(at indentation: Indentation) -> [LineOfCode] {
         let superInit: [LineOfCode] = superName.map { _ in ["try super.init(deserialize: element)"] } ?? []
-
         return indentation.apply(
             toFirstLine: "required init(deserialize element: XMLElement) throws {",
             nestedLines:
@@ -120,13 +120,51 @@ extension SwiftTypeClass {
                     case let .identifier(identifier):
                         return "self.\(property.name) = try \(identifier)(deserialize: element.elements(forLocalName: \"\(element.localName)\", uri: \"\(element.uri)\").first!)"
                     case let .optional(.identifier(identifier)):
-                        return "self.\(property.name) = try element.elements(forLocalName: \"\(element.localName)\", uri: \"\(element.uri)\").first?.map(\(identifier).init(deserialize:))"
+                        return "self.\(property.name) = try element.elements(forLocalName: \"\(element.localName)\", uri: \"\(element.uri)\").first.map(\(identifier).init(deserialize:))"
                     case let .array(.identifier(identifier)):
                         return "self.\(property.name) = try element.elements(forLocalName: \"\(element.localName)\", uri: \"\(element.uri)\").map(\(identifier).init(deserialize:))"
                     default:
                         fatalError("Type \(property.type) not supported")
                     }
                 } + superInit,
+            andLastLine: "}")
+    }
+
+    private func serializer(at indentation: Indentation) -> [LineOfCode] {
+        let override = superName.map { _ in "override " } ?? ""
+        let superSerialize: [LineOfCode] = superName.map { _ in ["try super.serialize(element)"] } ?? []
+        return indentation.apply(
+            toFirstLine: "\(override)func serialize(_ element: XMLElement) throws {",
+            nestedLines:
+            properties.flatMap { property -> [LineOfCode] in
+                let element = property.element.name
+                switch property.type {
+                case .identifier:
+                    return [
+                        "let \(property.name)Node = try element.createElement(localName: \"\(element.localName)\", uri: \"\(element.uri)\")",
+                        "try \(property.name).serialize(\(property.name)Node)",
+                        "element.addChild(\(property.name)Node)"
+                    ]
+                case .optional(.identifier):
+                    return [
+                        "if let \(property.name) = \(property.name) {",
+                        "    let \(property.name)Node = try element.createElement(localName: \"\(element.localName)\", uri: \"\(element.uri)\")",
+                        "    try \(property.name).serialize(\(property.name)Node)",
+                        "    element.addChild(\(property.name)Node)",
+                        "}"
+                    ]
+                case .array(.identifier):
+                    return [
+                        "for item in \(property.name) {",
+                        "    let itemNode = try element.createElement(localName: \"\(element.localName)\", uri: \"\(element.uri)\")",
+                        "    try item.serialize(itemNode)",
+                        "    element.addChild(itemNode)",
+                        "}"
+                    ]
+                default:
+                    fatalError("Type \(property.type) not supported")
+                }
+            } + superSerialize,
             andLastLine: "}")
     }
 
@@ -179,9 +217,15 @@ extension SwiftParameter {
 extension SwiftEnum {
     func toLinesOfCode(at indentation: Indentation) -> [LineOfCode] {
         return indentation.apply(
-            toFirstLine: "enum \(name): \(rawType.toSwiftCode()) {",
-            nestedLines:      linesOfCodeForCases(at:),
+            toFirstLine: "enum \(name): \(rawType.toSwiftCode()), XMLSerializable, XMLDeserializable {",
+            nestedLines:      linesOfCodeForBody(at:),
             andLastLine: "}")
+    }
+
+    private func linesOfCodeForBody(at indentation: Indentation) -> [LineOfCode] {
+        return linesOfCodeForCases(at: indentation) +
+            linesOfCodeForDeserializer(at: indentation) +
+            linesOfCodeForSerializer(at: indentation)
     }
 
     private func linesOfCodeForCases(at indentation: Indentation) -> [LineOfCode] {
@@ -193,6 +237,22 @@ extension SwiftEnum {
     private var sortedCases: [(String, String)] {
         return cases.sorted(by: { return $0.key < $1.key } )
     }
+
+    private func linesOfCodeForDeserializer(at indentation: Indentation) -> [LineOfCode] {
+        // TODO: no force unwraps
+        return indentation.apply(
+            toFirstLine: "init(deserialize element: XMLElement) throws {",
+            nestedLines: ["self.init(rawValue: element.stringValue!)!"],
+            andLastLine: "}")
+    }
+
+    private func linesOfCodeForSerializer(at indentation: Indentation) -> [LineOfCode] {
+        // TODO: no force unwraps
+        return indentation.apply(
+            toFirstLine: "func serialize(_ element: XMLElement) throws {",
+            nestedLines: ["element.stringValue = self.rawValue"],
+            andLastLine: "}")
+    }
 }
 
 // MARK:- SOAP Client
@@ -200,13 +260,13 @@ extension SwiftEnum {
 extension SwiftClientClass {
     func toLinesOfCode(at indentation: Indentation) -> [LineOfCode] {
         return indentation.apply(
-            toFirstLine: "class \(name) {",
+            toFirstLine: "class \(name): Client {",
             nestedLines:      linesOfCodeForMembers(at:),
             andLastLine: "}")
     }
 
     private func linesOfCodeForMembers(at indentation: Indentation) -> [LineOfCode] {
-        return ["init() {", "}"].map(indentation.apply(toLineOfCode:))
+        return ["override init() {", "}"].map(indentation.apply(toLineOfCode:))
             + methods.flatMap { $0.toLinesOfCode(at: indentation) }
     }
 }
@@ -220,7 +280,7 @@ extension ServiceMethod: LinesOfCodeConvertible {
     }
 
     private func linesOfCodeForBody(at indentation: Indentation) -> [LineOfCode] {
-        return [indentation.apply(toLineOfCode: "let parameters = [XMLElement]()")]
+        return [indentation.apply(toLineOfCode: "var parameters = [XMLElement]()")]
             + linesOfCodeForParameters(at: indentation)
             + linesOfCodeForSend(at: indentation)
     }
@@ -230,7 +290,11 @@ extension ServiceMethod: LinesOfCodeConvertible {
     }
 
     private func linesOfCodeForParameter(part: Message.Part) -> [LineOfCode] {
-        let property = part.name.localName.toSwiftPropertyName()
+        var property = part.name.localName.toSwiftPropertyName()
+        // todo: generate proper unique names for scope
+        if property == "parameters" {
+            property = "params"
+        }
         return [
             "let \(property)Node = XMLElement(prefix: \"ns0\", localName: \"\(part.name.localName)\", uri: \"\(part.name.uri)\")",
             "\(property)Node.addNamespace(XMLNode.namespace(withName: \"ns0\", stringValue: \"\(part.name.uri)\") as! XMLNode)",
@@ -240,10 +304,14 @@ extension ServiceMethod: LinesOfCodeConvertible {
     }
 
     func linesOfCodeForSend(at indentation: Indentation) -> [LineOfCode] {
+        // TODO: use mapping here
+        // TODO: support multiple output parts
+        let output = self.output.parts.first!.name
+        let outputType = self.output.parts.first!.element.localName.toSwiftTypeName()
         return [
             "try send(parameters: parameters, output: { body in",
-            "    let outputNode = body.elements(forLocalName: \"\(output.name.localName)\", uri: \"\(output.name.uri)\").first!",
-            "    output(try \(output.name.localName.toSwiftTypeName())(deserialize: outputNode))",
+            "    let outputNode = body.elements(forLocalName: \"\(output.localName)\", uri: \"\(output.uri)\").first!",
+            "    output(try \(outputType)(deserialize: outputNode))",
             "})"
             ].map(indentation.apply(toLineOfCode:))
     }
@@ -253,10 +321,17 @@ extension ServiceMethod: LinesOfCodeConvertible {
     }
 
     var parameters: [SwiftParameter] {
+        // TODO: use mapping here
+        // TODO: support multiple output parts
+        let outputType = output.parts.first!.element.localName.toSwiftTypeName()
         return input.parts.map {
-            SwiftParameter(name: $0.name.localName.toSwiftPropertyName(), type: .identifier($0.element.localName.toSwiftTypeName()))
+            // todo: generate proper unique names for scope
+            var property = $0.name.localName.toSwiftPropertyName()
+            if property == "parameters" {
+                property = "params"
             }
-            + [SwiftParameter(name: "output", type: .identifier("() -> ()"))]
+            return SwiftParameter(name: property, type: .identifier($0.element.localName.toSwiftTypeName()))
+        } + [SwiftParameter(name: "output", type: .identifier("(\(outputType)) -> ()"))]
     }
 }
 
