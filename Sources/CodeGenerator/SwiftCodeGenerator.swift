@@ -100,13 +100,33 @@ extension SwiftTypeClass {
 
     private func linesOfCodeForMembers(at indentation: Indentation) -> [LineOfCode] {
         return linesOfCodeForProperties(at: indentation)
-//            + ["init() { abort() }"].map(indentation.apply(toLineOfCode:))
+            + initializer(at: indentation)
             + deserializer(at: indentation)
             + serializer(at: indentation)
-//            + initializer.toLinesOfCode(at: indentation)
-//            + failableInitializer.toLinesOfCode(at: indentation)
             + linesOfCodeForNestedClasses(at: indentation)
             + members.flatMap { $0.toLinesOfCode(at: indentation) }
+    }
+
+    private func initializer(at indentation: Indentation) -> [LineOfCode] {
+        if properties.count == 0 && superName != nil {
+            return []
+        }
+
+        // TODO: check if signature is same as parent
+        // TODO: lookup super type
+        let superInit: [LineOfCode] = superName.map { _ in ["fatalError()"] } ?? []
+
+        let signature = properties
+            .map { "\($0.name): \($0.type.toSwiftCode())" }
+            .joined(separator: ", ")
+
+        return indentation.apply(
+            toFirstLine: "init(\(signature)) {",
+            nestedLines:
+                properties.map { property in
+                    "self.\(property.name) = \(property.name)"
+                } + superInit,
+            andLastLine: "}")
     }
 
     private func deserializer(at indentation: Indentation) -> [LineOfCode] {

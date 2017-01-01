@@ -4,32 +4,55 @@ import SchemaParser
 enum GeneratorError: Error {
     case missingTypes(Set<QualifiedName>)
     case messageNotFound(QualifiedName)
-    case missingNodes(Set<Graph.Node>)
+    case missingNodes(Set<WSDL.Node>)
 }
 
-typealias TypeMapping = [Graph.Node: Identifier]
+typealias TypeMapping = [WSDL.Node: Identifier]
+
+struct ElementHierarchy {
+    typealias Node = WSDL.Node
+    typealias Edge = (from: Node, to: Node)
+    typealias Graph = CodeGenerator.Graph<Node>
+}
+
+struct ClassHierarchy {
+    typealias Node = String
+    typealias Edge = (from: Node, to: Node)
+    typealias Graph = CodeGenerator.Graph<Node>
+}
 
 public func generate(wsdl: WSDL, service: Service, binding: Binding) throws -> String {
-    let graph = try Graph(wsdl: wsdl)
+    let graph = try wsdl.createGraph()
     let connectedNodes = graph.connectedNodes
 
-    var mapping = baseTypes.dictionary { (Graph.Node.type($0), $1) }
-    var scope = Set<String>()
-
-    // Assign unique names to all nodes. First, elements are given a name. Sometimes 
+    // Assign unique names to all nodes. First, elements are given a name. Sometimes
     // elements have the same name as their implementing types, and we give give preference
     // to elements.
 
+    // We'll build the classes from top-to-bottom. So build the inheritance hierarchy
+    // of the classes.
+
     // Note that we could collapse elements having only a base type. At the moment we handle
     // this using inheritance.
-    for case let .element(node) in connectedNodes {
-        let className = node.localName.toSwiftTypeName()
+
+    var mapping = baseTypes.dictionary { (WSDL.Node.type($0), $1) }
+    var scope = Set<String>()
+    var hierarchy = ElementHierarchy.Graph()
+
+    let elements = wsdl.schema.flatMap { $0.element }
+    for element in elements {
+        let className = element.name.localName.toSwiftTypeName()
 
         guard !scope.contains(className) else {
             fatalError("Element name must be unique")
         }
 
-        mapping[.element(node)] = className
+        switch element.content {
+        case let .base(base): hierarchy.insertEdge((.element(element.name), .type(base)))
+        case .complex: hierarchy.nodes.insert(.element(element.name))
+        }
+
+        mapping[.element(element.name)] = className
         scope.insert(className)
     }
 
