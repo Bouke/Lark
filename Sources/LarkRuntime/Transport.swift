@@ -29,7 +29,7 @@ open class HTTPTransport: Transport {
         guard let httpResponse = response as? HTTPURLResponse else {
             fatalError("Expected HTTPURLResponse")
         }
-        logger.debug("Response: " + response.debugDescription)
+        logger.debug("Response: " + httpResponse.debugDescription)
         logger.debug("Response body: " + (String(data: data, encoding: .utf8) ?? "Failed to decode the body as UTF-8 for logging"))
         guard httpResponse.statusCode == 200 else {
             throw HTTPTransportError.notOk(httpResponse.statusCode, data)

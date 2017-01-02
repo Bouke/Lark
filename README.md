@@ -26,10 +26,13 @@ The current implementation has a lot of limitations. If the library doesn't work
 * [ ] Support other content types: `simpleTypes`, `choice` etc
 * [x] Support `Array` and `Optional` types
 * [ ] Support multiple ports / bindings
-* [ ] Stricter SOAP 1.0 / 1.1 support
+* [ ] Stricter SOAP 1.0 / 1.1 / 1.2 support
 * [ ] Collapse messages into client methods (instead of passing request objects, pass request's parameters into client method)
 * [ ] Handle `sequence` correctly (elements are strictly ordered)
 * [ ] Default value `nil` for `Optional`s
+* [x] Deserialize SOAP Fault
+* [ ] Generate Envelope/SoapFault types from XSD (become self-hosted)
+* [ ] Better error messages
 
 Why is it called Lark?
 ----------------------
