@@ -22,9 +22,14 @@ class HelloWorldService(ServiceBase):
     def say_nothing(ctx):
         return
 
-    @rpc(part_of_day, Iterable(part_of_day, min_occurs=1), _returns=Unicode)
-    def greet(ctx, part_of_day, part_of_days):
-        return 'Good %s' % partOfDay
+    @rpc(part_of_day, _returns=Unicode)
+    def greet(ctx, part_of_day):
+        return 'Good %s' % part_of_day
+
+    @rpc(Iterable(part_of_day, min_occurs=1), _returns=Iterable(Unicode, min_occurs=1))
+    def greets(ctx, part_of_days):
+        for part_of_day in part_of_days:
+            yield 'Good %s' % part_of_day
 
     @rpc(Unicode, _returns=Unicode(min_occurs=0))
     def say_maybe_nothing(ctx, name):
