@@ -163,23 +163,23 @@ extension SwiftTypeClass {
                 case .identifier:
                     return [
                         "let \(property.name)Node = try element.createElement(localName: \"\(element.localName)\", uri: \"\(element.uri)\")",
+                        "element.addChild(\(property.name)Node)",
                         "try \(property.name).serialize(\(property.name)Node)",
-                        "element.addChild(\(property.name)Node)"
                     ]
                 case .optional(.identifier):
                     return [
                         "if let \(property.name) = \(property.name) {",
                         "    let \(property.name)Node = try element.createElement(localName: \"\(element.localName)\", uri: \"\(element.uri)\")",
-                        "    try \(property.name).serialize(\(property.name)Node)",
                         "    element.addChild(\(property.name)Node)",
+                        "    try \(property.name).serialize(\(property.name)Node)",
                         "}"
                     ]
                 case .array(.identifier):
                     return [
                         "for item in \(property.name) {",
                         "    let itemNode = try element.createElement(localName: \"\(element.localName)\", uri: \"\(element.uri)\")",
-                        "    try item.serialize(itemNode)",
                         "    element.addChild(itemNode)",
+                        "    try item.serialize(itemNode)",
                         "}"
                     ]
                 default:
