@@ -1,3 +1,4 @@
+import Foundation
 import SchemaParser
 
 // MARK:- SOAP Types
@@ -69,7 +70,8 @@ extension Service {
         let methods = portType.operations.map { operation -> ServiceMethod in
             let input = wsdl.messages.first { $0.name == operation.inputMessage }!
             let output = wsdl.messages.first { $0.name == operation.outputMessage }!
-            return ServiceMethod(operation: operation, input: input, output: output)
+            let action = binding.operations.first { $0.name == operation.name }!.action
+            return ServiceMethod(operation: operation, input: input, output: output, action: action)
         }
 
         return SwiftClientClass(name: name, methods: methods, port: port)

@@ -9,12 +9,12 @@ open class Channel {
         self.transport = transport
     }
 
-    func send(request: Envelope) throws -> Envelope {
+    func send(action: URL, request: Envelope) throws -> Envelope {
         let serialized = request.serialize()
         logger.debug("Sending request: \(serialized.xmlString)")
         let response: Data
         do {
-            response = try transport.send(message: serialized.xmlData)
+            response = try transport.send(action: action, message: serialized.xmlData)
         } catch HTTPTransportError.notOk(let (_, response)) {
             let document = try XMLDocument(data: response, options: 0)
             let envelope = Envelope(deserialize: document)

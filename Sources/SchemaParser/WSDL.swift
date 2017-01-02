@@ -47,9 +47,17 @@ public struct PortType {
 public struct Binding {
     public struct Operation {
         public let name: QualifiedName
+        public let action: URL
 
         init(deserialize element: XMLElement) throws {
-            self.name = QualifiedName(uri: try targetNamespace(ofNode: element), localName: element.attribute(forName: "name")!.stringValue!)
+            name = QualifiedName(uri: try targetNamespace(ofNode: element), localName: element.attribute(forName: "name")!.stringValue!)
+            if let operation = element.elements(forLocalName: "operation", uri: NS_SOAP).first {
+                action = URL(string: operation.attribute(forName: "soapAction")!.stringValue!)!
+            } else if let operation = element.elements(forLocalName: "operation", uri: NS_SOAP12).first {
+                action = URL(string: operation.attribute(forName: "soapAction")!.stringValue!)!
+            } else {
+                throw ParseError.unsupportedOperation
+            }
         }
     }
 

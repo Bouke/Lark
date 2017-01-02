@@ -360,7 +360,7 @@ extension ServiceMethod: LinesOfCodeConvertible {
         let output = self.output.parts.first!.name
         let outputType = self.output.parts.first!.element.localName.toSwiftTypeName()
         return [
-            "let body = try send(parameters: parameters)",
+            "let body = try send(action: URL(string: \"\(action.absoluteString)\")!, parameters: parameters)",
             "let outputNode = body.elements(forLocalName: \"\(output.localName)\", uri: \"\(output.uri)\").first!",
             "return try \(outputType)(deserialize: outputNode)"
         ].map(indentation.apply(toLineOfCode:))
