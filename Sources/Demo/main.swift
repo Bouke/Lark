@@ -2,21 +2,21 @@ import Evergreen
 import Foundation
 import LarkRuntime
 
-let client = HelloWorldServiceClient()
-//getLogger("Lark").logLevel = .warning
+ getLogger("Lark").logLevel = .warning
 
-try client.say_hello(input: say_hello(name: nil, times: 2)) {
-    print($0)
-}
+let hwsClient = HelloWorldServiceClient()
 
-try client.say_nothing(input: say_nothing()) {
-    print($0)
-}
+let r0 = try hwsClient.sayHello(sayHello: SayHello(name: "World", times: 2))
+print(r0.sayHelloResult.string)
 
-try client.say_maybe_something(input: say_maybe_something(name: "Bouke")) {
-    print($0)
-}
+let r1 = try hwsClient.sayHello(sayHello: SayHello(name: nil, times: 1))
+print(r1.sayHelloResult.string)
 
-try client.say_maybe_nothing(input: say_maybe_nothing(name: "Bouke")) {
-    print($0)
-}
+let r2 = try hwsClient.sayNothing(sayNothing: SayNothing())
+print("_None_")
+
+let r3 = try hwsClient.sayMaybeSomething(sayMaybeSomething: SayMaybeSomething(name: "Bouke"))
+print(r3.sayMaybeSomethingResult ?? "_None_")
+
+let r4 = try hwsClient.sayMaybeNothing(sayMaybeNothing: SayMaybeNothing(name: "Bouke"))
+print(r4.sayMaybeNothingResult ?? "_None_")

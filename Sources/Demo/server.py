@@ -10,6 +10,8 @@ from spyne.protocol.soap import Soap11
 
 from spyne.server.wsgi import WsgiApplication
 
+part_of_day = Enum("morning", "afternoon", "evening", "night", type_name="PartOfDay")
+
 class HelloWorldService(ServiceBase):
     @rpc(Unicode, Integer, _returns=Iterable(Unicode, min_occurs=1))
     def say_hello(ctx, name, times):
@@ -20,8 +22,8 @@ class HelloWorldService(ServiceBase):
     def say_nothing(ctx):
         return
 
-    @rpc(Enum("morning", "afternoon", "evening", "night", type_name="PartOfDay"), _returns=Unicode)
-    def greet(ctx, partOfDay):
+    @rpc(part_of_day, Iterable(part_of_day, min_occurs=1), _returns=Unicode)
+    def greet(ctx, part_of_day, part_of_days):
         return 'Good %s' % partOfDay
 
     @rpc(Unicode, _returns=Unicode(min_occurs=0))
@@ -33,6 +35,7 @@ class HelloWorldService(ServiceBase):
         return 'Hello, %s' % name
 
 application = Application([HelloWorldService],
+    name='HelloWorld',
     tns='spyne.examples.hello',
     in_protocol=Soap11(validator='lxml'),
     out_protocol=Soap11()
