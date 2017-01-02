@@ -291,8 +291,33 @@ extension SwiftClientClass {
     }
 
     private func linesOfCodeForMembers(at indentation: Indentation) -> [LineOfCode] {
-        return ["override init() {", "}"].map(indentation.apply(toLineOfCode:))
+        return rule2initializer(at: indentation)
+            + initializer(at: indentation)
             + methods.flatMap { $0.toLinesOfCode(at: indentation) }
+    }
+
+    /// Per "Rule 2", we need to provide our own implementation of the designated
+    /// initializer to inherit the convenience initializers. So while this 
+    /// initializer does nothing; it fullfills the requirements of Rule 2.
+    private func rule2initializer(at indentation: Indentation) -> [LineOfCode] {
+        return indentation.apply(
+            toFirstLine: "override init(channel: Channel) {",
+            nestedLines: [
+                "super.init(channel: channel)"
+            ],
+            andLastLine: "}")
+    }
+
+    private func initializer(at indentation: Indentation) -> [LineOfCode] {
+        guard case let .soap11(endpoint) = port.address else {
+            fatalError("Expected SOAP 1.1 port")
+        }
+        return indentation.apply(
+            toFirstLine: "convenience init() {",
+            nestedLines: [
+                "self.init(endpoint: URL(string: \"\(endpoint)\")!)"
+            ],
+            andLastLine: "}")
     }
 }
 

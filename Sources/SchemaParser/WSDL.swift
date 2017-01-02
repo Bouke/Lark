@@ -67,7 +67,7 @@ public struct Binding {
 public struct Service {
     public struct Port {
         public enum Address {
-            case soap(String)
+            case soap11(String)
             case soap12(String)
         }
 
@@ -79,7 +79,7 @@ public struct Service {
             self.name = QualifiedName(uri: try targetNamespace(ofNode: element), localName: element.attribute(forName: "name")!.stringValue!)
             self.binding = try QualifiedName(type: element.attribute(forName: "binding")!.stringValue!, inTree: element)
             if let address = element.elements(forLocalName: "address", uri: NS_SOAP).first {
-                self.address = .soap(address.attribute(forName: "location")!.stringValue!)
+                self.address = .soap11(address.attribute(forName: "location")!.stringValue!)
             } else if let address = element.elements(forLocalName: "address", uri: NS_SOAP12).first {
                 self.address = .soap12(address.attribute(forName: "location")!.stringValue!)
             } else {

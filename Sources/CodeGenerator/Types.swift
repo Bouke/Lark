@@ -60,7 +60,7 @@ extension Element {
 extension Service {
     func toSwift(wsdl: WSDL) -> SwiftClientClass {
         // SOAP 1.1 port
-        let port = ports.first { if case .soap = $0.address { return true } else { return false } }!
+        let port = ports.first { if case .soap11 = $0.address { return true } else { return false } }!
         let binding = wsdl.bindings.first { $0.name == port.binding }!
         let portType = wsdl.portTypes.first { $0.name == binding.type }!
 
@@ -72,6 +72,6 @@ extension Service {
             return ServiceMethod(operation: operation, input: input, output: output)
         }
 
-        return SwiftClientClass(name: name, methods: methods)
+        return SwiftClientClass(name: name, methods: methods, port: port)
     }
 }

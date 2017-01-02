@@ -95,7 +95,7 @@ public func generate(wsdl: WSDL, service: Service, binding: Binding) throws -> S
             } else if let simple = simples[name] {
                 types[node] = simple.toSwift(mapping: mapping, types: types)
             } else {
-                fallthrough
+                fatalError("type not found")
             }
         default:
             fatalError("unsupported type")

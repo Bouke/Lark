@@ -6,6 +6,5 @@ let wsdlURL = CommandLine.arguments[1].hasPrefix("http") ? URL(string: CommandLi
 let wsdlXml = try XMLDocument(contentsOf: wsdlURL, options: 0)
 
 let wsdl = try parse(WSDL: wsdlXml.rootElement()!)
-//print(wsdl)
 
 try print(generate(wsdl: wsdl, service: wsdl.services.first!, binding: wsdl.bindings.first!))

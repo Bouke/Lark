@@ -8,10 +8,15 @@ public enum HTTPTransportError: Error {
 
 
 open class Client {
-    open let channel = Channel()
+    open let channel: Channel
     open let logger = Evergreen.getLogger("Lark.Client")
 
-    public init() {
+    public init(channel: Channel) {
+        self.channel = channel
+    }
+
+    public convenience init(endpoint: URL) {
+        self.init(channel: Channel(transport: HTTPTransport(endpoint: endpoint)))
     }
 
     public func send(parameters: [XMLElement]) throws -> XMLElement {
@@ -24,8 +29,12 @@ open class Client {
 }
 
 open class Channel {
-    open let transport = HTTPTransport()
+    open let transport: Transport
     open let logger = Evergreen.getLogger("Lark.Channel")
+
+    public init(transport: Transport) {
+        self.transport = transport
+    }
 
     func send(request: Envelope) throws -> Envelope {
         let serialized = request.serialize()
@@ -37,11 +46,20 @@ open class Channel {
     }
 }
 
-open class HTTPTransport {
+public protocol Transport {
+    func send(message: Data) throws -> Data
+}
+
+open class HTTPTransport: Transport {
+    open let endpoint: URL
     open let logger = Evergreen.getLogger("Lark.HTTPTransport")
 
-    func send(message: Data) throws -> Data {
-        var request = URLRequest(url: URL(string: "http://127.0.0.1:8000")!)
+    public init(endpoint: URL) {
+        self.endpoint = endpoint
+    }
+
+    open func send(message: Data) throws -> Data {
+        var request = URLRequest(url: endpoint)
         request.httpBody = message
         request.httpMethod = "POST"
         logger.debug("Request: " + request.debugDescription)

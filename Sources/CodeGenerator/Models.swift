@@ -64,6 +64,7 @@ struct SwiftParameter {
 struct SwiftClientClass: SwiftMetaType {
     let name: Identifier
     let methods: [ServiceMethod]
+    let port: Service.Port
 }
 
 struct ServiceMethod {
