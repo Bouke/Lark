@@ -298,8 +298,9 @@ extension SwiftClientClass {
 
 extension ServiceMethod: LinesOfCodeConvertible {
     func toLinesOfCode(at indentation: Indentation) -> [LineOfCode] {
+        let outputType = output.parts.first!.element.localName.toSwiftTypeName()
         return indentation.apply(
-            toFirstLine: "func \(name)(\(parameterList)) throws {",
+            toFirstLine: "func \(name)(\(parameterList)) throws -> \(outputType) {",
             nestedLines:     linesOfCodeForBody(at:),
             andLastLine: "}")
     }
@@ -334,11 +335,10 @@ extension ServiceMethod: LinesOfCodeConvertible {
         let output = self.output.parts.first!.name
         let outputType = self.output.parts.first!.element.localName.toSwiftTypeName()
         return [
-            "try send(parameters: parameters, output: { body in",
-            "    let outputNode = body.elements(forLocalName: \"\(output.localName)\", uri: \"\(output.uri)\").first!",
-            "    output(try \(outputType)(deserialize: outputNode))",
-            "})"
-            ].map(indentation.apply(toLineOfCode:))
+            "let body = try send(parameters: parameters)",
+            "let outputNode = body.elements(forLocalName: \"\(output.localName)\", uri: \"\(output.uri)\").first!",
+            "return try \(outputType)(deserialize: outputNode)"
+        ].map(indentation.apply(toLineOfCode:))
     }
 
     private var parameterList: String {
@@ -348,7 +348,6 @@ extension ServiceMethod: LinesOfCodeConvertible {
     var parameters: [SwiftParameter] {
         // TODO: use mapping here
         // TODO: support multiple output parts
-        let outputType = output.parts.first!.element.localName.toSwiftTypeName()
         return input.parts.map {
             // todo: generate proper unique names for scope
             var property = $0.name.localName.toSwiftPropertyName()
@@ -356,7 +355,7 @@ extension ServiceMethod: LinesOfCodeConvertible {
                 property = "params"
             }
             return SwiftParameter(name: property, type: .identifier($0.element.localName.toSwiftTypeName()))
-        } + [SwiftParameter(name: "output", type: .identifier("(\(outputType)) -> ()"))]
+        }
     }
 }
 
