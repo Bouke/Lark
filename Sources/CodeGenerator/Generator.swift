@@ -79,7 +79,8 @@ public func generate(wsdl: WSDL, service: Service, binding: Binding) throws -> S
     for case let .simpleType(type) in wsdl.schema {
         switch type.content {
         case let .list(itemType: itemType): hierarchy.insertEdge((.type(type.name!), .type(itemType)))
-        default: break
+        case .listWrapped: hierarchy.nodes.insert(.type(type.name!))
+        case .restriction: hierarchy.nodes.insert(.type(type.name!))
         }
     }
 

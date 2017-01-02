@@ -108,20 +108,21 @@ extension SwiftTypeClass {
     }
 
     private func initializer(at indentation: Indentation) -> [LineOfCode] {
-        if properties.count == 0 && base != nil {
-            return []
-        }
+        let superInit: [LineOfCode] = base.map { _ in
+            let arguments = inheritedProperties
+                .map { "\($0.name): \($0.name)" }
+                .joined(separator: ", ")
+            return ["super.init(\(arguments))"]
+        } ?? []
 
-        // TODO: check if signature is same as parent
-        // TODO: lookup super type
-        let superInit: [LineOfCode] = base.map { _ in ["fatalError()"] } ?? []
+        let override = properties.count == 0 && base != nil ? "override " : ""
 
-        let signature = properties
+        let signature = (inheritedProperties + properties)
             .map { "\($0.name): \($0.type.toSwiftCode())" }
             .joined(separator: ", ")
 
         return indentation.apply(
-            toFirstLine: "init(\(signature)) {",
+            toFirstLine: "\(override)init(\(signature)) {",
             nestedLines:
                 properties.map { property in
                     "self.\(property.name) = \(property.name)"
@@ -193,6 +194,10 @@ extension SwiftTypeClass {
             let propertyCode = property.toLineOfCode()
             return indentation.apply(toLineOfCode: propertyCode)
         }
+    }
+
+    private var inheritedProperties: [SwiftProperty] {
+        return (base?.inheritedProperties ?? []) + (base?.properties ?? [])
     }
 
     private var sortedProperties: [SwiftProperty] {

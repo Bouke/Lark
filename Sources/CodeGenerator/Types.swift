@@ -48,7 +48,7 @@ extension Element {
     func toSwift(mapping: TypeMapping, types: Types) -> SwiftTypeClass {
         let name = mapping[.element(self.name)]!
         switch self.content {
-        case let .base(base): return SwiftTypeClass(name: name, base: types[.type(base)]! as! SwiftTypeClass)
+        case let .base(base): return SwiftTypeClass(name: name, base: (types[.type(base)]! as! SwiftTypeClass))
         case let .complex(complex): return complex.toSwift(name: name, mapping: mapping, types: types)
         }
     }
