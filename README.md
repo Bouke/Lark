@@ -41,6 +41,11 @@ In your code you can now use the generated `Client` like this:
         print("Server generated a Fault: \(fault)")
     }
 
+## Example
+
+See the [LarkExample](https://github.com/Bouke/LarkExample) repository for an
+example of how to use Lark.
+
 ## Development
 
 Pull requests welcome!
