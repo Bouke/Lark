@@ -14,8 +14,8 @@ Lark is a SOAP library written in Swift.
 
 ## Communication
 
-- If you **need help**, use [Stack Overflow](http://stackoverflow.com/search?q=%5Bswift%5D+lark). (Mention 'lark')
-- If you'd like to **ask a general question**, use [Stack Overflow](http://stackoverflow.com/search?q=%5Bswift%5D+lark).
+- If you **need help**, open an issue.
+- If you'd like to **ask a general question**, open an issue.
 - If you **found a bug**, open an issue.
 - If you **have a feature request**, open an issue.
 - If you **want to contribute**, submit a pull request.
