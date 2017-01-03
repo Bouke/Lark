@@ -1,8 +1,26 @@
 Lark: Swift SOAP Client
 =======================
 
-Usage
------
+Lark is a SOAP library written in Swift.
+
+## Features
+
+* [x] Swift 3
+* [x] Swift Package Manager 
+* [x] API Client code generation
+* [x] Strictly typed
+* [x] SOAP 1.1
+* [x] SOAP document/literal (wrapped) encoding
+
+## Communication
+
+- If you **need help**, use [Stack Overflow](http://stackoverflow.com/search?q=%5Bswift%5D+lark). (Mention 'lark')
+- If you'd like to **ask a general question**, use [Stack Overflow](http://stackoverflow.com/search?q=%5Bswift%5D+lark).
+- If you **found a bug**, open an issue.
+- If you **have a feature request**, open an issue.
+- If you **want to contribute**, submit a pull request.
+
+## Usage
 
 First, install the package by including the following in `Package.swift`:
 
@@ -13,30 +31,51 @@ Then, build your package. This will result in an executable named `lark-generate
     swift build
     .build/debug/lark-generate-client "http://localhost:8000/?wsdl" > Sources/Client.swift
 
-Then from your code, you can use the generated client. Inspect the generated code on how to use it. Or have a look at the included demo code.
+In your code you can now use the generated `Client` like this:
 
-Limitations
------------
+    let client = Client()
+    try {
+        let result = try client.sayHello(SayHello(name: "World", times: 2))
+        print(result.sayHelloResult.string)
+    } catch let fault as LarkRuntime.Fault {
+        print("Server generated a Fault: \(fault)")
+    }
 
-The current implementation has a lot of limitations. If the library doesn't work for you, rather submit pull requests than issues. The short term wish list is:
+## Development
 
-* [x] Support simple `complexTypes`: `sequence`
-* [x] Support for `XSD` schema imports
+Pull requests welcome!
+
+Known issues:
+
+* [ ] RPC encoding not supported
 * [ ] Support all `XSD` base types: `decimal`, `dateTime` etc
 * [ ] Support other content types: `simpleTypes`, `choice` etc
-* [x] Support `Array` and `Optional` types
-* [ ] Support multiple ports / bindings
-* [ ] Stricter SOAP 1.0 / 1.1 / 1.2 support
-* [ ] Collapse messages into client methods (instead of passing request objects, pass request's parameters into client method)
 * [ ] Handle `sequence` correctly (elements are strictly ordered)
-* [ ] Default value `nil` for `Optional`s
-* [x] Deserialize SOAP Fault
-* [ ] Generate Envelope/SoapFault types from XSD (become self-hosted)
-* [ ] Better error messages
-* [x] Support document/literal (does anyone even use RPC anymore?)
 * [ ] Support mixed namespaces in generated code (currently uses "ns0" everywhere)
 
-Why is it called Lark?
-----------------------
+Backlog:
+
+* [ ] Unit tests
+* [ ] Asynchronous
+* [ ] Authentication
+* [ ] Better error messages
+* [ ] Move Demo code to separate repository
+
+Ideas for the future:
+
+* [ ] Collapse messages into client methods (instead of passing request objects, pass request's parameters into client method)
+* [ ] Default value `nil` for `Optional`s
+* [ ] Generate Envelope/SoapFault types from XSD (become self-hosted)
+* [ ] Stricter SOAP 1.0 / 1.1 / 1.2 support
+* [ ] Support multiple ports / bindings
+* [ ] Cocoapods / Carthage support
+
+## FAQ
+
+### Why is it called Lark?
 
 SOAP is sometimes referred to as a fat messaging protocol. Swift is an elegant bird. A Lark sometimes looks like a fat bird.
+
+## Credits
+
+This library was written by [Bouke Haarsma](https://twitter.com/BoukeHaarsma).
