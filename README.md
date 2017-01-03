@@ -60,11 +60,11 @@ Known issues:
 
 Backlog:
 
+* [x] Move Demo code to separate repository
 * [ ] Unit tests
 * [ ] Asynchronous
 * [ ] Authentication
 * [ ] Better error messages
-* [ ] Move Demo code to separate repository
 
 Ideas for the future:
 
