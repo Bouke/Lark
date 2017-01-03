@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="Import" targetNamespace="http://tempuri.org/import" xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:tns="http://tempuri.org/import" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <types>
+        <xsd:schema targetNamespace="http://tempuri.org/import">
+            <xsd:import namespace="http://tempuri.org/import" schemaLocation="no_file.xsd"/>
+        </xsd:schema>
+    </types>
+    <message name="Request">
+        <part element="tns:Request" name="parameters"/>
+    </message>
+    <message name="Response">
+        <part element="tns:Response" name="parameters"/>
+    </message>
+    <portType name="SoapType">
+        <operation name="Operation">
+            <input message="tns:Request"/>
+            <output message="tns:Response"/>
+        </operation>
+    </portType>
+    <binding name="SoapBinding" type="tns:SoapType">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <operation name="Operation">
+            <soap:operation soapAction="Operation" style="document"/>
+            <input>
+                <soap:body use="literal"/>
+            </input>
+            <output>
+                <soap:body use="literal"/>
+            </output>
+        </operation>
+    </binding>
+    <service name="Import">
+        <port binding="tns:SoapBinding" name="ImportSoap">
+            <soap:address location="http://tempuri.org/import.swift"/>
+        </port>
+    </service>
+</definitions>
