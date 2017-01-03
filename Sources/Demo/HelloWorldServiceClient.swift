@@ -415,7 +415,11 @@ class Greets: GreetsType {
 // MARK: - SOAP Client
 //
 class HelloWorldServiceClient: Client {
-    override init() {
+    override init(channel: Channel) {
+        super.init(channel: channel)
+    }
+    convenience init() {
+        self.init(endpoint: URL(string: "http://localhost:8000/")!)
     }
     func sayHello(sayHello: SayHello) throws -> SayHelloResponse {
         var parameters = [XMLElement]()
@@ -423,7 +427,7 @@ class HelloWorldServiceClient: Client {
         sayHelloNode.addNamespace(XMLNode.namespace(withName: "ns0", stringValue: "spyne.examples.hello") as! XMLNode)
         try sayHello.serialize(sayHelloNode)
         parameters.append(sayHelloNode)
-        let body = try send(parameters: parameters)
+        let body = try send(action: URL(string: "say_hello")!, parameters: parameters)
         let outputNode = body.elements(forLocalName: "say_helloResponse", uri: "spyne.examples.hello").first!
         return try SayHelloResponse(deserialize: outputNode)
     }
@@ -433,7 +437,7 @@ class HelloWorldServiceClient: Client {
         sayMaybeNothingNode.addNamespace(XMLNode.namespace(withName: "ns0", stringValue: "spyne.examples.hello") as! XMLNode)
         try sayMaybeNothing.serialize(sayMaybeNothingNode)
         parameters.append(sayMaybeNothingNode)
-        let body = try send(parameters: parameters)
+        let body = try send(action: URL(string: "say_maybe_nothing")!, parameters: parameters)
         let outputNode = body.elements(forLocalName: "say_maybe_nothingResponse", uri: "spyne.examples.hello").first!
         return try SayMaybeNothingResponse(deserialize: outputNode)
     }
@@ -443,7 +447,7 @@ class HelloWorldServiceClient: Client {
         greetNode.addNamespace(XMLNode.namespace(withName: "ns0", stringValue: "spyne.examples.hello") as! XMLNode)
         try greet.serialize(greetNode)
         parameters.append(greetNode)
-        let body = try send(parameters: parameters)
+        let body = try send(action: URL(string: "greet")!, parameters: parameters)
         let outputNode = body.elements(forLocalName: "greetResponse", uri: "spyne.examples.hello").first!
         return try GreetResponse(deserialize: outputNode)
     }
@@ -453,7 +457,7 @@ class HelloWorldServiceClient: Client {
         sayNothingNode.addNamespace(XMLNode.namespace(withName: "ns0", stringValue: "spyne.examples.hello") as! XMLNode)
         try sayNothing.serialize(sayNothingNode)
         parameters.append(sayNothingNode)
-        let body = try send(parameters: parameters)
+        let body = try send(action: URL(string: "say_nothing")!, parameters: parameters)
         let outputNode = body.elements(forLocalName: "say_nothingResponse", uri: "spyne.examples.hello").first!
         return try SayNothingResponse(deserialize: outputNode)
     }
@@ -463,7 +467,7 @@ class HelloWorldServiceClient: Client {
         sayMaybeSomethingNode.addNamespace(XMLNode.namespace(withName: "ns0", stringValue: "spyne.examples.hello") as! XMLNode)
         try sayMaybeSomething.serialize(sayMaybeSomethingNode)
         parameters.append(sayMaybeSomethingNode)
-        let body = try send(parameters: parameters)
+        let body = try send(action: URL(string: "say_maybe_something")!, parameters: parameters)
         let outputNode = body.elements(forLocalName: "say_maybe_somethingResponse", uri: "spyne.examples.hello").first!
         return try SayMaybeSomethingResponse(deserialize: outputNode)
     }
@@ -473,7 +477,7 @@ class HelloWorldServiceClient: Client {
         greetsNode.addNamespace(XMLNode.namespace(withName: "ns0", stringValue: "spyne.examples.hello") as! XMLNode)
         try greets.serialize(greetsNode)
         parameters.append(greetsNode)
-        let body = try send(parameters: parameters)
+        let body = try send(action: URL(string: "greets")!, parameters: parameters)
         let outputNode = body.elements(forLocalName: "greetsResponse", uri: "spyne.examples.hello").first!
         return try GreetsResponse(deserialize: outputNode)
     }
