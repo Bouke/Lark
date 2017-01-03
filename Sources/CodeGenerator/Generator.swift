@@ -5,6 +5,8 @@ enum GeneratorError: Error {
     case missingTypes(Set<QualifiedName>)
     case messageNotFound(QualifiedName)
     case missingNodes(Set<WSDL.Node>)
+    case noSOAP11Port
+    case rpcNotSupported
 }
 
 typealias TypeMapping = [WSDL.Node: Identifier]
@@ -16,16 +18,22 @@ enum ElementHierarchy {
     typealias Graph = CodeGenerator.Graph<Node>
 }
 
-struct ClassHierarchy {
-    typealias Node = String
-    typealias Edge = (from: Node, to: Node)
-    typealias Graph = CodeGenerator.Graph<Node>
-}
+public func generate(wsdl: WSDL, service: Service) throws -> String {
+    // Verify service has a SOAP 1.1 port.
+    guard let port = service.ports.first(where: { if case .soap11 = $0.address { return true } else { return false } }) else {
+        throw GeneratorError.noSOAP11Port
+    }
 
-public func generate(wsdl: WSDL, service: Service, binding: Binding) throws -> String {
-    // This graph is only used for verification.
+    // Verify that the binding is document/literal.
+    let binding = wsdl.bindings.first { $0.name == port.binding }!
+    guard binding.operations.first(where: { $0.style == .rpc || $0.input == .encoded || $0.output == .encoded }) == nil else {
+        throw GeneratorError.rpcNotSupported
+    }
+
+    // Verify that all the types can be satisfied.
     // TODO: deprecate this graph, or restrict usage. We used it to calculate "connectedNodes",
     // but it introduces a lot of complexity. Simple replace it with the HierarchyGraph.
+    // TODO: shouldn't validating the WSDL be part of SchemaParser?
     let graph = try wsdl.createGraph()
     let connectedNodes = graph.connectedNodes
 
@@ -61,7 +69,6 @@ public func generate(wsdl: WSDL, service: Service, binding: Binding) throws -> S
         }
     }
 
-    // TODO: add these nodes to hierarchy as well.
     for case let .type(node) in connectedNodes {
         let className: String
         let baseName = node.localName.toSwiftTypeName()
@@ -104,7 +111,7 @@ public func generate(wsdl: WSDL, service: Service, binding: Binding) throws -> S
 
     var clients = [SwiftClientClass]()
     for service in wsdl.services {
-        clients.append(service.toSwift(wsdl: wsdl))
+        clients.append(service.toSwift(wsdl: wsdl, types: types))
     }
 
     return SwiftCodeGenerator.generateCode(for: Array(types.values), clients)

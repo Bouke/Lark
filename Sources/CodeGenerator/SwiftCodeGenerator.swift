@@ -323,64 +323,63 @@ extension SwiftClientClass {
 
 extension ServiceMethod: LinesOfCodeConvertible {
     func toLinesOfCode(at indentation: Indentation) -> [LineOfCode] {
-        let outputType = output.parts.first!.element.localName.toSwiftTypeName()
         return indentation.apply(
-            toFirstLine: "func \(name)(\(parameterList)) throws -> \(outputType) {",
-            nestedLines:     linesOfCodeForBody(at:),
+            toFirstLine: "func \(name)(_ parameter: \(input.type)) throws -> \(output.type) {",
+            nestedLines: [
+                "var parameters = [XMLElement]()",
+                "let parameterNode = XMLElement(prefix: \"ns0\", localName: \"\(input.element.localName)\", uri: \"\(input.element.uri)\")",
+                "parameterNode.addNamespace(XMLNode.namespace(withName: \"ns0\", stringValue: \"\(input.element.uri)\") as! XMLNode)",
+                "try parameter.serialize(parameterNode)",
+                "parameters.append(parameterNode)",
+                "let body = try send(action: URL(string: \"\(action.absoluteString)\")!, parameters: parameters)",
+                "let outputNode = body.elements(forLocalName: \"\(output.element.localName)\", uri: \"\(output.element.uri)\").first!",
+                "return try \(output.type)(deserialize: outputNode)"
+            ],
             andLastLine: "}")
     }
 
-    private func linesOfCodeForBody(at indentation: Indentation) -> [LineOfCode] {
-        return [indentation.apply(toLineOfCode: "var parameters = [XMLElement]()")]
-            + linesOfCodeForParameters(at: indentation)
-            + linesOfCodeForSend(at: indentation)
-    }
-
-    private func linesOfCodeForParameters(at indentation: Indentation) -> [LineOfCode] {
-        return input.parts.flatMap(linesOfCodeForParameter(part:)).map(indentation.apply(toLineOfCode:))
-    }
-
-    private func linesOfCodeForParameter(part: Message.Part) -> [LineOfCode] {
-        var property = part.name.localName.toSwiftPropertyName()
-        // todo: generate proper unique names for scope
-        if property == "parameters" {
-            property = "params"
-        }
-        return [
-            "let \(property)Node = XMLElement(prefix: \"ns0\", localName: \"\(part.name.localName)\", uri: \"\(part.name.uri)\")",
-            "\(property)Node.addNamespace(XMLNode.namespace(withName: \"ns0\", stringValue: \"\(part.name.uri)\") as! XMLNode)",
-            "try \(property).serialize(\(property)Node)",
-            "parameters.append(\(property)Node)"
-        ]
-    }
-
-    func linesOfCodeForSend(at indentation: Indentation) -> [LineOfCode] {
-        // TODO: use mapping here
-        // TODO: support multiple output parts
-        let output = self.output.parts.first!.name
-        let outputType = self.output.parts.first!.element.localName.toSwiftTypeName()
-        return [
-            "let body = try send(action: URL(string: \"\(action.absoluteString)\")!, parameters: parameters)",
-            "let outputNode = body.elements(forLocalName: \"\(output.localName)\", uri: \"\(output.uri)\").first!",
-            "return try \(outputType)(deserialize: outputNode)"
-        ].map(indentation.apply(toLineOfCode:))
-    }
-
-    private var parameterList: String {
-        return parameters.map { $0.toSwiftCode() }.joined(separator: ", ")
-    }
-
-    var parameters: [SwiftParameter] {
-        // TODO: use mapping here
-        // TODO: support multiple output parts
-        return input.parts.map {
-            // todo: generate proper unique names for scope
-            var property = $0.name.localName.toSwiftPropertyName()
-            if property == "parameters" {
-                property = "params"
-            }
-            return SwiftParameter(name: property, type: .identifier($0.element.localName.toSwiftTypeName()))
-        }
-    }
+//    private func linesOfCodeForBody(at indentation: Indentation) -> [LineOfCode] {
+//        return [indentation.apply(toLineOfCode: )]
+//            + linesOfCodeForParameters(at: indentation)
+//            + linesOfCodeForSend(at: indentation)
+//    }
+//
+//    private func linesOfCodeForParameters(at indentation: Indentation) -> [LineOfCode] {
+//        return input.parts.flatMap(linesOfCodeForParameter(part:)).map(indentation.apply(toLineOfCode:))
+//    }
+//
+//    private func linesOfCodeForParameter(part: Message.Part) -> [LineOfCode] {
+//        var property = part.name.localName.toSwiftPropertyName()
+//        // todo: generate proper unique names for scope
+//        if property == "parameters" {
+//            property = "params"
+//        }
+//        return [
+//            "let \(property)Node = XMLElement(prefix: \"ns0\", localName: \"\(part.element.localName)\", uri: \"\(part.element.uri)\")",
+//            "\(property)Node.addNamespace(XMLNode.namespace(withName: \"ns0\", stringValue: \"\(part.element.uri)\") as! XMLNode)",
+//            "try \(property).serialize(\(property)Node)",
+//            "parameters.append(\(property)Node)"
+//        ]
+//    }
+//
+//    func linesOfCodeForSend(at indentation: Indentation) -> [LineOfCode] {
+//        return [
+//            "let body = try send(action: URL(string: \"\(action.absoluteString)\")!, parameters: parameters)",
+//            "let outputNode = body.elements(forLocalName: \"\(output.element.localName)\", uri: \"\(output.element.uri)\").first!",
+//            "return try \(output.type)(deserialize: outputNode)"
+//        ].map(indentation.apply(toLineOfCode:))
+//    }
+//
+//    private var parameterList: String {
+//        return parameters.map { $0.toSwiftCode() }.joined(separator: ", ")
+//    }
+//
+//    var parameters: [SwiftParameter] {
+//        var property = input.element.localName.toSwiftPropertyName()
+//        if property == "parameters" {
+//            property = "params"
+//        }
+//        return [SwiftParameter(name: property, type: .identifier(input.type))]
+//    }
 }
 

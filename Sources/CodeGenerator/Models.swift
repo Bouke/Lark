@@ -26,7 +26,7 @@ struct SwiftProperty {
 }
 
 protocol SwiftMetaType: LinesOfCodeConvertible {
-    var name: String { get }
+    var name: Identifier { get }
 }
 
 class SwiftTypeClass: SwiftMetaType {
@@ -54,7 +54,7 @@ struct SwiftEnum: SwiftMetaType {
 }
 
 struct SwiftParameter {
-    let name: String
+    let name: Identifier
     let type: SwiftType
 }
 
@@ -68,7 +68,9 @@ struct SwiftClientClass: SwiftMetaType {
 }
 
 struct ServiceMethod {
-    let name: String
+    typealias Message = (element: QualifiedName, type: Identifier)
+
+    let name: Identifier
     let input: Message
     let output: Message
     let action: URL

@@ -46,17 +46,58 @@ public struct PortType {
 
 public struct Binding {
     public struct Operation {
+        public enum Style: String {
+            case document
+            case rpc
+        }
+
+        public enum Use: String {
+            case literal
+            case encoded
+        }
+
         public let name: QualifiedName
+
+        // soap specific info, might not always be present
         public let action: URL
+        public let style: Style
+
+        // soap specific info, might not always be present
+        public let input: Use
+        public let output: Use
 
         init(deserialize element: XMLElement) throws {
             name = QualifiedName(uri: try targetNamespace(ofNode: element), localName: element.attribute(forName: "name")!.stringValue!)
             if let operation = element.elements(forLocalName: "operation", uri: NS_SOAP).first {
                 action = URL(string: operation.attribute(forName: "soapAction")!.stringValue!)!
+                style = Style(rawValue: operation.attribute(forName: "style")!.stringValue!)!
             } else if let operation = element.elements(forLocalName: "operation", uri: NS_SOAP12).first {
                 action = URL(string: operation.attribute(forName: "soapAction")!.stringValue!)!
+                style = Style(rawValue: operation.attribute(forName: "style")!.stringValue!)!
             } else {
                 throw ParseError.unsupportedOperation
+            }
+
+            guard let input = element.elements(forLocalName: "input", uri: NS_WSDL).first else {
+                throw ParseError.bindingOperationIncomplete
+            }
+            if let body = input.elements(forLocalName: "body", uri: NS_SOAP).first {
+                self.input = Use(rawValue: body.attribute(forName: "use")!.stringValue!)!
+            } else if let body = input.elements(forLocalName: "body", uri: NS_SOAP12).first {
+                self.input = Use(rawValue: body.attribute(forName: "use")!.stringValue!)!
+            } else {
+                throw ParseError.bindingOperationIncomplete
+            }
+
+            guard let output = element.elements(forLocalName: "output", uri: NS_WSDL).first else {
+                throw ParseError.bindingOperationIncomplete
+            }
+            if let body = output.elements(forLocalName: "body", uri: NS_SOAP).first {
+                self.output = Use(rawValue: body.attribute(forName: "use")!.stringValue!)!
+            } else if let body = output.elements(forLocalName: "body", uri: NS_SOAP12).first {
+                self.output = Use(rawValue: body.attribute(forName: "use")!.stringValue!)!
+            } else {
+                throw ParseError.bindingOperationIncomplete
             }
         }
     }

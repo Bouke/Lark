@@ -59,7 +59,7 @@ extension Element {
 // MARK:- SOAP Client
 
 extension Service {
-    func toSwift(wsdl: WSDL) -> SwiftClientClass {
+    func toSwift(wsdl: WSDL, types: Types) -> SwiftClientClass {
         // SOAP 1.1 port
         let port = ports.first { if case .soap11 = $0.address { return true } else { return false } }!
         let binding = wsdl.bindings.first { $0.name == port.binding }!
@@ -67,12 +67,27 @@ extension Service {
 
         let name = "\(self.name.localName.toSwiftTypeName())Client"
 
-        let methods = portType.operations.map { operation -> ServiceMethod in
-            let input = wsdl.messages.first { $0.name == operation.inputMessage }!
-            let output = wsdl.messages.first { $0.name == operation.outputMessage }!
-            let action = binding.operations.first { $0.name == operation.name }!.action
-            return ServiceMethod(operation: operation, input: input, output: output, action: action)
+//        types.first!.value.name
+
+        let message = { (messageName: QualifiedName) -> (QualifiedName, Identifier) in
+            let message = wsdl.messages.first { $0.name == messageName }!
+            let element = message.parts.first!.element
+            return (element, types[.element(element)]!.name)
         }
+
+        //TODO: zip operations first; combinding port.operation and binding.operation
+        let methods = portType.operations
+            .map { operation in (port: operation, binding: binding.operations.first(where: { $0.name == operation.name })!) }
+            .map { operation -> ServiceMethod in
+//                let inputMessage = wsdl.messages.first { $0.name == operation.port.inputMessage }!
+//                let inputElement = input.parts.first!.element
+//                let input = (inputElement, types[.element(inputElement)]!)
+//                let output = wsdl.messages.first { $0.name == operation.port.outputMessage }!
+                let input = message(operation.port.inputMessage)
+                let output = message(operation.port.outputMessage)
+
+                return ServiceMethod(operation: operation.port, input: input, output: output, action: operation.binding.action)
+            }
 
         return SwiftClientClass(name: name, methods: methods, port: port)
     }

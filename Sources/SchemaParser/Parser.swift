@@ -10,6 +10,7 @@ public enum ParseError: Error {
     case noTargetNamespace
     case unsupportedImport
     case unsupportedOperation
+    case bindingOperationIncomplete
 }
 
 public func parse(WSDL root: XMLElement) throws -> WSDL {

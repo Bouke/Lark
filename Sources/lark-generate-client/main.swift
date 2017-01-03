@@ -7,4 +7,9 @@ let wsdlXml = try XMLDocument(contentsOf: wsdlURL, options: 0)
 
 let wsdl = try parse(WSDL: wsdlXml.rootElement()!)
 
-try print(generate(wsdl: wsdl, service: wsdl.services.first!, binding: wsdl.bindings.first!))
+guard let service = wsdl.services.first else {
+    print("Error: could not find service in WSDL")
+    exit(1)
+}
+
+try print(generate(wsdl: wsdl, service: service))

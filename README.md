@@ -33,6 +33,8 @@ The current implementation has a lot of limitations. If the library doesn't work
 * [x] Deserialize SOAP Fault
 * [ ] Generate Envelope/SoapFault types from XSD (become self-hosted)
 * [ ] Better error messages
+* [x] Support document/literal (does anyone even use RPC anymore?)
+* [ ] Support mixed namespaces in generated code (currently uses "ns0" everywhere)
 
 Why is it called Lark?
 ----------------------
