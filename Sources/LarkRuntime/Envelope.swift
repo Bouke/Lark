@@ -2,8 +2,8 @@ import Foundation
 
 let NS_SOAP = "http://schemas.xmlsoap.org/soap/envelope/"
 
-struct Envelope {
-    public let body: XMLElement
+public struct Envelope {
+    let body: XMLElement
 
     init() {
         body = XMLElement.element(withName: "soap:Body", uri: NS_SOAP) as! XMLElement
