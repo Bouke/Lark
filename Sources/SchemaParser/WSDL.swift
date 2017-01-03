@@ -59,7 +59,7 @@ public struct Binding {
         public let name: QualifiedName
 
         // soap specific info, might not always be present
-        public let action: URL
+        public let action: URL?
         public let style: Style
 
         // soap specific info, might not always be present
@@ -69,10 +69,10 @@ public struct Binding {
         init(deserialize element: XMLElement) throws {
             name = QualifiedName(uri: try targetNamespace(ofNode: element), localName: element.attribute(forName: "name")!.stringValue!)
             if let operation = element.elements(forLocalName: "operation", uri: NS_SOAP).first {
-                action = URL(string: operation.attribute(forName: "soapAction")!.stringValue!)!
+                action = URL(string: operation.attribute(forName: "soapAction")!.stringValue!)
                 style = Style(rawValue: operation.attribute(forName: "style")!.stringValue!)!
             } else if let operation = element.elements(forLocalName: "operation", uri: NS_SOAP12).first {
-                action = URL(string: operation.attribute(forName: "soapAction")!.stringValue!)!
+                action = URL(string: operation.attribute(forName: "soapAction")!.stringValue!)
                 style = Style(rawValue: operation.attribute(forName: "style")!.stringValue!)!
             } else {
                 throw ParseError.unsupportedOperation

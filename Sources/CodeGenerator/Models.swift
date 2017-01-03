@@ -73,9 +73,9 @@ struct ServiceMethod {
     let name: Identifier
     let input: Message
     let output: Message
-    let action: URL
+    let action: URL?
 
-    init(operation: PortType.Operation, input: Message, output: Message, action: URL) {
+    init(operation: PortType.Operation, input: Message, output: Message, action: URL?) {
         name = operation.name.localName.toSwiftPropertyName()
         self.input = input
         self.output = output

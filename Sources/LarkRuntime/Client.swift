@@ -13,7 +13,7 @@ open class Client {
         self.init(channel: Channel(transport: HTTPTransport(endpoint: endpoint)))
     }
 
-    public func send(action: URL, parameters: [XMLElement]) throws -> XMLElement {
+    public func send(action: URL?, parameters: [XMLElement]) throws -> XMLElement {
         let request = Envelope()
         for parameter in parameters {
             request.body.addChild(parameter)
