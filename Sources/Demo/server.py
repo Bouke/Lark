@@ -2,7 +2,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 
 from spyne import Application, rpc, ServiceBase, \
-    Integer, Unicode, Enum
+    Integer, Unicode, Enum, Fault
 
 from spyne import Iterable
 
@@ -14,30 +14,35 @@ part_of_day = Enum("morning", "afternoon", "evening", "night", type_name="PartOf
 
 class HelloWorldService(ServiceBase):
     @rpc(Unicode, Integer, _returns=Iterable(Unicode, min_occurs=1))
-    def say_hello(ctx, name, times):
+    def say_hello(self, name, times):
         for i in range(times):
             yield 'Hello, %s' % name
 
     @rpc()
-    def say_nothing(ctx):
+    def say_nothing(self):
         return
 
     @rpc(part_of_day, _returns=Unicode)
-    def greet(ctx, part_of_day):
+    def greet(self, part_of_day):
         return 'Good %s' % part_of_day
 
     @rpc(Iterable(part_of_day, min_occurs=1), _returns=Iterable(Unicode, min_occurs=1))
-    def greets(ctx, part_of_days):
+    def greets(self, part_of_days):
         for part_of_day in part_of_days:
             yield 'Good %s' % part_of_day
 
     @rpc(Unicode, _returns=Unicode(min_occurs=0))
-    def say_maybe_nothing(ctx, name):
+    def say_maybe_nothing(self, name):
         return
 
     @rpc(Unicode, _returns=Unicode(min_occurs=0))
-    def say_maybe_something(ctx, name):
+    def say_maybe_something(self, name):
         return 'Hello, %s' % name
+
+    @rpc()
+    def fault(self):
+        raise Fault(faultstring="a fault, as promised")
+
 
 application = Application([HelloWorldService],
     name='HelloWorld',

@@ -6,6 +6,18 @@ import LarkRuntime
 //
 // MARK: - SOAP Structures
 //
+class Fault: FaultType {
+    override init() {
+        super.init()
+    }
+    required init(deserialize element: XMLElement) throws {
+        try super.init(deserialize: element)
+    }
+    override func serialize(_ element: XMLElement) throws {
+        try super.serialize(element)
+    }
+}
+
 class SayNothingType: XMLDeserializable {
     init() {
     }
@@ -86,18 +98,6 @@ class SayMaybeSomethingResponseType: XMLDeserializable {
     }
 }
 
-class SayMaybeSomethingResponse: SayMaybeSomethingResponseType {
-    override init(sayMaybeSomethingResult: String?) {
-        super.init(sayMaybeSomethingResult: sayMaybeSomethingResult)
-    }
-    required init(deserialize element: XMLElement) throws {
-        try super.init(deserialize: element)
-    }
-    override func serialize(_ element: XMLElement) throws {
-        try super.serialize(element)
-    }
-}
-
 class SayMaybeSomethingType: XMLDeserializable {
     let name: String?
     init(name: String?) {
@@ -112,6 +112,18 @@ class SayMaybeSomethingType: XMLDeserializable {
             element.addChild(nameNode)
             try name.serialize(nameNode)
         }
+    }
+}
+
+class SayMaybeSomething: SayMaybeSomethingType {
+    override init(name: String?) {
+        super.init(name: name)
+    }
+    required init(deserialize element: XMLElement) throws {
+        try super.init(deserialize: element)
+    }
+    override func serialize(_ element: XMLElement) throws {
+        try super.serialize(element)
     }
 }
 
@@ -142,9 +154,9 @@ class GreetsResponse: GreetsResponseType {
     }
 }
 
-class SayMaybeSomething: SayMaybeSomethingType {
-    override init(name: String?) {
-        super.init(name: name)
+class SayMaybeSomethingResponse: SayMaybeSomethingResponseType {
+    override init(sayMaybeSomethingResult: String?) {
+        super.init(sayMaybeSomethingResult: sayMaybeSomethingResult)
     }
     required init(deserialize element: XMLElement) throws {
         try super.init(deserialize: element)
@@ -411,6 +423,36 @@ class Greets: GreetsType {
     }
 }
 
+class FaultResponseType: XMLDeserializable {
+    init() {
+    }
+    required init(deserialize element: XMLElement) throws {
+    }
+    func serialize(_ element: XMLElement) throws {
+    }
+}
+
+class FaultResponse: FaultResponseType {
+    override init() {
+        super.init()
+    }
+    required init(deserialize element: XMLElement) throws {
+        try super.init(deserialize: element)
+    }
+    override func serialize(_ element: XMLElement) throws {
+        try super.serialize(element)
+    }
+}
+
+class FaultType: XMLDeserializable {
+    init() {
+    }
+    required init(deserialize element: XMLElement) throws {
+    }
+    func serialize(_ element: XMLElement) throws {
+    }
+}
+
 //
 // MARK: - SOAP Client
 //
@@ -440,6 +482,16 @@ class HelloWorldServiceClient: Client {
         let body = try send(action: URL(string: "say_maybe_nothing")!, parameters: parameters)
         let outputNode = body.elements(forLocalName: "say_maybe_nothingResponse", uri: "spyne.examples.hello").first!
         return try SayMaybeNothingResponse(deserialize: outputNode)
+    }
+    func fault(_ parameter: Fault) throws -> FaultResponse {
+        var parameters = [XMLElement]()
+        let parameterNode = XMLElement(prefix: "ns0", localName: "fault", uri: "spyne.examples.hello")
+        parameterNode.addNamespace(XMLNode.namespace(withName: "ns0", stringValue: "spyne.examples.hello") as! XMLNode)
+        try parameter.serialize(parameterNode)
+        parameters.append(parameterNode)
+        let body = try send(action: URL(string: "fault")!, parameters: parameters)
+        let outputNode = body.elements(forLocalName: "faultResponse", uri: "spyne.examples.hello").first!
+        return try FaultResponse(deserialize: outputNode)
     }
     func greet(_ parameter: Greet) throws -> GreetResponse {
         var parameters = [XMLElement]()

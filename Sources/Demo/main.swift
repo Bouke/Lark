@@ -4,33 +4,55 @@ import LarkRuntime
 
 getLogger("Lark").logLevel = .warning
 
+func call<T>(_ block: @autoclosure () throws -> T, success: (T) -> ()) {
+    do {
+        success(try block())
+    } catch let fault as LarkRuntime.Fault {
+        print("Server generated a Fault: \(fault)")
+    } catch {
+        print("Other error was thrown: \(error)")
+    }
+}
+
 
 // HelloWorld
 let hwsClient = HelloWorldServiceClient()
 
-let r0 = try hwsClient.sayHello(SayHello(name: "World", times: 2))
-print(r0.sayHelloResult.string)
+call(try hwsClient.sayHello(SayHello(name: "World", times: 2))) {
+    print($0.sayHelloResult.string)
+}
 
-let r1 = try hwsClient.sayHello(SayHello(name: nil, times: 1))
-print(r1.sayHelloResult.string)
+call(try hwsClient.sayHello(SayHello(name: nil, times: 1))) {
+    print($0.sayHelloResult.string)
+}
 
-let r2 = try hwsClient.sayNothing(SayNothing())
-print(r2)
+call(try hwsClient.sayNothing(SayNothing())) {
+    print($0)
+}
 
-let r3 = try hwsClient.sayMaybeSomething(SayMaybeSomething(name: "Bouke"))
-print(r3.sayMaybeSomethingResult ?? "__nil__")
+call(try hwsClient.sayMaybeSomething(SayMaybeSomething(name: "Bouke"))) {
+    print($0.sayMaybeSomethingResult ?? "__nil__")
+}
 
-let r4 = try hwsClient.sayMaybeNothing(SayMaybeNothing(name: "Bouke"))
-print(r4.sayMaybeNothingResult ?? "__nil__")
+call(try hwsClient.sayMaybeNothing(SayMaybeNothing(name: "Bouke"))) {
+    print($0.sayMaybeNothingResult ?? "__nil__")
+}
 
-let r5 = try hwsClient.greet(Greet(partOfDay: .evening))
-print(r5)
+call(try hwsClient.greet(Greet(partOfDay: .evening))) {
+    print($0)
+}
 
-let r6 = try hwsClient.greets(Greets(partOfDays: PartOfDayArrayType(partOfDay: [.morning, .night])))
-print(r6.greetsResult.string)
+call(try hwsClient.greets(Greets(partOfDays: PartOfDayArrayType(partOfDay: [.morning, .night])))) {
+    print($0.greetsResult.string)
+}
 
+call(try hwsClient.fault(Demo.Fault())) {
+    print($0)
+}
 
 // Shakespeare
 let shakespeareClient = ShakespeareClient()
-let r7 = try shakespeareClient.getSpeech(GetSpeech(request: "to be, or not to be"))
-print(r7.getSpeechResult ?? "__nil__")
+
+call(try shakespeareClient.getSpeech(GetSpeech(request: "to be, or not to be"))) {
+    print($0.getSpeechResult ?? "__nil__")
+}
