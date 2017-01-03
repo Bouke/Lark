@@ -156,6 +156,10 @@ public struct WSDL {
     public let services: [Service]
 
     init(deserialize element: XMLElement) throws {
+        guard element.localName == "definitions" && element.uri == NS_WSDL else {
+            throw ParseError.incorrectRootElement
+        }
+
         var schema: [XSD.Node] = []
         if let typesNode = element.elements(forLocalName: "types", uri: NS_WSDL).first {
             var remainingSchemaNodes = typesNode.elements(forLocalName: "schema", uri: NS_XSD)
@@ -166,7 +170,7 @@ public struct WSDL {
                     case let .import(`import`):
                         let url = URL(string: `import`.schemaLocation)!
                         if seenSchemaURLs.insert(url).inserted {
-                            remainingSchemaNodes.append(try XMLDocument(contentsOf: url, options: 0).rootElement()!)
+                            remainingSchemaNodes.append(try importSchema(url: url))
                         }
                     default:
                         schema.append(node)

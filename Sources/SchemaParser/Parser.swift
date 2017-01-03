@@ -11,14 +11,21 @@ public enum ParseError: Error {
     case unsupportedImport
     case unsupportedOperation
     case bindingOperationIncomplete
+    case incorrectRootElement
 }
 
-public func parse(WSDL root: XMLElement) throws -> WSDL {
-    precondition(root.localName == "definitions" && root.uri == NS_WSDL)
-    return try WSDL(deserialize: root)
+
+public func parseWSDL(contentsOf url: URL) throws -> WSDL {
+    let xml = try XMLDocument(contentsOf: url, options: 0)
+    return try WSDL(deserialize: xml.rootElement()!)
 }
 
-public func parse(XSD root: XMLElement) throws -> XSD {
-    precondition(root.localName == "schema" && root.uri == NS_XSD)
-    return try XSD(deserialize: root)
+
+public func parseXSD(contentsOf url: URL) throws -> XSD {
+    let xml = try XMLDocument(contentsOf: url, options: 0)
+    return try XSD(deserialize: xml.rootElement()!)
+}
+
+func importSchema(url: URL) throws -> XMLElement {
+    return try XMLDocument(contentsOf: url, options: 0).rootElement()!
 }

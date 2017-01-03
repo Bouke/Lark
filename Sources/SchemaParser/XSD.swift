@@ -33,6 +33,10 @@ public struct XSD {
     public let nodes: [Node]
 
     init(deserialize node: XMLElement) throws {
+        guard node.localName == "schema" && node.uri == NS_XSD else {
+            throw ParseError.incorrectRootElement
+        }
+
         nodes = try (node.children ?? [])
             .flatMap { $0 as? XMLElement }
             .flatMap { child -> Node? in
