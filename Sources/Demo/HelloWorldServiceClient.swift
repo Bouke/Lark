@@ -421,62 +421,62 @@ class HelloWorldServiceClient: Client {
     convenience init() {
         self.init(endpoint: URL(string: "http://localhost:8000/")!)
     }
-    func sayHello(sayHello: SayHello) throws -> SayHelloResponse {
+    func sayHello(_ parameter: SayHello) throws -> SayHelloResponse {
         var parameters = [XMLElement]()
-        let sayHelloNode = XMLElement(prefix: "ns0", localName: "say_hello", uri: "spyne.examples.hello")
-        sayHelloNode.addNamespace(XMLNode.namespace(withName: "ns0", stringValue: "spyne.examples.hello") as! XMLNode)
-        try sayHello.serialize(sayHelloNode)
-        parameters.append(sayHelloNode)
+        let parameterNode = XMLElement(prefix: "ns0", localName: "say_hello", uri: "spyne.examples.hello")
+        parameterNode.addNamespace(XMLNode.namespace(withName: "ns0", stringValue: "spyne.examples.hello") as! XMLNode)
+        try parameter.serialize(parameterNode)
+        parameters.append(parameterNode)
         let body = try send(action: URL(string: "say_hello")!, parameters: parameters)
         let outputNode = body.elements(forLocalName: "say_helloResponse", uri: "spyne.examples.hello").first!
         return try SayHelloResponse(deserialize: outputNode)
     }
-    func sayMaybeNothing(sayMaybeNothing: SayMaybeNothing) throws -> SayMaybeNothingResponse {
+    func sayMaybeNothing(_ parameter: SayMaybeNothing) throws -> SayMaybeNothingResponse {
         var parameters = [XMLElement]()
-        let sayMaybeNothingNode = XMLElement(prefix: "ns0", localName: "say_maybe_nothing", uri: "spyne.examples.hello")
-        sayMaybeNothingNode.addNamespace(XMLNode.namespace(withName: "ns0", stringValue: "spyne.examples.hello") as! XMLNode)
-        try sayMaybeNothing.serialize(sayMaybeNothingNode)
-        parameters.append(sayMaybeNothingNode)
+        let parameterNode = XMLElement(prefix: "ns0", localName: "say_maybe_nothing", uri: "spyne.examples.hello")
+        parameterNode.addNamespace(XMLNode.namespace(withName: "ns0", stringValue: "spyne.examples.hello") as! XMLNode)
+        try parameter.serialize(parameterNode)
+        parameters.append(parameterNode)
         let body = try send(action: URL(string: "say_maybe_nothing")!, parameters: parameters)
         let outputNode = body.elements(forLocalName: "say_maybe_nothingResponse", uri: "spyne.examples.hello").first!
         return try SayMaybeNothingResponse(deserialize: outputNode)
     }
-    func greet(greet: Greet) throws -> GreetResponse {
+    func greet(_ parameter: Greet) throws -> GreetResponse {
         var parameters = [XMLElement]()
-        let greetNode = XMLElement(prefix: "ns0", localName: "greet", uri: "spyne.examples.hello")
-        greetNode.addNamespace(XMLNode.namespace(withName: "ns0", stringValue: "spyne.examples.hello") as! XMLNode)
-        try greet.serialize(greetNode)
-        parameters.append(greetNode)
+        let parameterNode = XMLElement(prefix: "ns0", localName: "greet", uri: "spyne.examples.hello")
+        parameterNode.addNamespace(XMLNode.namespace(withName: "ns0", stringValue: "spyne.examples.hello") as! XMLNode)
+        try parameter.serialize(parameterNode)
+        parameters.append(parameterNode)
         let body = try send(action: URL(string: "greet")!, parameters: parameters)
         let outputNode = body.elements(forLocalName: "greetResponse", uri: "spyne.examples.hello").first!
         return try GreetResponse(deserialize: outputNode)
     }
-    func sayNothing(sayNothing: SayNothing) throws -> SayNothingResponse {
+    func sayNothing(_ parameter: SayNothing) throws -> SayNothingResponse {
         var parameters = [XMLElement]()
-        let sayNothingNode = XMLElement(prefix: "ns0", localName: "say_nothing", uri: "spyne.examples.hello")
-        sayNothingNode.addNamespace(XMLNode.namespace(withName: "ns0", stringValue: "spyne.examples.hello") as! XMLNode)
-        try sayNothing.serialize(sayNothingNode)
-        parameters.append(sayNothingNode)
+        let parameterNode = XMLElement(prefix: "ns0", localName: "say_nothing", uri: "spyne.examples.hello")
+        parameterNode.addNamespace(XMLNode.namespace(withName: "ns0", stringValue: "spyne.examples.hello") as! XMLNode)
+        try parameter.serialize(parameterNode)
+        parameters.append(parameterNode)
         let body = try send(action: URL(string: "say_nothing")!, parameters: parameters)
         let outputNode = body.elements(forLocalName: "say_nothingResponse", uri: "spyne.examples.hello").first!
         return try SayNothingResponse(deserialize: outputNode)
     }
-    func sayMaybeSomething(sayMaybeSomething: SayMaybeSomething) throws -> SayMaybeSomethingResponse {
+    func sayMaybeSomething(_ parameter: SayMaybeSomething) throws -> SayMaybeSomethingResponse {
         var parameters = [XMLElement]()
-        let sayMaybeSomethingNode = XMLElement(prefix: "ns0", localName: "say_maybe_something", uri: "spyne.examples.hello")
-        sayMaybeSomethingNode.addNamespace(XMLNode.namespace(withName: "ns0", stringValue: "spyne.examples.hello") as! XMLNode)
-        try sayMaybeSomething.serialize(sayMaybeSomethingNode)
-        parameters.append(sayMaybeSomethingNode)
+        let parameterNode = XMLElement(prefix: "ns0", localName: "say_maybe_something", uri: "spyne.examples.hello")
+        parameterNode.addNamespace(XMLNode.namespace(withName: "ns0", stringValue: "spyne.examples.hello") as! XMLNode)
+        try parameter.serialize(parameterNode)
+        parameters.append(parameterNode)
         let body = try send(action: URL(string: "say_maybe_something")!, parameters: parameters)
         let outputNode = body.elements(forLocalName: "say_maybe_somethingResponse", uri: "spyne.examples.hello").first!
         return try SayMaybeSomethingResponse(deserialize: outputNode)
     }
-    func greets(greets: Greets) throws -> GreetsResponse {
+    func greets(_ parameter: Greets) throws -> GreetsResponse {
         var parameters = [XMLElement]()
-        let greetsNode = XMLElement(prefix: "ns0", localName: "greets", uri: "spyne.examples.hello")
-        greetsNode.addNamespace(XMLNode.namespace(withName: "ns0", stringValue: "spyne.examples.hello") as! XMLNode)
-        try greets.serialize(greetsNode)
-        parameters.append(greetsNode)
+        let parameterNode = XMLElement(prefix: "ns0", localName: "greets", uri: "spyne.examples.hello")
+        parameterNode.addNamespace(XMLNode.namespace(withName: "ns0", stringValue: "spyne.examples.hello") as! XMLNode)
+        try parameter.serialize(parameterNode)
+        parameters.append(parameterNode)
         let body = try send(action: URL(string: "greets")!, parameters: parameters)
         let outputNode = body.elements(forLocalName: "greetsResponse", uri: "spyne.examples.hello").first!
         return try GreetsResponse(deserialize: outputNode)
