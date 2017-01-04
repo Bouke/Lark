@@ -5,30 +5,21 @@ import XCTest
 
 class _HTTPTransport: HTTPTransport {
     var request: URLRequest? = nil
+    let response: Result<(HTTPURLResponse, Data)>
 
-    let response: HTTPURLResponse?
-    let data: Data?
-    let error: Error?
-
-    public init(endpoint: URL, response: HTTPURLResponse?, data: Data?, error: Error?) {
+    public init(endpoint: URL, response: Result<(HTTPURLResponse, Data)>) {
         self.response = response
-        self.data = data
-        self.error = error
         super.init(endpoint: endpoint)
     }
 
     override func send(_ request: URLRequest) throws -> (HTTPURLResponse, Data) {
         self.request = request
-        if let error = error {
-            throw error
-        } else {
-            return (response!, data!)
-        }
+        return try response.resolve()
     }
 }
 
 class HTTPTransportTests: XCTestCase {
-    func testOk() throws {
+    func testOk() {
         let response = HTTPURLResponse(
             url: URL(string: "http://tempuri.org")!,
             statusCode: 200,
@@ -36,8 +27,8 @@ class HTTPTransportTests: XCTestCase {
             headerFields: [
                 "Content-Type": "text/xml"
             ])!
-        let data = "<hello>world</hello>".data(using: .utf8)
-        let transport = _HTTPTransport(endpoint: URL(string: "http://tempuri.org")!, response: response, data: data, error: nil)
+        let data = "<hello>world</hello>".data(using: .utf8)!
+        let transport = _HTTPTransport(endpoint: URL(string: "http://tempuri.org")!, response: .success((response, data)))
         do {
             let result = try transport.send(action: URL(string: "GetCountries"), message: Data())
             XCTAssertEqual(result, data)
@@ -59,8 +50,8 @@ class HTTPTransportTests: XCTestCase {
             headerFields: [
                 "Content-Type": "text/xml"
             ])!
-        let data = "<hello>world</hello>".data(using: .utf8)
-        let transport = _HTTPTransport(endpoint: URL(string: "http://tempuri.org")!, response: response, data: data, error: nil)
+        let data = "<hello>world</hello>".data(using: .utf8)!
+        let transport = _HTTPTransport(endpoint: URL(string: "http://tempuri.org")!, response: .success((response, data)))
         do {
             _ = try transport.send(action: URL(string: "GetCountries"), message: Data())
             XCTFail("Should throw on status code 500")
@@ -71,7 +62,7 @@ class HTTPTransportTests: XCTestCase {
         }
     }
 
-    func testInvalidMimeType() throws {
+    func testInvalidMimeType() {
         let response = HTTPURLResponse(
             url: URL(string: "http://tempuri.org")!,
             statusCode: 200,
@@ -79,7 +70,7 @@ class HTTPTransportTests: XCTestCase {
             headerFields: [
                 "Content-Type": "text/html"
             ])!
-        let transport = _HTTPTransport(endpoint: URL(string: "http://tempuri.org")!, response: response, data: Data(), error: nil)
+        let transport = _HTTPTransport(endpoint: URL(string: "http://tempuri.org")!, response: .success((response, Data())))
         do {
             _ = try transport.send(action: URL(string: "GetCountries"), message: Data())
             XCTFail("Should throw on invalid mime type")
