@@ -17,7 +17,7 @@ class _HTTPTransport: HTTPTransport {
         super.init(endpoint: endpoint)
     }
 
-    override func doSend(_ request: URLRequest) throws -> (HTTPURLResponse, Data) {
+    override func send(_ request: URLRequest) throws -> (HTTPURLResponse, Data) {
         self.request = request
         if let error = error {
             throw error
@@ -38,17 +38,20 @@ class HTTPTransportTests: XCTestCase {
             ])!
         let data = "<hello>world</hello>".data(using: .utf8)
         let transport = _HTTPTransport(endpoint: URL(string: "http://tempuri.org")!, response: response, data: data, error: nil)
-
-        let result = try transport.send(action: URL(string: "GetCountries"), message: Data())
-        XCTAssertEqual(result, data)
-        XCTAssertNotNil(transport.request)
-        XCTAssertEqual(transport.request!.allHTTPHeaderFields ?? [:],
-                       ["Content-Type": "text/xml; charset=utf-8",
-                        "SOAPAction": "GetCountries",
-                        "Content-Length": "0"])
+        do {
+            let result = try transport.send(action: URL(string: "GetCountries"), message: Data())
+            XCTAssertEqual(result, data)
+            XCTAssertNotNil(transport.request)
+            XCTAssertEqual(transport.request!.allHTTPHeaderFields ?? [:],
+                           ["Content-Type": "text/xml; charset=utf-8",
+                            "SOAPAction": "GetCountries",
+                            "Content-Length": "0"])
+        } catch {
+            XCTFail("Failed with error: \(error)")
+        }
     }
 
-    func testServerError() throws {
+    func testServerError() {
         let response = HTTPURLResponse(
             url: URL(string: "http://tempuri.org")!,
             statusCode: 500,
@@ -58,12 +61,32 @@ class HTTPTransportTests: XCTestCase {
             ])!
         let data = "<hello>world</hello>".data(using: .utf8)
         let transport = _HTTPTransport(endpoint: URL(string: "http://tempuri.org")!, response: response, data: data, error: nil)
-
         do {
             _ = try transport.send(action: URL(string: "GetCountries"), message: Data())
             XCTFail("Should throw on status code 500")
         } catch HTTPTransportError.notOk(let (statusCode, result)) where statusCode == 500 {
             XCTAssertEqual(result, data)
+        } catch {
+            XCTFail("Failed with error: \(error)")
+        }
+    }
+
+    func testInvalidMimeType() throws {
+        let response = HTTPURLResponse(
+            url: URL(string: "http://tempuri.org")!,
+            statusCode: 200,
+            httpVersion: "1.1",
+            headerFields: [
+                "Content-Type": "text/html"
+            ])!
+        let transport = _HTTPTransport(endpoint: URL(string: "http://tempuri.org")!, response: response, data: Data(), error: nil)
+        do {
+            _ = try transport.send(action: URL(string: "GetCountries"), message: Data())
+            XCTFail("Should throw on invalid mime type")
+        } catch HTTPTransportError.invalidMimeType(let type) where type == "text/html" {
+            // ok
+        } catch {
+            XCTFail("Failed with error: \(error)")
         }
     }
 }

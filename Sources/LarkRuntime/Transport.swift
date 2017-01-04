@@ -29,7 +29,7 @@ open class HTTPTransport: Transport {
         request.addValue("\(message.count)", forHTTPHeaderField: "Content-Length")
         logger.debug("Request: " + request.debugDescription + "\n" + (request.allHTTPHeaderFields?.map({"\($0): \($1)"}).joined(separator: "\n") ?? ""))
 
-        let (response, data) = try doSend(request)
+        let (response, data) = try send(request)
 
         logger.debug("Response: " + response.debugDescription)
         logger.debug("Response body: " + (String(data: data, encoding: .utf8) ?? "Failed to decode the body as UTF-8 for logging"))
@@ -42,7 +42,7 @@ open class HTTPTransport: Transport {
         return data
     }
 
-    func doSend(_ request: URLRequest) throws -> (HTTPURLResponse, Data) {
+    open func send(_ request: URLRequest) throws -> (HTTPURLResponse, Data) {
         var response: URLResponse? = nil
         let data = try NSURLConnection.sendSynchronousRequest(request, returning: &response)
         guard let httpResponse = response as? HTTPURLResponse else {
