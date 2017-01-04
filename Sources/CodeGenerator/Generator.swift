@@ -9,14 +9,58 @@ enum GeneratorError: Error {
     case rpcNotSupported
 }
 
-typealias TypeMapping = [WSDL.Node: Identifier]
-typealias Types = [WSDL.Node: SwiftMetaType]
+
+public enum Type {
+    case element(QualifiedName)
+    case type(QualifiedName)
+}
+
+extension Type {
+    var element: QualifiedName? {
+        if case let .element(name) = self {
+            return name
+        } else {
+            return nil
+        }
+    }
+}
+
+extension Type: Equatable, Hashable {
+    public static func ==(lhs: Type, rhs: Type) -> Bool {
+        switch(lhs, rhs) {
+        case let (.element(lhs), .element(rhs)): return lhs == rhs
+        case let (.type(lhs), .type(rhs)): return lhs == rhs
+        default: return false
+        }
+    }
+
+    public var hashValue: Int {
+        switch self {
+        case let .element(qname): return qname.hashValue
+        case let .type(qname): return qname.hashValue
+        }
+    }
+}
+
+extension Type: CustomDebugStringConvertible {
+    public var debugDescription: String {
+        switch self {
+        case let .element(qname): return ".element(\(qname.debugDescription))"
+        case let .type(qname): return ".type(\(qname.debugDescription))"
+        }
+    }
+}
+
+public typealias Identifier = String
+public typealias TypeMapping = [Type: Identifier]
+public typealias Types = [Type: SwiftMetaType]
 
 enum ElementHierarchy {
-    typealias Node = WSDL.Node
+    typealias Node = Type
     typealias Edge = (from: Node, to: Node)
     typealias Graph = CodeGenerator.Graph<Node>
 }
+
 
 public func generate(wsdl: WSDL, service: Service) throws -> String {
     // Verify service has a SOAP 1.1 port.
@@ -31,11 +75,23 @@ public func generate(wsdl: WSDL, service: Service) throws -> String {
     }
 
     // Verify that all the types can be satisfied.
-    // TODO: deprecate this graph, or restrict usage. We used it to calculate "connectedNodes",
-    // but it introduces a lot of complexity. Simple replace it with the HierarchyGraph.
-    // TODO: shouldn't validating the WSDL be part of SchemaParser?
-    let graph = try wsdl.createGraph()
-    let connectedNodes = graph.connectedNodes
+    try wsdl.verify()
+
+    let types = try generateTypes(inSchema: wsdl.schema)
+
+    var clients = [SwiftClientClass]()
+    for service in wsdl.services {
+        clients.append(service.toSwift(wsdl: wsdl, types: types))
+    }
+
+    return SwiftCodeGenerator.generateCode(for: Array(types.values), clients)
+}
+
+
+public func generateTypes(inSchema schema: XSD) throws -> Types {
+    var mapping: TypeMapping = baseTypes.dictionary { (Type.type($0), $1) }
+    var scope = Set<String>()
+    var hierarchy = ElementHierarchy.Graph()
 
     // Assign unique names to all nodes. First, elements are given a name. Sometimes
     // elements have the same name as their implementing types, and we give give preference
@@ -47,31 +103,28 @@ public func generate(wsdl: WSDL, service: Service) throws -> String {
     // Note that we could collapse elements having only a base type. At the moment we handle
     // this using inheritance.
 
-    var mapping = baseTypes.dictionary { (WSDL.Node.type($0), $1) }
-    var scope = Set<String>()
-    var hierarchy = ElementHierarchy.Graph()
+    let elements = schema.flatMap { $0.element }.dictionary { ($0.name, $0) }
+    let complexes = schema.flatMap { $0.complexType }.dictionary { ($0.name!, $0) }
+    let simples = schema.flatMap { $0.simpleType }.dictionary { ($0.name!, $0) }
 
-    let elements = wsdl.schema.flatMap { $0.element }.dictionary { ($0.name, $0) }
-    let complexes = wsdl.schema.flatMap { $0.complexType }.dictionary { ($0.name!, $0) }
-    let simples = wsdl.schema.flatMap { $0.simpleType }.dictionary { ($0.name!, $0) }
-
-    for case let .element(name) in connectedNodes {
-        let className = name.localName.toSwiftTypeName()
+    for element in elements.values {
+        let className = element.name.localName.toSwiftTypeName()
         guard !scope.contains(className) else {
             fatalError("Element name must be unique")
         }
-        mapping[.element(name)] = className
+        mapping[.element(element.name)] = className
         scope.insert(className)
 
-        switch elements[name]!.content {
-        case let .base(base): hierarchy.insertEdge((.element(name), .type(base)))
-        case .complex: hierarchy.nodes.insert(.element(name))
+        switch element.content {
+        case let .base(base): hierarchy.insertEdge((.element(element.name), .type(base)))
+        case .complex: hierarchy.nodes.insert(.element(element.name))
         }
     }
 
-    for case let .type(node) in connectedNodes {
+    let namedTypes: [NamedType] = complexes.values.map({ $0 as NamedType }) + simples.values.map({ $0 as NamedType })
+    for type in namedTypes {
         let className: String
-        let baseName = node.localName.toSwiftTypeName()
+        let baseName = type.name!.localName.toSwiftTypeName()
         if !scope.contains(baseName) {
             className = baseName
         } else if !scope.contains("\(baseName)Type") {
@@ -79,11 +132,13 @@ public func generate(wsdl: WSDL, service: Service) throws -> String {
         } else {
             className = (2...Int.max).lazy.map { "\(baseName)Type\($0)" }.first { !scope.contains($0) }!
         }
-        mapping[.type(node)] = className
+        mapping[.type(type.name!)] = className
         scope.insert(className)
     }
 
-    for case let .simpleType(type) in wsdl.schema {
+    // Add simpleType's base type. Note that a complexType can also have
+    // a base type, but that's currently not implemented.
+    for case let .simpleType(type) in schema {
         switch type.content {
         case let .list(itemType: itemType): hierarchy.insertEdge((.type(type.name!), .type(itemType)))
         case .listWrapped: hierarchy.nodes.insert(.type(type.name!))
@@ -91,7 +146,7 @@ public func generate(wsdl: WSDL, service: Service) throws -> String {
         }
     }
 
-    var types: [WSDL.Node: SwiftMetaType] = [:]
+    var types: Types = [:]
     for node in hierarchy.traverse {
         switch node {
         case let .element(name):
@@ -104,17 +159,10 @@ public func generate(wsdl: WSDL, service: Service) throws -> String {
             } else {
                 fatalError("type not found")
             }
-        default:
-            fatalError("unsupported type")
         }
     }
 
-    var clients = [SwiftClientClass]()
-    for service in wsdl.services {
-        clients.append(service.toSwift(wsdl: wsdl, types: types))
-    }
-
-    return SwiftCodeGenerator.generateCode(for: Array(types.values), clients)
+    return types
 }
 
 // todo: cleanup

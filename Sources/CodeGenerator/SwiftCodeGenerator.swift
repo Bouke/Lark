@@ -1,15 +1,18 @@
 import SchemaParser
 
-protocol SwiftCodeConvertible {
+public typealias SwiftCode = String
+public typealias LineOfCode = SwiftCode
+
+public protocol SwiftCodeConvertible {
     func toSwiftCode(indentedBy indentChars: String) -> SwiftCode
 }
 
-protocol LinesOfCodeConvertible: SwiftCodeConvertible {
+public protocol LinesOfCodeConvertible: SwiftCodeConvertible {
     func toLinesOfCode(at indentation: Indentation) -> [LineOfCode]
 }
 
 extension LinesOfCodeConvertible {
-    func toSwiftCode(indentedBy indentChars: String = "    ") -> SwiftCode {
+    public func toSwiftCode(indentedBy indentChars: String = "    ") -> SwiftCode {
         let indentation = Indentation(chars: indentChars)
         let linesOfCode = toLinesOfCode(at: indentation)
         return linesOfCode.joined(separator: "\n")
@@ -41,13 +44,7 @@ struct SwiftCodeGenerator {
         ""].joined(separator: "\n")
 }
 
-
-// MARK: - Implementation
-
-typealias SwiftCode = String
-typealias LineOfCode = SwiftCode
-
-struct Indentation {
+public struct Indentation {
     private let chars: String
     private let level: Int
     private let value: String
@@ -90,7 +87,7 @@ struct Indentation {
 // MARK:- SOAP Types
 
 extension SwiftTypeClass {
-    func toLinesOfCode(at indentation: Indentation) -> [LineOfCode] {
+    public func toLinesOfCode(at indentation: Indentation) -> [LineOfCode] {
         let baseType = base?.name ?? "XMLDeserializable"
         return indentation.apply(
             toFirstLine: "class \(name): \(baseType) {",
@@ -240,7 +237,7 @@ extension SwiftParameter {
 }
 
 extension SwiftEnum {
-    func toLinesOfCode(at indentation: Indentation) -> [LineOfCode] {
+    public func toLinesOfCode(at indentation: Indentation) -> [LineOfCode] {
         return indentation.apply(
             toFirstLine: "enum \(name): \(rawType.toSwiftCode()), XMLSerializable, XMLDeserializable {",
             nestedLines:      linesOfCodeForBody(at:),
@@ -283,7 +280,7 @@ extension SwiftEnum {
 // MARK:- SOAP Client
 
 extension SwiftClientClass {
-    func toLinesOfCode(at indentation: Indentation) -> [LineOfCode] {
+    public func toLinesOfCode(at indentation: Indentation) -> [LineOfCode] {
         return indentation.apply(
             toFirstLine: "class \(name): Client {",
             nestedLines:      linesOfCodeForMembers(at:),

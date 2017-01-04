@@ -4,7 +4,7 @@ import SchemaParser
 // MARK:- SOAP Types
 
 extension ComplexType {
-    func toSwift(name: String? = nil, mapping: TypeMapping, types: Types) -> SwiftTypeClass {
+    public func toSwift(name: String? = nil, mapping: TypeMapping, types: Types) -> SwiftTypeClass {
         let name = name ?? mapping[.type(self.name!)]!
         var properties = [SwiftProperty]()
         var nestedTypes = [SwiftMetaType]()
@@ -27,7 +27,7 @@ extension ComplexType {
 }
 
 extension SimpleType {
-    func toSwift(name: String? = nil, mapping: TypeMapping, types: Types) -> SwiftMetaType {
+    public func toSwift(name: String? = nil, mapping: TypeMapping, types: Types) -> SwiftMetaType {
         let name = name ?? mapping[.type(self.name!)]!
         switch self.content {
         case .list: fatalError()
@@ -46,7 +46,7 @@ extension SimpleType {
 }
 
 extension Element {
-    func toSwift(mapping: TypeMapping, types: Types) -> SwiftTypeClass {
+    public func toSwift(mapping: TypeMapping, types: Types) -> SwiftTypeClass {
         let name = mapping[.element(self.name)]!
         switch self.content {
         case let .base(base): return SwiftTypeClass(name: name, base: (types[.type(base)]! as! SwiftTypeClass))
@@ -59,7 +59,7 @@ extension Element {
 // MARK:- SOAP Client
 
 extension Service {
-    func toSwift(wsdl: WSDL, types: Types) -> SwiftClientClass {
+    public func toSwift(wsdl: WSDL, types: Types) -> SwiftClientClass {
         // SOAP 1.1 port
         let port = ports.first { if case .soap11 = $0.address { return true } else { return false } }!
         let binding = wsdl.bindings.first { $0.name == port.binding }!

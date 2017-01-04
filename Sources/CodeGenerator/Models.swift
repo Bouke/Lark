@@ -1,8 +1,6 @@
 import Foundation
 import SchemaParser
 
-typealias Identifier = String
-
 // MARK:- SOAP Types
 
 indirect enum SwiftType {
@@ -25,19 +23,19 @@ struct SwiftProperty {
     let element: Element
 }
 
-protocol SwiftMetaType: LinesOfCodeConvertible {
+public protocol SwiftMetaType: LinesOfCodeConvertible {
     var name: Identifier { get }
 }
 
-class SwiftTypeClass: SwiftMetaType {
-    let name: Identifier
+public class SwiftTypeClass: SwiftMetaType {
+    public let name: Identifier
     let base: SwiftTypeClass?
     let protocols: [String]
     let properties: [SwiftProperty]
     let nestedTypes: [SwiftMetaType]
     let members: [LinesOfCodeConvertible]
 
-    public init(name: String, base: SwiftTypeClass? = nil, protocols: [String] = [], properties: [SwiftProperty] = [], nestedTypes: [SwiftMetaType] = [], members: [LinesOfCodeConvertible] = []) {
+    init(name: String, base: SwiftTypeClass? = nil, protocols: [String] = [], properties: [SwiftProperty] = [], nestedTypes: [SwiftMetaType] = [], members: [LinesOfCodeConvertible] = []) {
         self.name = name
         self.base = base
         self.protocols = protocols
@@ -47,13 +45,13 @@ class SwiftTypeClass: SwiftMetaType {
     }
 }
 
-struct SwiftEnum: SwiftMetaType {
-    let name: Identifier
+public struct SwiftEnum: SwiftMetaType {
+    public let name: Identifier
     let rawType: SwiftType
     let cases: [String: String]
 }
 
-struct SwiftParameter {
+public struct SwiftParameter {
     let name: Identifier
     let type: SwiftType
 }
@@ -61,8 +59,8 @@ struct SwiftParameter {
 
 // MARK:- SOAP Client
 
-struct SwiftClientClass: SwiftMetaType {
-    let name: Identifier
+public struct SwiftClientClass: SwiftMetaType {
+    public let name: Identifier
     let methods: [ServiceMethod]
     let port: Service.Port
 }
