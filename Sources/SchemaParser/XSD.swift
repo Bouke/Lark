@@ -147,6 +147,11 @@ public struct SimpleType: NamedType {
         public let base: QualifiedName
         public let enumeration: [String]
 
+        public init(base: QualifiedName, enumeration: [String]) {
+            self.base = base
+            self.enumeration = enumeration
+        }
+
         init(deserialize node: XMLElement) throws {
             guard let base = node.attribute(forLocalName: "base", uri: nil)?.stringValue else {
                 throw ParseError.unsupportedType
