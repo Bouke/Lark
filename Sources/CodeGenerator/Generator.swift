@@ -7,6 +7,7 @@ enum GeneratorError: Error {
     case missingNodes(Set<WSDL.Node>)
     case noSOAP11Port
     case rpcNotSupported
+    case notImplemented
 }
 
 
@@ -136,8 +137,13 @@ func generateTypes(inSchema schema: XSD) throws -> Types {
         scope.insert(className)
     }
 
-    // Add simpleType's base type. Note that a complexType can also have
+    // Note that a complexType can also have
     // a base type, but that's currently not implemented.
+    for case let .complexType(type) in schema {
+        hierarchy.nodes.insert(.type(type.name!))
+    }
+
+    // Add simpleType's base type.
     for case let .simpleType(type) in schema {
         switch type.content {
         case let .list(itemType: itemType): hierarchy.insertEdge((.type(type.name!), .type(itemType)))
@@ -152,10 +158,12 @@ func generateTypes(inSchema schema: XSD) throws -> Types {
         case let .element(name):
             types[node] = elements[name]!.toSwift(mapping: mapping, types: types)
         case let .type(name):
-            if let complex = complexes[name] {
+            if baseTypes[name] != nil {
+                continue
+            } else if let complex = complexes[name] {
                 types[node] = complex.toSwift(mapping: mapping, types: types)
             } else if let simple = simples[name] {
-                types[node] = simple.toSwift(mapping: mapping, types: types)
+                types[node] = try simple.toSwift(mapping: mapping, types: types)
             } else {
                 fatalError("type not found")
             }

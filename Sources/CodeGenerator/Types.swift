@@ -27,12 +27,13 @@ extension ComplexType {
 }
 
 extension SimpleType {
-    public func toSwift(name: String? = nil, mapping: TypeMapping, types: Types) -> SwiftMetaType {
+    public func toSwift(name: String? = nil, mapping: TypeMapping, types: Types) throws -> SwiftMetaType {
         let name = name ?? mapping[.type(self.name!)]!
         switch self.content {
-        case .list: fatalError()
+        case .list:
+            throw GeneratorError.notImplemented
         case .listWrapped:
-            fatalError("Not implemented")
+            throw GeneratorError.notImplemented
 //            return SwiftTypeClass(
 //                name: "ArrayOf\(name)",
 //                properties: [SwiftProperty(name: "items", type: .array(.identifier(name)))],
