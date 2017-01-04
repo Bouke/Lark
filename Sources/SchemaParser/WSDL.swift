@@ -149,7 +149,7 @@ public struct Service {
 }
 
 public struct WSDL {
-    public let schema: [XSD.Node]
+    public let schema: XSD
     public let messages: [Message]
     public let portTypes: [PortType]
     public let bindings: [Binding]
@@ -160,7 +160,7 @@ public struct WSDL {
             throw ParseError.incorrectRootElement
         }
 
-        var schema: [XSD.Node] = []
+        var nodes: [XSD.Node] = []
         if let typesNode = element.elements(forLocalName: "types", uri: NS_WSDL).first {
             var remainingSchemaNodes = typesNode.elements(forLocalName: "schema", uri: NS_XSD)
             var seenSchemaURLs = Set<URL>()
@@ -173,12 +173,12 @@ public struct WSDL {
                             remainingSchemaNodes.append(try importSchema(url: url))
                         }
                     default:
-                        schema.append(node)
+                        nodes.append(node)
                     }
                 }
             }
         }
-        self.schema = schema
+        schema = XSD(nodes: nodes)
         messages = try element.elements(forLocalName: "message", uri: NS_WSDL).map(Message.init(deserialize:))
         portTypes = try element.elements(forLocalName: "portType", uri: NS_WSDL).map(PortType.init(deserialize:))
         bindings = try element.elements(forLocalName: "binding", uri: NS_WSDL).map(Binding.init(deserialize:))

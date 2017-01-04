@@ -28,9 +28,13 @@ public struct XSD {
             guard case let .complexType(complexType) = self else { return nil }
             return complexType
         }
-}
+    }
 
-    public let nodes: [Node]
+    let nodes: [Node]
+
+    public init(nodes: [Node]) {
+        self.nodes = nodes
+    }
 
     init(deserialize node: XMLElement) throws {
         guard node.localName == "schema" && node.uri == NS_XSD else {
@@ -52,6 +56,28 @@ public struct XSD {
                 default: return nil
                 }
             }
+    }
+}
+
+extension XSD: Sequence {
+    public func makeIterator() -> IndexingIterator<[Node]> {
+        return nodes.makeIterator()
+    }
+}
+
+extension XSD: Collection {
+    public typealias Index = Int
+    public var startIndex: Index {
+        return nodes.startIndex
+    }
+    public var endIndex: Index {
+        return nodes.endIndex
+    }
+    public func index(after i: Index) -> Index {
+        return nodes.index(after: i)
+    }
+    public subscript(position: Index) -> Node {
+        return nodes[position]
     }
 }
 
