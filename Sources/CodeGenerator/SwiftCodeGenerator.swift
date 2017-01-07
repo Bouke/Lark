@@ -91,17 +91,19 @@ extension SwiftTypeClass {
         let baseType = base?.name ?? "XMLDeserializable"
         return indentation.apply(
             toFirstLine: "class \(name): \(baseType) {",
-            nestedLines:      linesOfCodeForMembers(at:),
+            nestedLines:      linesOfCodeForBody(at:),
             andLastLine: "}")
     }
 
-    private func linesOfCodeForMembers(at indentation: Indentation) -> [LineOfCode] {
-        return linesOfCodeForProperties(at: indentation)
-            + initializer(at: indentation)
-            + deserializer(at: indentation)
-            + serializer(at: indentation)
-            + linesOfCodeForNestedClasses(at: indentation)
-            + members.flatMap { $0.toLinesOfCode(at: indentation) }
+    private func linesOfCodeForBody(at indentation: Indentation) -> [LineOfCode] {
+        var lines: [LineOfCode] = []
+        lines += linesOfCodeForProperties(at: indentation)
+        lines += initializer(at: indentation)
+        lines += deserializer(at: indentation)
+        lines += serializer(at: indentation)
+        lines += linesOfCodeForNestedClasses(at: indentation)
+        lines += members.flatMap { $0.toLinesOfCode(at: indentation) }
+        return lines
     }
 
     private func initializer(at indentation: Indentation) -> [LineOfCode] {
