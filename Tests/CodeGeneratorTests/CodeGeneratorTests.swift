@@ -41,17 +41,6 @@ class CodeGeneratorTests: XCTestCase {
         ].joined(separator: "\n"))
     }
 
-    func testList() throws {
-        let schema = XSD(nodes: [
-            .simpleType(.init(
-                name: qname("my-type"),
-                content: .list(itemType: STRING)
-                ))
-            ])
-        XCTAssertEqual(try schema.generateCode().joined(separator: "\n"), [
-        ].joined(separator: "\n"))
-    }
-
     func testComplexEmpty() throws {
         let schema = XSD(nodes: [
             .complexType(.init(

@@ -13,15 +13,6 @@ extension ComplexType {
         case let .sequence(sequence):
             base = nil
             (properties, nestedTypes) = sequenceToSwift(name: name, sequence: sequence, mapping: mapping, types: types)
-//            for element in sequence.elements {
-//                switch element.content {
-//                case let .base(base):
-//                    properties.append(SwiftProperty(name: element.name.localName.toSwiftPropertyName(), type: .init(type: mapping[.type(base)]!, element: element), element: element))
-//                case let .complex(complex):
-//                    nestedTypes.append(complex.toSwift(mapping: mapping, types: types))
-//                    properties.append(SwiftProperty(name: element.name.localName.toSwiftPropertyName(), type: .init(type: "UNNAMED", element: element), element: element))
-//                }
-//            }
         case let .complex(complex):
             base = types[.type(complex.base)]! as! SwiftTypeClass
             let content: Content.ComplexContent.Content.Content
@@ -33,7 +24,6 @@ extension ComplexType {
             case let .sequence(sequence):
                 (properties, nestedTypes) = sequenceToSwift(name: name, sequence: sequence, mapping: mapping, types: types)
             }
-
         case .empty:
             (base, properties, nestedTypes) = (nil, [], [])
         }
@@ -71,11 +61,6 @@ extension SimpleType {
             throw GeneratorError.notImplemented
         case .listWrapped:
             throw GeneratorError.notImplemented
-//            return SwiftTypeClass(
-//                name: "ArrayOf\(name)",
-//                properties: [SwiftProperty(name: "items", type: .array(.identifier(name)))],
-//                nestedTypes: [wrapped.toSwift(name: name, mapping: mapping)]
-//            )
         case let .restriction(restriction):
             let cases = restriction.enumeration.dictionary({ ($0.toSwiftPropertyName(), $0) })
             return SwiftEnum(name: name, rawType: .identifier("String"), cases: cases)
