@@ -140,7 +140,12 @@ func generateTypes(inSchema schema: XSD) throws -> Types {
     // Note that a complexType can also have
     // a base type, but that's currently not implemented.
     for case let .complexType(type) in schema {
-        hierarchy.nodes.insert(.type(type.name!))
+        switch type.content {
+        case let .complex(complex): hierarchy.insertEdge((.type(type.name!), .type(complex.base)))
+        case .sequence(_): fallthrough // TODO: inspect nested types as well
+        case .empty: hierarchy.nodes.insert(.type(type.name!))
+        }
+
     }
 
     // Add simpleType's base type.
@@ -165,7 +170,7 @@ func generateTypes(inSchema schema: XSD) throws -> Types {
             } else if let simple = simples[name] {
                 types[node] = try simple.toSwift(mapping: mapping, types: types)
             } else {
-                fatalError("type not found")
+                throw GeneratorError.missingTypes([name])
             }
         }
     }

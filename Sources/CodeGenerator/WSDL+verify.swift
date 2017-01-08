@@ -89,8 +89,22 @@ extension WSDL {
     func createEdges(from: Node, to complex: ComplexType) -> [Edge] {
         switch complex.content {
         case let .sequence(sequence): return sequence.elements.flatMap { createEdges(from: from, to: $0) }
+        case let .complex(complexContent): return createEdges(from: from, to: complexContent)
         case .empty: return []
         }
+    }
+
+    func createEdges(from: Node, to complex: ComplexType.Content.ComplexContent) -> [Edge] {
+        var edges: [Edge] = [(from, .type(complex.base))]
+        let content: ComplexType.Content.ComplexContent.Content.Content
+        switch complex.content {
+        case let .restriction(restriction): content = restriction
+        case let .extension(`extension`): content = `extension`
+        }
+        switch content {
+        case let .sequence(sequence): edges.append(contentsOf: sequence.elements.flatMap { createEdges(from: from, to: $0) })
+        }
+        return edges
     }
 
     func createEdges(from: Node, to element: Element) -> [Edge] {

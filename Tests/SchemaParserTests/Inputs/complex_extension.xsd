@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xsd:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/tns" xmlns:tns="http://tempuri.org/tns" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <xsd:element name="employee" type="fullpersoninfo"/>
+    <xsd:complexType name="personinfo">
+        <xsd:sequence>
+            <xsd:element name="firstname" type="xsd:string"/>
+            <xsd:element name="lastname" type="xsd:string"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="fullpersoninfo">
+        <xsd:complexContent>
+            <xsd:extension base="personinfo">
+                <xsd:sequence>
+                    <xsd:element name="address" type="xsd:string"/>
+                    <xsd:element name="city" type="xsd:string"/>
+                    <xsd:element name="country" type="xsd:string"/>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+</xsd:schema>

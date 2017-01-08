@@ -205,6 +205,20 @@ public struct ComplexType: NamedType {
             public let elements: [Element]
         }
         case sequence(Sequence)
+
+        public struct ComplexContent {
+            public enum Content {
+                public enum Content {
+                    case sequence(Sequence)
+                }
+
+                case restriction(Content)
+                case `extension`(Content)
+            }
+            public let base: QualifiedName
+            public let content: Content
+        }
+        case complex(ComplexContent)
         case empty
     }
 
@@ -218,8 +232,8 @@ extension ComplexType {
 
         if let _ = node.elements(forLocalName: "simpleContent", uri: NS_XSD).first {
             throw ParseError.unsupportedType
-        } else if let _ = node.elements(forLocalName: "complexContent", uri: NS_XSD).first {
-            throw ParseError.unsupportedType
+        } else if let complexContent = node.elements(forLocalName: "complexContent", uri: NS_XSD).first {
+            content = .complex(try .init(deserialize: complexContent))
         } else if let _ = node.elements(forLocalName: "group", uri: NS_XSD).first {
             throw ParseError.unsupportedType
         } else if let _ = node.elements(forLocalName: "all", uri: NS_XSD).first {
@@ -237,6 +251,30 @@ extension ComplexType {
 extension ComplexType.Content.Sequence {
     init(deserialize node: XMLElement) throws {
         elements = try node.elements(forLocalName: "element", uri: NS_XSD).map(Element.init(deserialize:))
+    }
+}
+
+extension ComplexType.Content.ComplexContent {
+    init(deserialize node: XMLElement) throws {
+        if let restriction = node.elements(forLocalName: "restriction", uri: NS_XSD).first {
+            base = try .init(type: restriction.attribute(forName: "base")!.stringValue!, inTree: node)
+            content = .restriction(try .init(deserialize: restriction))
+        } else if let `extension` = node.elements(forLocalName: "extension", uri: NS_XSD).first {
+            base = try .init(type: `extension`.attribute(forName: "base")!.stringValue!, inTree: node)
+            content = .`extension`(try .init(deserialize: `extension`))
+        } else {
+            throw ParseError.unsupportedType
+        }
+    }
+}
+
+extension ComplexType.Content.ComplexContent.Content.Content {
+    init(deserialize node: XMLElement) throws {
+        if let sequence = node.elements(forLocalName: "sequence", uri: NS_XSD).first {
+            self = .sequence(try .init(deserialize: sequence))
+        } else {
+            throw ParseError.unsupportedType
+        }
     }
 }
 

@@ -11,6 +11,11 @@ class CodeGeneratorTests: XCTestCase {
         return QualifiedName(uri: NS, localName: name)
     }
 
+    func deserialize(_ input: String) throws -> XSD {
+        let url = URL(fileURLWithPath: #file).deletingLastPathComponent().appendingPathComponent("Inputs").appendingPathComponent(input)
+        return try parseXSD(contentsOf: url)
+    }
+
     func testEnum() throws {
         let schema = XSD(nodes: [
             .simpleType(.init(
@@ -208,4 +213,114 @@ class CodeGeneratorTests: XCTestCase {
             ].joined(separator: "\n"))
     }
 
+    func testComplexWithComplexBase() throws {
+        let schema = XSD(nodes: [
+            .complexType(.init(
+                name: qname("my-base-type"),
+                content: .sequence(.init(
+                    elements: [
+                        .init(name: qname("a"), content: .base(STRING), occurs: nil),
+                        ]
+                    ))
+                )),
+            .element(.init(
+                name: qname("my-type"),
+                content: .base(qname("my-type")),
+                occurs: nil
+                ))
+            ])
+        XCTAssertEqual(try schema.generateCode().joined(separator: "\n"), [
+            "class MyType: XMLDeserializable {",
+            "    let a: String",
+            "    init(a: String) {",
+            "        self.a = a",
+            "    }",
+            "    required init(deserialize element: XMLElement) throws {",
+            "        self.a = try String(deserialize: element.elements(forLocalName: \"a\", uri: \"http://tempuri.org/\").first!)",
+            "    }",
+            "    func serialize(_ element: XMLElement) throws {",
+            "        let aNode = try element.createElement(localName: \"a\", uri: \"http://tempuri.org/\")",
+            "        element.addChild(aNode)",
+            "        try a.serialize(aNode)",
+            "    }",
+            "}",
+            "class MyElement: MyType {",
+            "    override init(a: String) {",
+            "        super.init(a: a)",
+            "    }",
+            "    required init(deserialize element: XMLElement) throws {",
+            "        try super.init(deserialize: element)",
+            "    }",
+            "    override func serialize(_ element: XMLElement) throws {",
+            "        try super.serialize(element)",
+            "    }",
+            "}",
+            ].joined(separator: "\n"))
+    }
+
+    func testComplexExtension() throws {
+        let schema = try deserialize("complex_extension.xsd")
+        XCTAssertEqual(try schema.generateCode().joined(separator: "\n"), [
+            "class Employee: Fullpersoninfo {",
+            "    override init(firstname: String, lastname: String, address: String, city: String, country: String) {",
+            "        super.init(firstname: firstname, lastname: lastname, address: address, city: city, country: country)",
+            "    }",
+            "    required init(deserialize element: XMLElement) throws {",
+            "        try super.init(deserialize: element)",
+            "    }",
+            "    override func serialize(_ element: XMLElement) throws {",
+            "        try super.serialize(element)",
+            "    }",
+            "}",
+            "class Fullpersoninfo: Personinfo {",
+            "    let address: String",
+            "    let city: String",
+            "    let country: String",
+            "    init(firstname: String, lastname: String, address: String, city: String, country: String) {",
+            "        self.address = address",
+            "        self.city = city",
+            "        self.country = country",
+            "        super.init(firstname: firstname, lastname: lastname)",
+            "    }",
+            "    required init(deserialize element: XMLElement) throws {",
+            "        self.address = try String(deserialize: element.elements(forLocalName: \"address\", uri: \"http://tempuri.org/tns\").first!)",
+            "        self.city = try String(deserialize: element.elements(forLocalName: \"city\", uri: \"http://tempuri.org/tns\").first!)",
+            "        self.country = try String(deserialize: element.elements(forLocalName: \"country\", uri: \"http://tempuri.org/tns\").first!)",
+            "        try super.init(deserialize: element)",
+            "    }",
+            "    override func serialize(_ element: XMLElement) throws {",
+            "        let addressNode = try element.createElement(localName: \"address\", uri: \"http://tempuri.org/tns\")",
+            "        element.addChild(addressNode)",
+            "        try address.serialize(addressNode)",
+            "        let cityNode = try element.createElement(localName: \"city\", uri: \"http://tempuri.org/tns\")",
+            "        element.addChild(cityNode)",
+            "        try city.serialize(cityNode)",
+            "        let countryNode = try element.createElement(localName: \"country\", uri: \"http://tempuri.org/tns\")",
+            "        element.addChild(countryNode)",
+            "        try country.serialize(countryNode)",
+            "        try super.serialize(element)",
+            "    }",
+            "}",
+            "class Personinfo: XMLDeserializable {",
+            "    let firstname: String",
+            "    let lastname: String",
+            "    init(firstname: String, lastname: String) {",
+            "        self.firstname = firstname",
+            "        self.lastname = lastname",
+            "    }",
+            "    required init(deserialize element: XMLElement) throws {",
+            "        self.firstname = try String(deserialize: element.elements(forLocalName: \"firstname\", uri: \"http://tempuri.org/tns\").first!)",
+            "        self.lastname = try String(deserialize: element.elements(forLocalName: \"lastname\", uri: \"http://tempuri.org/tns\").first!)",
+            "    }",
+            "    func serialize(_ element: XMLElement) throws {",
+            "        let firstnameNode = try element.createElement(localName: \"firstname\", uri: \"http://tempuri.org/tns\")",
+            "        element.addChild(firstnameNode)",
+            "        try firstname.serialize(firstnameNode)",
+            "        let lastnameNode = try element.createElement(localName: \"lastname\", uri: \"http://tempuri.org/tns\")",
+            "        element.addChild(lastnameNode)",
+            "        try lastname.serialize(lastnameNode)",
+            "    }",
+            "}",
+            ].joined(separator: "\n"))
+    }
 }

@@ -10,10 +10,14 @@ public struct QualifiedName {
     }
 
     public init(type: String, inTree tree: XMLElement) throws {
-        guard type.contains(":"), let namespace = tree.resolveNamespace(forName: type) else {
-            throw ParseError.invalidNamespacePrefix
+        if type.contains(":") {
+            guard let namespace = tree.resolveNamespace(forName: type) else {
+                throw ParseError.invalidNamespacePrefix
+            }
+            uri = namespace.stringValue!
+        } else {
+            uri = try targetNamespace(ofNode: tree)
         }
-        uri = namespace.stringValue!
         localName = XMLElement(name: type).localName!
     }
 

@@ -6,23 +6,60 @@ import SchemaParser
 extension ComplexType {
     public func toSwift(name: String? = nil, mapping: TypeMapping, types: Types) -> SwiftTypeClass {
         let name = name ?? mapping[.type(self.name!)]!
-        var properties = [SwiftProperty]()
-        var nestedTypes = [SwiftMetaType]()
+        let base: SwiftTypeClass?
+        let properties: [SwiftProperty]
+        let nestedTypes: [SwiftMetaType]
         switch self.content {
         case let .sequence(sequence):
-            for element in sequence.elements {
-                switch element.content {
-                case let .base(base):
-                    properties.append(SwiftProperty(name: element.name.localName.toSwiftPropertyName(), type: .init(type: mapping[.type(base)]!, element: element), element: element))
-                case let .complex(complex):
-                    nestedTypes.append(complex.toSwift(mapping: mapping, types: types))
-                    properties.append(SwiftProperty(name: element.name.localName.toSwiftPropertyName(), type: .init(type: "UNNAMED", element: element), element: element))
-                }
+            base = nil
+            (properties, nestedTypes) = sequenceToSwift(name: name, sequence: sequence, mapping: mapping, types: types)
+//            for element in sequence.elements {
+//                switch element.content {
+//                case let .base(base):
+//                    properties.append(SwiftProperty(name: element.name.localName.toSwiftPropertyName(), type: .init(type: mapping[.type(base)]!, element: element), element: element))
+//                case let .complex(complex):
+//                    nestedTypes.append(complex.toSwift(mapping: mapping, types: types))
+//                    properties.append(SwiftProperty(name: element.name.localName.toSwiftPropertyName(), type: .init(type: "UNNAMED", element: element), element: element))
+//                }
+//            }
+        case let .complex(complex):
+            base = types[.type(complex.base)]! as! SwiftTypeClass
+            let content: Content.ComplexContent.Content.Content
+            switch complex.content {
+            case let .restriction(restriction): content = restriction
+            case let .extension(`extension`): content = `extension`
             }
-        case .empty: break
+            switch content {
+            case let .sequence(sequence):
+                (properties, nestedTypes) = sequenceToSwift(name: name, sequence: sequence, mapping: mapping, types: types)
+            }
+
+        case .empty:
+            (base, properties, nestedTypes) = (nil, [], [])
         }
 
-        return SwiftTypeClass(name: name, properties: properties, nestedTypes: nestedTypes)
+        return SwiftTypeClass(name: name, base: base, properties: properties, nestedTypes: nestedTypes)
+    }
+
+    func sequenceToSwift(name: Identifier, sequence: Content.Sequence, mapping: TypeMapping, types: Types) -> (properties: [SwiftProperty], nested: [SwiftMetaType])  {
+        var properties: [SwiftProperty] = []
+        var nestedTypes: [SwiftMetaType] = []
+        for element in sequence.elements {
+            switch element.content {
+            case let .base(base):
+                properties.append(SwiftProperty(
+                    name: element.name.localName.toSwiftPropertyName(),
+                    type: .init(type: mapping[.type(base)]!, element: element),
+                    element: element))
+            case let .complex(complex):
+                nestedTypes.append(complex.toSwift(mapping: mapping, types: types))
+                properties.append(SwiftProperty(
+                    name: element.name.localName.toSwiftPropertyName(),
+                    type: .init(type: "UNNAMED", element: element),
+                    element: element))
+            }
+        }
+        return (properties, nestedTypes)
     }
 }
 
