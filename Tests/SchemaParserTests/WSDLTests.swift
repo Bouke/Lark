@@ -31,10 +31,8 @@ class WSDLTests: XCTestCase {
     }
 
     func testImport() throws {
-        // this test is failing as import.wsdl doesn't resolve relative file paths
-        do {
-            let wsdl = try deserialize("import.wsdl")
-        }
+        let wsdl = try deserialize("import.wsdl")
+        XCTAssertEqual(wsdl.schema.count, 3)
     }
 
     func testFileNotFound() throws {

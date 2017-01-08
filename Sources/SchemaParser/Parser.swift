@@ -17,7 +17,7 @@ public enum ParseError: Error {
 
 public func parseWSDL(contentsOf url: URL) throws -> WSDL {
     let xml = try XMLDocument(contentsOf: url, options: 0)
-    return try WSDL(deserialize: xml.rootElement()!)
+    return try WSDL(deserialize: xml.rootElement()!, relativeTo: url)
 }
 
 

@@ -155,22 +155,42 @@ public struct WSDL {
     public let bindings: [Binding]
     public let services: [Service]
 
-    init(deserialize element: XMLElement) throws {
+    /// Deserialize a WSDL from an XMLElement
+    ///
+    /// - parameter deserialize: XML node to deserialize
+    /// - parameter relativeTo: Used to resolve relative xsd schema imports
+    ///
+    /// - throws: `ParserError` and any upstream Cocoa error
+    init(deserialize element: XMLElement, relativeTo url: URL?) throws {
         guard element.localName == "definitions" && element.uri == NS_WSDL else {
             throw ParseError.incorrectRootElement
         }
 
         var nodes: [XSD.Node] = []
-        if let typesNode = element.elements(forLocalName: "types", uri: NS_WSDL).first {
-            var remainingSchemaNodes = typesNode.elements(forLocalName: "schema", uri: NS_XSD)
-            var seenSchemaURLs = Set<URL>()
-            while let schemaNode = remainingSchemaNodes.popLast() {
-                for node in try XSD(deserialize: schemaNode).nodes {
+        if let typesNode = element.elements(forLocalName: "types", uri: NS_WSDL).first, let schemaNode = typesNode.elements(forLocalName: "schema", uri: NS_XSD).first {
+            var remainingImports: Set<URL> = []
+            var seenSchemaURLs: Set<URL> = []
+            for node in try XSD(deserialize: schemaNode) {
+                switch node {
+                case let .import(`import`):
+                    let url = URL(string: `import`.schemaLocation, relativeTo: url)!
+                    print(url)
+                    if seenSchemaURLs.insert(url).inserted {
+                        remainingImports.insert(url)
+                    }
+                default:
+                    nodes.append(node)
+                }
+            }
+            while let importUrl = remainingImports.popFirst() {
+                let `import` = try parseXSD(contentsOf: importUrl)
+                for node in `import` {
                     switch node {
                     case let .import(`import`):
-                        let url = URL(string: `import`.schemaLocation)!
+                        let url = URL(string: `import`.schemaLocation, relativeTo: importUrl)!
+                        print(url)
                         if seenSchemaURLs.insert(url).inserted {
-                            remainingSchemaNodes.append(try importSchema(url: url))
+                            remainingImports.insert(url)
                         }
                     default:
                         nodes.append(node)
@@ -178,7 +198,7 @@ public struct WSDL {
                 }
             }
         }
-        schema = XSD(nodes: nodes)
+        self.schema = XSD(nodes: nodes)
         messages = try element.elements(forLocalName: "message", uri: NS_WSDL).map(Message.init(deserialize:))
         portTypes = try element.elements(forLocalName: "portType", uri: NS_WSDL).map(PortType.init(deserialize:))
         bindings = try element.elements(forLocalName: "binding", uri: NS_WSDL).map(Binding.init(deserialize:))
