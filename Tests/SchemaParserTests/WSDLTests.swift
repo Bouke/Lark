@@ -2,7 +2,7 @@ import XCTest
 
 @testable import SchemaParser
 
-class SchemaParserTests: XCTestCase {
+class WSDLTests: XCTestCase {
     func deserialize(_ input: String) throws -> WSDL {
         let url = URL(fileURLWithPath: #file).deletingLastPathComponent().appendingPathComponent("Inputs").appendingPathComponent(input)
         return try parseWSDL(contentsOf: url)
