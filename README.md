@@ -3,6 +3,8 @@ Lark: Swift SOAP Client
 
 Lark is a SOAP library written in Swift.
 
+![Build Status](https://travis-ci.org/Bouke/Lark.svg?branch=master)
+
 ## Features
 
 * [x] Swift 3
