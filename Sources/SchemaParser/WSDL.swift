@@ -170,25 +170,12 @@ public struct WSDL {
         if let typesNode = element.elements(forLocalName: "types", uri: NS_WSDL).first, let schemaNode = typesNode.elements(forLocalName: "schema", uri: NS_XSD).first {
             var remainingImports: Set<URL> = []
             var seenSchemaURLs: Set<URL> = []
-            for node in try XSD(deserialize: schemaNode) {
-                switch node {
-                case let .import(`import`):
-                    let url = URL(string: `import`.schemaLocation, relativeTo: url)!
-                    print(url)
-                    if seenSchemaURLs.insert(url).inserted {
-                        remainingImports.insert(url)
-                    }
-                default:
-                    nodes.append(node)
-                }
-            }
-            while let importUrl = remainingImports.popFirst() {
-                let `import` = try parseXSD(contentsOf: importUrl)
-                for node in `import` {
+
+            func append(xsd: XSD, relativeTo url: URL?) {
+                for node in xsd {
                     switch node {
                     case let .import(`import`):
-                        let url = URL(string: `import`.schemaLocation, relativeTo: importUrl)!
-                        print(url)
+                        let url = URL(string: `import`.schemaLocation, relativeTo: url)!
                         if seenSchemaURLs.insert(url).inserted {
                             remainingImports.insert(url)
                         }
@@ -196,6 +183,10 @@ public struct WSDL {
                         nodes.append(node)
                     }
                 }
+            }
+            append(xsd: try XSD(deserialize: schemaNode), relativeTo: url)
+            while let importUrl = remainingImports.popFirst() {
+                append(xsd: try parseXSD(contentsOf: importUrl), relativeTo: importUrl)
             }
         }
         self.schema = XSD(nodes: nodes)
