@@ -14,7 +14,7 @@ extension ComplexType {
             base = nil
             (properties, nestedTypes) = sequenceToSwift(name: name, sequence: sequence, mapping: mapping, types: types)
         case let .complex(complex):
-            base = types[.type(complex.base)]! as! SwiftTypeClass
+            base = (types[.type(complex.base)]! as! SwiftTypeClass)
             let content: Content.ComplexContent.Content.Content
             switch complex.content {
             case let .restriction(restriction): content = restriction
@@ -69,11 +69,14 @@ extension SimpleType {
 }
 
 extension Element {
-    public func toSwift(mapping: TypeMapping, types: Types) -> SwiftTypeClass {
+    public func toSwift(mapping: TypeMapping, types: Types) -> SwiftMetaType {
         let name = mapping[.element(self.name)]!
         switch self.content {
-        case let .base(base): return SwiftTypeClass(name: name, base: (types[.type(base)]! as! SwiftTypeClass))
-        case let .complex(complex): return complex.toSwift(name: name, mapping: mapping, types: types)
+        case let .base(base):
+            let baseType = types[.type(base)]!
+            return SwiftTypealias(name: name, type: .init(type: baseType.name, element: self))
+        case let .complex(complex):
+            return complex.toSwift(name: name, mapping: mapping, types: types)
         }
     }
 }

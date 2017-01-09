@@ -8,7 +8,7 @@ indirect enum SwiftType {
     case optional(SwiftType)
     case array(SwiftType)
 
-    init(type: String, element: Element) {
+    init(type: Identifier, element: Element) {
         switch (element.occurs?.startIndex, element.occurs?.endIndex) {
         case (0?, 1?): self = .optional(.identifier(type))
         case (nil, nil), (1?, 1?): self = .identifier(type)
@@ -25,6 +25,10 @@ struct SwiftProperty {
 
 public protocol SwiftMetaType: LinesOfCodeConvertible {
     var name: Identifier { get }
+}
+
+public struct SwiftBuiltin: SwiftMetaType {
+    public let name: Identifier
 }
 
 public class SwiftTypeClass: SwiftMetaType {
@@ -49,6 +53,11 @@ public struct SwiftEnum: SwiftMetaType {
     public let name: Identifier
     let rawType: SwiftType
     let cases: [String: String]
+}
+
+public struct SwiftTypealias: SwiftMetaType {
+    public let name: Identifier
+    let type: SwiftType
 }
 
 public struct SwiftParameter {

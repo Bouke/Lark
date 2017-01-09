@@ -157,7 +157,7 @@ func generateTypes(inSchema schema: XSD) throws -> Types {
         }
     }
 
-    var types: Types = [:]
+    var types: Types = baseTypes.dictionary { (.type($0), SwiftBuiltin(name: $1)) }
     for node in hierarchy.traverse {
         switch node {
         case let .element(name):

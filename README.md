@@ -63,10 +63,11 @@ Known issues:
 Backlog:
 
 * [x] Move Demo code to separate repository
-* [ ] Unit tests
+* [x] Unit tests
+* [ ] Implement `simpleType`s: list and list (wrapped)
+* [ ] Parse `nillable=true` in XSD
 * [ ] Asynchronous
 * [ ] Authentication
-* [ ] Better error messages
 
 Ideas for the future:
 
@@ -76,6 +77,7 @@ Ideas for the future:
 * [ ] Stricter SOAP 1.0 / 1.1 / 1.2 support
 * [ ] Support multiple ports / bindings
 * [ ] Cocoapods / Carthage support
+* [ ] Wrap all errors, or bubble cocoa errors -- what's common for Swift libraries?
 
 ## FAQ
 

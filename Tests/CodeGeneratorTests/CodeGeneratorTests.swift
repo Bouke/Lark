@@ -183,17 +183,7 @@ class CodeGeneratorTests: XCTestCase {
             "        }",
             "    }",
             "}",
-            "class MyElement: MyType {",
-            "    override init(a: String, b: String?, c: String, d: [String], e: [String]) {",
-            "        super.init(a: a, b: b, c: c, d: d, e: e)",
-            "    }",
-            "    required init(deserialize element: XMLElement) throws {",
-            "        try super.init(deserialize: element)",
-            "    }",
-            "    override func serialize(_ element: XMLElement) throws {",
-            "        try super.serialize(element)",
-            "    }",
-            "}",
+            "typealias MyElement: MyType",
             ])
     }
 
@@ -228,34 +218,14 @@ class CodeGeneratorTests: XCTestCase {
             "        try a.serialize(aNode)",
             "    }",
             "}",
-            "class MyElement: MyType {",
-            "    override init(a: String) {",
-            "        super.init(a: a)",
-            "    }",
-            "    required init(deserialize element: XMLElement) throws {",
-            "        try super.init(deserialize: element)",
-            "    }",
-            "    override func serialize(_ element: XMLElement) throws {",
-            "        try super.serialize(element)",
-            "    }",
-            "}",
+            "typealias MyElement: MyType",
             ])
     }
 
     func testComplexExtension() throws {
         let schema = try deserialize("complex_extension.xsd")
-            "class Employee: Fullpersoninfo {",
-            "    override init(firstname: String, lastname: String, address: String, city: String, country: String) {",
-            "        super.init(firstname: firstname, lastname: lastname, address: address, city: city, country: country)",
-            "    }",
-            "    required init(deserialize element: XMLElement) throws {",
-            "        try super.init(deserialize: element)",
-            "    }",
-            "    override func serialize(_ element: XMLElement) throws {",
-            "        try super.serialize(element)",
-            "    }",
-            "}",
         XCTAssertCode(actual: try schema.generateCode(), expected: [
+            "typealias Employee: Fullpersoninfo",
             "class Fullpersoninfo: Personinfo {",
             "    let address: String",
             "    let city: String",

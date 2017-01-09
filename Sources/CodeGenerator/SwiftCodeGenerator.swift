@@ -83,6 +83,11 @@ public struct Indentation {
     }
 }
 
+extension SwiftBuiltin {
+    public func toLinesOfCode(at indentation: Indentation) -> [LineOfCode] {
+        return []
+    }
+}
 
 // MARK:- SOAP Types
 
@@ -276,6 +281,12 @@ extension SwiftEnum {
             toFirstLine: "func serialize(_ element: XMLElement) throws {",
             nestedLines: ["element.stringValue = self.rawValue"],
             andLastLine: "}")
+    }
+}
+
+extension SwiftTypealias {
+    public func toLinesOfCode(at indentation: Indentation) -> [LineOfCode] {
+        return ["typealias \(name): \(type.toSwiftCode())"].map(indentation.apply(toLineOfCode:))
     }
 }
 
