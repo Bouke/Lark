@@ -26,7 +26,7 @@ class CodeGeneratorTests: XCTestCase {
                 ))
             ))
         ])
-        XCTAssertEqual(try schema.generateCode().joined(separator: "\n"), [
+        XCTAssertCode(actual: try schema.generateCode(), expected: [
             "enum MyType: String, XMLSerializable, XMLDeserializable {",
             "    case a = \"A\"",
             "    case b = \"B\"",
@@ -38,7 +38,7 @@ class CodeGeneratorTests: XCTestCase {
             "        element.stringValue = self.rawValue",
             "    }",
             "}"
-        ].joined(separator: "\n"))
+        ])
     }
 
     func testComplexEmpty() throws {
@@ -48,7 +48,7 @@ class CodeGeneratorTests: XCTestCase {
                 content: .empty
             ))
         ])
-        XCTAssertEqual(try schema.generateCode().joined(separator: "\n"), [
+        XCTAssertCode(actual: try schema.generateCode(), expected: [
             "class MyType: XMLDeserializable {",
             "    init() {",
             "    }",
@@ -57,7 +57,7 @@ class CodeGeneratorTests: XCTestCase {
             "    func serialize(_ element: XMLElement) throws {",
             "    }",
             "}"
-        ].joined(separator: "\n"))
+        ])
     }
 
     func testComplexSequence() throws {
@@ -75,7 +75,7 @@ class CodeGeneratorTests: XCTestCase {
                 ))
             ))
         ])
-        XCTAssertEqual(try schema.generateCode().joined(separator: "\n"), [
+        XCTAssertCode(actual: try schema.generateCode(), expected: [
             "class MyType: XMLDeserializable {",
             "    let a: String",
             "    let b: String?",
@@ -120,7 +120,7 @@ class CodeGeneratorTests: XCTestCase {
             "        }",
             "    }",
             "}",
-        ].joined(separator: "\n"))
+        ])
     }
 
     func testElementWithComplexBase() throws {
@@ -143,7 +143,7 @@ class CodeGeneratorTests: XCTestCase {
                 occurs: nil
                 ))
             ])
-        XCTAssertEqual(try schema.generateCode().joined(separator: "\n"), [
+        XCTAssertCode(actual: try schema.generateCode(), expected: [
             "class MyType: XMLDeserializable {",
             "    let a: String",
             "    let b: String?",
@@ -199,7 +199,7 @@ class CodeGeneratorTests: XCTestCase {
             "        try super.serialize(element)",
             "    }",
             "}",
-            ].joined(separator: "\n"))
+            ])
     }
 
     func testComplexWithComplexBase() throws {
@@ -218,7 +218,7 @@ class CodeGeneratorTests: XCTestCase {
                 occurs: nil
                 ))
             ])
-        XCTAssertEqual(try schema.generateCode().joined(separator: "\n"), [
+        XCTAssertCode(actual: try schema.generateCode(), expected: [
             "class MyType: XMLDeserializable {",
             "    let a: String",
             "    init(a: String) {",
@@ -244,12 +244,11 @@ class CodeGeneratorTests: XCTestCase {
             "        try super.serialize(element)",
             "    }",
             "}",
-            ].joined(separator: "\n"))
+            ])
     }
 
     func testComplexExtension() throws {
         let schema = try deserialize("complex_extension.xsd")
-        XCTAssertEqual(try schema.generateCode().joined(separator: "\n"), [
             "class Employee: Fullpersoninfo {",
             "    override init(firstname: String, lastname: String, address: String, city: String, country: String) {",
             "        super.init(firstname: firstname, lastname: lastname, address: address, city: city, country: country)",
@@ -261,6 +260,7 @@ class CodeGeneratorTests: XCTestCase {
             "        try super.serialize(element)",
             "    }",
             "}",
+        XCTAssertCode(actual: try schema.generateCode(), expected: [
             "class Fullpersoninfo: Personinfo {",
             "    let address: String",
             "    let city: String",
@@ -310,6 +310,6 @@ class CodeGeneratorTests: XCTestCase {
             "        try lastname.serialize(lastnameNode)",
             "    }",
             "}",
-            ].joined(separator: "\n"))
+            ])
     }
 }
