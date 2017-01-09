@@ -4,6 +4,11 @@ import XCTest
 @testable import SchemaParser
 @testable import CodeGenerator
 
+func deserialize(_ input: String) throws -> XSD {
+    let url = URL(fileURLWithPath: #file).deletingLastPathComponent().appendingPathComponent("Inputs").appendingPathComponent(input)
+    return try parseXSD(contentsOf: url)
+}
+
 func XCTAssertCode(actual: [String], expected: [String], file: StaticString = #file, line: UInt = #line) {
     if actual == expected {
         return

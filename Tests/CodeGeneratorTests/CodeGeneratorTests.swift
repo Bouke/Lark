@@ -11,11 +11,6 @@ class CodeGeneratorTests: XCTestCase {
         return QualifiedName(uri: NS, localName: name)
     }
 
-    func deserialize(_ input: String) throws -> XSD {
-        let url = URL(fileURLWithPath: #file).deletingLastPathComponent().appendingPathComponent("Inputs").appendingPathComponent(input)
-        return try parseXSD(contentsOf: url)
-    }
-
     func testEnum() throws {
         let schema = XSD(nodes: [
             .simpleType(.init(
