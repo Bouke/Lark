@@ -4,6 +4,9 @@ import SchemaParser
 
 extension WSDL {
     enum Node {
+        case service(QualifiedName)
+        case binding(QualifiedName)
+        case port(QualifiedName)
         case operation(QualifiedName)
         case message(QualifiedName)
         case element(QualifiedName)
@@ -25,15 +28,45 @@ extension WSDL {
         var nodes = Set<Node>()
         var edges: [Edge] = []
 
-        nodes.formUnion(portTypes
-            .flatMap { $0.operations }
-            .map { .operation($0.name) }
+        nodes.formUnion(services.map { .service($0.name) })
+        edges.append(contentsOf: services
+            .flatMap { service in
+                service.ports.map { port in
+                    (from: .service(service.name), to: .binding(port.binding))
+                }
+            }
         )
+
+        nodes.formUnion(bindings.map { .binding($0.name) })
+        edges.append(contentsOf: bindings.map { (from: .binding($0.name), to: .port($0.type)) })
+        edges.append(contentsOf: bindings
+            .flatMap { binding in
+                binding.operations.map { operation in
+                    (from: .binding(binding.name), to: .operation(operation.name))
+                }
+            }
+        )
+
+        nodes.formUnion(portTypes.map { .port($0.name) })
         edges.append(contentsOf: portTypes
-            .flatMap { $0.operations }
-            .flatMap { [($0.name, $0.inputMessage), ($0.name, $0.outputMessage)] }
-            .map { (from: .operation($0), to: .message($1)) }
+            .flatMap { portType in
+                portType.operations.flatMap { operation in
+                    [(from: .port(portType.name), to: .operation(operation.name)),
+                     (from: .port(portType.name), to: .message(operation.inputMessage)),
+                     (from: .port(portType.name), to: .message(operation.outputMessage))]
+                }
+            }
         )
+
+//        nodes.formUnion(portTypes
+//            .flatMap { $0.operations }
+//            .map { .operation($0.name) }
+//        )
+//        edges.append(contentsOf: portTypes
+//            .flatMap { $0.operations }
+//            .flatMap { [($0.name, $0.inputMessage), ($0.name, $0.outputMessage)] }
+//            .map { (from: .operation($0), to: .message($1)) }
+//        )
 
         nodes.formUnion(messages.map { .message($0.name) })
         edges.append(contentsOf: messages
@@ -53,7 +86,6 @@ extension WSDL {
             }
         })
 
-        // todo: should add node's content (recursive)
         edges.append(contentsOf: schema.flatMap { (node) -> [Edge] in
             switch node {
             case let .element(element): return createEdges(from: .element(element.name), to: element)
@@ -120,6 +152,9 @@ extension WSDL {
 extension WSDL.Node: Equatable, Hashable {
     static func ==(lhs: WSDL.Node, rhs: WSDL.Node) -> Bool {
         switch(lhs, rhs) {
+        case let (.service(lhs), .service(rhs)): return lhs == rhs
+        case let (.binding(lhs), .binding(rhs)): return lhs == rhs
+        case let (.port(lhs), .port(rhs)): return lhs == rhs
         case let (.operation(lhs), .operation(rhs)): return lhs == rhs
         case let (.message(lhs), .message(rhs)): return lhs == rhs
         case let (.element(lhs), .element(rhs)): return lhs == rhs
@@ -130,6 +165,9 @@ extension WSDL.Node: Equatable, Hashable {
 
     var hashValue: Int {
         switch self {
+        case let .service(qname): return qname.hashValue
+        case let .binding(qname): return qname.hashValue
+        case let .port(qname): return qname.hashValue
         case let .operation(qname): return qname.hashValue
         case let .message(qname): return qname.hashValue
         case let .element(qname): return qname.hashValue
@@ -141,6 +179,9 @@ extension WSDL.Node: Equatable, Hashable {
 extension WSDL.Node: CustomDebugStringConvertible {
     var debugDescription: String {
         switch self {
+        case let .service(qname): return ".service(\(qname.debugDescription))"
+        case let .binding(qname): return ".binding(\(qname.debugDescription))"
+        case let .port(qname): return ".port(\(qname.debugDescription))"
         case let .operation(qname): return ".operation(\(qname.debugDescription))"
         case let .message(qname): return ".message(\(qname.debugDescription))"
         case let .element(qname): return ".element(\(qname.debugDescription))"
