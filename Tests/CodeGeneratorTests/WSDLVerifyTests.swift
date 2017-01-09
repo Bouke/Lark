@@ -10,12 +10,32 @@ class WSDLVerifyTests: XCTestCase {
         return try parseWSDL(contentsOf: url)
     }
 
+    func testComplete() throws {
+        let wsdl = try deserialize("numberconversion.wsdl")
+        do {
+            try wsdl.verify()
+        } catch {
+            XCTFail("Failed with error: \(error)")
+        }
+    }
+
     func testMissingBinding() throws {
         let wsdl = try deserialize("missing_binding.wsdl")
         do {
             try wsdl.verify()
-        } catch GeneratorError.missingNodes(let nodes) where nodes == [.binding(QualifiedName(uri: "http://tempuri.org/import", localName: "SoapBinding"))] {
-            // expected error
+        } catch GeneratorError.missingNodes(let nodes) {
+            XCTAssertEqual(nodes, [.binding(QualifiedName(uri: "http://tempuri.org/", localName: "ImportSoapBinding"))])
+        } catch {
+            XCTFail("Failed with error: \(error)")
+        }
+    }
+
+    func testMissingPort() throws {
+        let wsdl = try deserialize("missing_port.wsdl")
+        do {
+            try wsdl.verify()
+        } catch GeneratorError.missingNodes(let nodes) {
+            XCTAssertEqual(nodes, [.port(QualifiedName(uri: "http://tempuri.org/", localName: "ImportSoapType"))])
         } catch {
             XCTFail("Failed with error: \(error)")
         }
