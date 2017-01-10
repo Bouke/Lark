@@ -139,6 +139,7 @@ class CodeGeneratorTests: XCTestCase {
                 ))
             ])
         XCTAssertCode(actual: try schema.generateCode(), expected: [
+            "typealias MyElement: MyType",
             "class MyType: XMLDeserializable {",
             "    let a: String",
             "    let b: String?",
@@ -183,7 +184,6 @@ class CodeGeneratorTests: XCTestCase {
             "        }",
             "    }",
             "}",
-            "typealias MyElement: MyType",
             ])
     }
 
@@ -204,6 +204,7 @@ class CodeGeneratorTests: XCTestCase {
                 ))
             ])
         XCTAssertCode(actual: try schema.generateCode(), expected: [
+            "typealias MyElement: MyType",
             "class MyType: XMLDeserializable {",
             "    let a: String",
             "    init(a: String) {",
@@ -218,7 +219,6 @@ class CodeGeneratorTests: XCTestCase {
             "        try a.serialize(aNode)",
             "    }",
             "}",
-            "typealias MyElement: MyType",
             ])
     }
 
