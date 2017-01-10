@@ -145,7 +145,6 @@ func generateTypes(inSchema schema: XSD) throws -> Types {
         case .sequence(_): fallthrough // TODO: inspect nested types as well
         case .empty: hierarchy.nodes.insert(.type(type.name!))
         }
-
     }
 
     // Add simpleType's base type.

@@ -80,4 +80,24 @@ class HTTPTransportTests: XCTestCase {
             XCTFail("Failed with error: \(error)")
         }
     }
+
+    func testHTTPHeaders() {
+        let response = HTTPURLResponse(
+            url: URL(string: "http://tempuri.org")!,
+            statusCode: 200,
+            httpVersion: "1.1",
+            headerFields: [
+                "Content-Type": "text/xml"
+            ])!
+        let transport = _HTTPTransport(endpoint: URL(string: "http://tempuri.org")!, response: .success((response, Data())))
+        let headers = ["Authentication": "Basic 0xdeadbeef"]
+        transport.headers = headers
+        do {
+            _ = try transport.send(action: URL(string: "GetCountries")!, message: Data())
+            XCTAssertEqual(transport.request?.allHTTPHeaderFields?["Authentication"],
+                           headers["Authentication"])
+        } catch {
+            XCTFail("Failed with error: \(error)")
+        }
+    }
 }

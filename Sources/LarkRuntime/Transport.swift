@@ -13,6 +13,7 @@ public enum HTTPTransportError: Error {
 open class HTTPTransport: Transport {
     open let endpoint: URL
     open let logger = Evergreen.getLogger("Lark.HTTPTransport")
+    open var headers: [String: String] = [:]
 
     public init(endpoint: URL) {
         self.endpoint = endpoint
@@ -25,6 +26,9 @@ open class HTTPTransport: Transport {
         request.addValue(action.absoluteString, forHTTPHeaderField: "SOAPAction")
         request.addValue("text/xml; charset=utf-8", forHTTPHeaderField: "Content-Type")
         request.addValue("\(message.count)", forHTTPHeaderField: "Content-Length")
+        for item in headers {
+            request.addValue(item.value, forHTTPHeaderField: item.key)
+        }
         logger.debug("Request: " + request.debugDescription + "\n" + (request.allHTTPHeaderFields?.map({"\($0): \($1)"}).joined(separator: "\n") ?? ""))
 
         let (response, data) = try send(request)
