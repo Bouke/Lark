@@ -5,7 +5,7 @@ import XCTest
 
 class _Channel: Channel {
     struct _Transport: Transport {
-        func send(action: URL?, message: Data) throws -> Data {
+        func send(action: URL, message: Data) throws -> Data {
             fatalError("Not implemented")
         }
     }
@@ -28,7 +28,7 @@ class ClientTests: XCTestCase {
         let channel = _Channel(response: .success(expected))
         let client = Client(channel: channel)
         do {
-            let actual = try client.send(action: nil, parameters: [XMLElement(name: "foo", stringValue: "bar")])
+            let actual = try client.send(action: URL(string: "action")!, parameters: [XMLElement(name: "foo", stringValue: "bar")])
             XCTAssertEqual(channel.request!.request.body.xmlString,
                            "<soap:Body><foo>bar</foo></soap:Body>")
             XCTAssertEqual(actual.xmlString, expected.body.xmlString)

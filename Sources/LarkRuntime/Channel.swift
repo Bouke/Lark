@@ -9,7 +9,7 @@ open class Channel {
         self.transport = transport
     }
 
-    open func send(action: URL?, request: Envelope) throws -> Envelope {
+    open func send(action: URL, request: Envelope) throws -> Envelope {
         logger.debug("Sending request: \(request.document.xmlString)")
         let response: Data
         do {

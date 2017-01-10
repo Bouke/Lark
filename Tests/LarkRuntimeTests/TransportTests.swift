@@ -30,7 +30,7 @@ class HTTPTransportTests: XCTestCase {
         let data = "<hello>world</hello>".data(using: .utf8)!
         let transport = _HTTPTransport(endpoint: URL(string: "http://tempuri.org")!, response: .success((response, data)))
         do {
-            let result = try transport.send(action: URL(string: "GetCountries"), message: Data())
+            let result = try transport.send(action: URL(string: "GetCountries")!, message: Data())
             XCTAssertEqual(result, data)
             XCTAssertNotNil(transport.request)
             XCTAssertEqual(transport.request!.allHTTPHeaderFields ?? [:],
@@ -53,7 +53,7 @@ class HTTPTransportTests: XCTestCase {
         let data = "<hello>world</hello>".data(using: .utf8)!
         let transport = _HTTPTransport(endpoint: URL(string: "http://tempuri.org")!, response: .success((response, data)))
         do {
-            _ = try transport.send(action: URL(string: "GetCountries"), message: Data())
+            _ = try transport.send(action: URL(string: "GetCountries")!, message: Data())
             XCTFail("Should throw on status code 500")
         } catch HTTPTransportError.notOk(let (statusCode, result)) where statusCode == 500 {
             XCTAssertEqual(result, data)
@@ -72,7 +72,7 @@ class HTTPTransportTests: XCTestCase {
             ])!
         let transport = _HTTPTransport(endpoint: URL(string: "http://tempuri.org")!, response: .success((response, Data())))
         do {
-            _ = try transport.send(action: URL(string: "GetCountries"), message: Data())
+            _ = try transport.send(action: URL(string: "GetCountries")!, message: Data())
             XCTFail("Should throw on invalid mime type")
         } catch HTTPTransportError.invalidMimeType(let type) where type == "text/html" {
             // ok

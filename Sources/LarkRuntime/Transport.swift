@@ -2,7 +2,7 @@ import Foundation
 import Evergreen
 
 public protocol Transport {
-    func send(action: URL?, message: Data) throws -> Data
+    func send(action: URL, message: Data) throws -> Data
 }
 
 public enum HTTPTransportError: Error {
@@ -18,13 +18,11 @@ open class HTTPTransport: Transport {
         self.endpoint = endpoint
     }
 
-    open func send(action: URL?, message: Data) throws -> Data {
+    open func send(action: URL, message: Data) throws -> Data {
         var request = URLRequest(url: endpoint)
         request.httpBody = message
         request.httpMethod = "POST"
-        if let action = action {
-            request.addValue(action.absoluteString, forHTTPHeaderField: "SOAPAction")
-        }
+        request.addValue(action.absoluteString, forHTTPHeaderField: "SOAPAction")
         request.addValue("text/xml; charset=utf-8", forHTTPHeaderField: "Content-Type")
         request.addValue("\(message.count)", forHTTPHeaderField: "Content-Length")
         logger.debug("Request: " + request.debugDescription + "\n" + (request.allHTTPHeaderFields?.map({"\($0): \($1)"}).joined(separator: "\n") ?? ""))

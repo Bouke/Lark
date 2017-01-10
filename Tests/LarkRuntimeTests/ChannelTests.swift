@@ -4,12 +4,12 @@ import XCTest
 @testable import LarkRuntime
 
 class _Transport: Transport {
-    var request: (action: URL?, message: Data)? = nil
+    var request: (action: URL, message: Data)? = nil
     let response: Result<Data>
     public init(response: Result<Data>) {
         self.response = response
     }
-    func send(action: URL?, message: Data) throws -> Data {
+    func send(action: URL, message: Data) throws -> Data {
         request = (action, message)
         return try response.resolve()
     }
@@ -25,7 +25,7 @@ class ChannelTests: XCTestCase {
         let transport = _Transport(response: .failure(HTTPTransportError.notOk(500, envelope.document.xmlData)))
         let channel = Channel(transport: transport)
         do {
-            _ = try channel.send(action: nil, request: Envelope())
+            _ = try channel.send(action: URL(string: "action")!, request: Envelope())
         } catch let error as Fault {
             print(error)
             XCTAssertEqual(error.faultcode, fault.faultcode)

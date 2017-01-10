@@ -341,7 +341,7 @@ extension ServiceMethod: LinesOfCodeConvertible {
                 "parameterNode.addNamespace(XMLNode.namespace(withName: \"ns0\", stringValue: \"\(input.element.uri)\") as! XMLNode)",
                 "try parameter.serialize(parameterNode)",
                 "parameters.append(parameterNode)",
-                "let body = try send(action: URL(string: \"\(action?.absoluteString ?? "")\"), parameters: parameters)",
+                "let body = try send(action: URL(string: \"\(action?.absoluteString ?? "")\")!, parameters: parameters)",
                 "let outputNode = body.elements(forLocalName: \"\(output.element.localName)\", uri: \"\(output.element.uri)\").first!",
                 "return try \(output.type)(deserialize: outputNode)"
             ],
