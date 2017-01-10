@@ -139,7 +139,7 @@ class CodeGeneratorTests: XCTestCase {
                 ))
             ])
         XCTAssertCode(actual: try schema.generateCode(), expected: [
-            "typealias MyElement: MyType",
+            "typealias MyElement = MyType",
             "class MyType: XMLDeserializable {",
             "    let a: String",
             "    let b: String?",
@@ -204,7 +204,7 @@ class CodeGeneratorTests: XCTestCase {
                 ))
             ])
         XCTAssertCode(actual: try schema.generateCode(), expected: [
-            "typealias MyElement: MyType",
+            "typealias MyElement = MyType",
             "class MyType: XMLDeserializable {",
             "    let a: String",
             "    init(a: String) {",
@@ -225,7 +225,7 @@ class CodeGeneratorTests: XCTestCase {
     func testComplexExtension() throws {
         let schema = try deserialize("complex_extension.xsd")
         XCTAssertCode(actual: try schema.generateCode(), expected: [
-            "typealias Employee: Fullpersoninfo",
+            "typealias Employee = Fullpersoninfo",
             "class Fullpersoninfo: Personinfo {",
             "    let address: String",
             "    let city: String",
