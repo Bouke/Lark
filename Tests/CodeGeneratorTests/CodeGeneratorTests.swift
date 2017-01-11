@@ -24,7 +24,7 @@ class CodeGeneratorTests: XCTestCase {
             ))
         ])
         XCTAssertCode(actual: try schema.generateCode(), expected: [
-            "enum MyType: String, XMLSerializable, XMLDeserializable {",
+            "enum MyType: String, XMLSerializable, XMLDeserializable, StringSerializable, StringDeserializable {",
             "    case a = \"A\"",
             "    case b = \"B\"",
             "    case c = \"C\"",
@@ -34,8 +34,54 @@ class CodeGeneratorTests: XCTestCase {
             "    func serialize(_ element: XMLElement) throws {",
             "        element.stringValue = self.rawValue",
             "    }",
+            "    init(string: String) throws {",
+            "        self.init(rawValue: string)!",
+            "    }",
+            "    func serialize() throws -> String {",
+            "        return self.rawValue",
+            "    }",
             "}"
         ])
+    }
+
+    func testListWrapped() throws {
+        let schema = XSD(nodes: [
+            .simpleType(.init(
+                name: qname("FooBar"),
+                content: .listWrapped(.init(
+                    name: nil,
+                    content: .restriction(.init(
+                        base: STRING,
+                        enumeration: ["foo", "bar"],
+                        pattern: nil
+                        ))
+                    ))
+                ))
+            ])
+        XCTAssertCode(actual: try schema.generateCode(), expected: [
+            "struct FooBar: StringSerializableList {",
+            "    enum Element: String, XMLSerializable, XMLDeserializable, StringSerializable, StringDeserializable {",
+            "        case bar = \"bar\"",
+            "        case foo = \"foo\"",
+            "        init(deserialize element: XMLElement) throws {",
+            "            self.init(rawValue: element.stringValue!)!",
+            "        }",
+            "        func serialize(_ element: XMLElement) throws {",
+            "            element.stringValue = self.rawValue",
+            "        }",
+            "        init(string: String) throws {",
+            "            self.init(rawValue: string)!",
+            "        }",
+            "        func serialize() throws -> String {",
+            "            return self.rawValue",
+            "        }",
+            "    }",
+            "    var _contents: [Element] = []",
+            "    init(_ contents: [Element]) {",
+            "        _contents = contents",
+            "    }",
+            "}",
+            ])
     }
 
     func testPattern() throws {
