@@ -66,6 +66,12 @@ public struct SwiftParameter {
     let type: SwiftType
 }
 
+public struct SwiftList: SwiftMetaType {
+    public let name: Identifier
+    let element: SwiftType
+    let nestedTypes: [SwiftMetaType]
+}
+
 
 // MARK:- SOAP Client
 

@@ -246,15 +246,17 @@ extension SwiftParameter {
 extension SwiftEnum {
     public func toLinesOfCode(at indentation: Indentation) -> [LineOfCode] {
         return indentation.apply(
-            toFirstLine: "enum \(name): \(rawType.toSwiftCode()), XMLSerializable, XMLDeserializable {",
+            toFirstLine: "enum \(name): \(rawType.toSwiftCode()), XMLSerializable, XMLDeserializable, StringSerializable, StringDeserializable {",
             nestedLines:      linesOfCodeForBody(at:),
             andLastLine: "}")
     }
 
     private func linesOfCodeForBody(at indentation: Indentation) -> [LineOfCode] {
         return linesOfCodeForCases(at: indentation) +
-            linesOfCodeForDeserializer(at: indentation) +
-            linesOfCodeForSerializer(at: indentation)
+            linesOfCodeForXMLDeserializer(at: indentation) +
+            linesOfCodeForXMLSerializer(at: indentation) +
+            linesOfCodeForStringDeserializer(at: indentation) +
+            linesOfCodeForStringSerializer(at: indentation)
     }
 
     private func linesOfCodeForCases(at indentation: Indentation) -> [LineOfCode] {
@@ -267,7 +269,7 @@ extension SwiftEnum {
         return cases.sorted(by: { return $0.key < $1.key } )
     }
 
-    private func linesOfCodeForDeserializer(at indentation: Indentation) -> [LineOfCode] {
+    private func linesOfCodeForXMLDeserializer(at indentation: Indentation) -> [LineOfCode] {
         // TODO: no force unwraps
         return indentation.apply(
             toFirstLine: "init(deserialize element: XMLElement) throws {",
@@ -275,11 +277,27 @@ extension SwiftEnum {
             andLastLine: "}")
     }
 
-    private func linesOfCodeForSerializer(at indentation: Indentation) -> [LineOfCode] {
+    private func linesOfCodeForXMLSerializer(at indentation: Indentation) -> [LineOfCode] {
         // TODO: no force unwraps
         return indentation.apply(
             toFirstLine: "func serialize(_ element: XMLElement) throws {",
             nestedLines: ["element.stringValue = self.rawValue"],
+            andLastLine: "}")
+    }
+
+    private func linesOfCodeForStringDeserializer(at indentation: Indentation) -> [LineOfCode] {
+        // TODO: no force unwraps
+        return indentation.apply(
+            toFirstLine: "init(string: String) throws {",
+            nestedLines: ["self.init(rawValue: string)!"],
+            andLastLine: "}")
+    }
+
+    private func linesOfCodeForStringSerializer(at indentation: Indentation) -> [LineOfCode] {
+        // TODO: no force unwraps
+        return indentation.apply(
+            toFirstLine: "func serialize() throws -> String {",
+            nestedLines: ["return self.rawValue"],
             andLastLine: "}")
     }
 }
@@ -287,6 +305,24 @@ extension SwiftEnum {
 extension SwiftTypealias {
     public func toLinesOfCode(at indentation: Indentation) -> [LineOfCode] {
         return ["typealias \(name) = \(type.toSwiftCode())"].map(indentation.apply(toLineOfCode:))
+    }
+}
+
+extension SwiftList {
+    public func toLinesOfCode(at indentation: Indentation) -> [LineOfCode] {
+        return indentation.apply(
+            toFirstLine: "struct \(name): StringSerializableList {",
+            nestedLines:    linesOfCodeForBody(at:),
+            andLastLine: "}")
+    }
+
+    private func linesOfCodeForBody(at indentation: Indentation) -> [LineOfCode] {
+        return nestedTypes.flatMap { $0.toLinesOfCode(at: indentation) }
+            + ["var _contents: [\(element.toSwiftCode())] = []"].map(indentation.apply(toLineOfCode:))
+            + indentation.apply(
+                toFirstLine: "init(_ contents: [\(element.toSwiftCode())]) {",
+                nestedLines: ["_contents = contents"],
+                andLastLine: "}")
     }
 }
 

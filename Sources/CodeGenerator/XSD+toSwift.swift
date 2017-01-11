@@ -60,8 +60,9 @@ extension SimpleType {
         switch self.content {
         case .list:
             throw GeneratorError.notImplemented
-        case .listWrapped:
-            throw GeneratorError.notImplemented
+        case let .listWrapped(wrapped):
+            let nested = try wrapped.toSwift(name: "Element", mapping: mapping, types: types)
+            return SwiftList(name: name, element: .identifier(nested.name), nestedTypes: [nested])
         case let .restriction(restriction):
             if restriction.enumeration.count == 0 {
                 // TODO: what to do with the pattern?

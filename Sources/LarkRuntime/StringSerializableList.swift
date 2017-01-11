@@ -1,22 +1,22 @@
 import Foundation
 
-protocol StringSerializableList: XMLDeserializable, XMLSerializable, Sequence, Collection, ExpressibleByArrayLiteral {
+public protocol StringSerializableList: XMLDeserializable, XMLSerializable, Sequence, Collection, ExpressibleByArrayLiteral {
     associatedtype Element: StringDeserializable, StringSerializable
 
-    var _contents: [Element] { get set }
+    var _contents: [Element] { get }
     init(_: [Element])
 }
 
 /// XMLDeserializable
 extension StringSerializableList {
-    init(deserialize element: XMLElement) throws {
+    public init(deserialize element: XMLElement) throws {
         self.init(try element.stringValue!.components(separatedBy: " ").map(Element.init(string:)))
     }
 }
 
 /// XMLSerializable
 extension StringSerializableList {
-    func serialize(_ element: XMLElement) throws {
+    public func serialize(_ element: XMLElement) throws {
         element.stringValue = try _contents.map { try $0.serialize() }.joined(separator: " ")
     }
 }
@@ -46,14 +46,14 @@ extension StringSerializableList {
 
 /// ExpressibleByArrayLiteral
 extension StringSerializableList {
-    init(arrayLiteral elements: Self.Element...) {
+    public init(arrayLiteral elements: Self.Element...) {
         self.init(elements)
     }
 }
 
 extension StringSerializableList where Element: Equatable {
     /// Returns `true` if these lists contain the same elements.
-    static func ==(lhs: Self, rhs: Self) -> Bool {
+    public static func ==(lhs: Self, rhs: Self) -> Bool {
         return lhs._contents == rhs._contents
     }
 }
