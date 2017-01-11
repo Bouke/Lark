@@ -10,6 +10,7 @@ public protocol XMLSerializable {
 
 public enum XMLDeserializationError: Error {
     case noElementWithName(String)
+    case cannotDeserialize
 }
 
 public enum XMLSerializationError: Error {
