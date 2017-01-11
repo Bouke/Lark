@@ -1,7 +1,8 @@
 import XCTest
 
-@testable import SchemaParser
 @testable import CodeGenerator
+@testable import LarkRuntime
+@testable import SchemaParser
 
 class CodeGeneratorTests: XCTestCase {
     let NS = "http://tempuri.org/"
@@ -17,7 +18,8 @@ class CodeGeneratorTests: XCTestCase {
                 name: qname("my-type"),
                 content: .restriction(.init(
                     base: STRING,
-                    enumeration: ["A", "B", "C"]
+                    enumeration: ["A", "B", "C"],
+                    pattern: nil
                 ))
             ))
         ])
@@ -34,6 +36,22 @@ class CodeGeneratorTests: XCTestCase {
             "    }",
             "}"
         ])
+    }
+
+    func testPattern() throws {
+        let schema = XSD(nodes: [
+            .simpleType(.init(
+                name: qname("guid"),
+                content: .restriction(.init(
+                    base: STRING,
+                    enumeration: [],
+                    pattern: "[\\da-fA-F]{8}-[\\da-fA-F]{4}-[\\da-fA-F]{4}-[\\da-fA-F]{4}-[\\da-fA-F]{12}"
+                    ))
+                ))
+            ])
+        XCTAssertCode(actual: try schema.generateCode(), expected: [
+            "typealias Guid = String"
+            ])
     }
 
     func testComplexEmpty() throws {

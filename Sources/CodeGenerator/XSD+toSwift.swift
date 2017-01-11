@@ -63,8 +63,14 @@ extension SimpleType {
         case .listWrapped:
             throw GeneratorError.notImplemented
         case let .restriction(restriction):
-            let cases = restriction.enumeration.dictionary({ ($0.toSwiftPropertyName(), $0) })
-            return SwiftEnum(name: name, rawType: .identifier("String"), cases: cases)
+            if restriction.enumeration.count == 0 {
+                // TODO: what to do with the pattern?
+                let baseType = mapping[.type(restriction.base)]!
+                return SwiftTypealias(name: name, type: .identifier(baseType))
+            } else {
+                let cases = restriction.enumeration.dictionary({ ($0.toSwiftPropertyName(), $0) })
+                return SwiftEnum(name: name, rawType: .identifier("String"), cases: cases)
+            }
         }
     }
 }

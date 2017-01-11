@@ -147,10 +147,12 @@ public struct SimpleType: NamedType {
     public struct Restriction {
         public let base: QualifiedName
         public let enumeration: [String]
+        public let pattern: String?
 
-        public init(base: QualifiedName, enumeration: [String]) {
+        public init(base: QualifiedName, enumeration: [String], pattern: String?) {
             self.base = base
             self.enumeration = enumeration
+            self.pattern = pattern
         }
 
         init(deserialize node: XMLElement) throws {
@@ -158,12 +160,13 @@ public struct SimpleType: NamedType {
                 throw ParseError.unsupportedType
             }
             self.base = try QualifiedName(type: base, inTree: node)
-            self.enumeration = try node.elements(forLocalName: "enumeration", uri: NS_XSD).map {
+            enumeration = try node.elements(forLocalName: "enumeration", uri: NS_XSD).map {
                 guard let value = $0.attribute(forLocalName: "value", uri: nil)?.stringValue else {
                     throw ParseError.unsupportedType
                 }
                 return value
             }
+            pattern = node.elements(forLocalName: "pattern", uri: NS_XSD).first?.attribute(forName: "value")?.stringValue
         }
     }
 
