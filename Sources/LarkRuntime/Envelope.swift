@@ -11,7 +11,7 @@ public struct Envelope {
         let body = XMLElement.element(withName: "soap:Body", uri: NS_SOAP) as! XMLElement
         root.addChild(body)
         document = XMLDocument(rootElement: root)
-        document.version = "1.1"
+        document.version = "1.0"
         document.characterEncoding = "utf-8"
         document.isStandalone = true
     }
