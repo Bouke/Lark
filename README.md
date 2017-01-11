@@ -64,11 +64,10 @@ Backlog:
 
 * [x] Move Demo code to separate repository
 * [x] Unit tests
-* [x] Authentication (HTTP headers)
+* [x] Authentication (by setting HTTP / SOAP headers)
 * [ ] Implement `simpleType`s: list and list (wrapped)
 * [ ] Parse `nillable=true` in XSD
 * [ ] Asynchronous
-* [ ] Authentication (SOAP headers)
 
 Ideas for the future:
 

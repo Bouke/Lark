@@ -20,7 +20,22 @@ public struct Envelope {
         self.document = document
     }
 
+    var root: XMLElement {
+        return document.rootElement()!
+    }
+
+    var header: XMLElement {
+        get {
+            if let header = root.elements(forLocalName: "Header", uri: NS_SOAP).first {
+                return header
+            }
+            let header = XMLElement.element(withName: "soap:Header", uri: NS_SOAP) as! XMLElement
+            root.insertChild(header, at: 0)
+            return header
+        }
+    }
+
     var body: XMLElement {
-        return document.rootElement()!.elements(forLocalName: "Body", uri: NS_SOAP).first!
+        return root.elements(forLocalName: "Body", uri: NS_SOAP).first!
     }
 }

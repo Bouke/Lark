@@ -22,6 +22,7 @@ class _Channel: Channel {
 }
 
 class ClientTests: XCTestCase {
+    /// Verify that request is serialized correctly and correct response is returned.
     func test() {
         let expected = Envelope()
         expected.body.addChild(XMLElement(name: "hello", stringValue: "world"))
@@ -35,5 +36,24 @@ class ClientTests: XCTestCase {
         } catch {
             XCTFail("Failed with error: \(error)")
         }
+    }
+
+    /// Not setting a header should not result in a `<soap:Header/>` node
+    func testNoHeaders() throws {
+        let channel = _Channel(response: .success(Envelope()))
+        let client = Client(channel: channel)
+        _ = try client.send(action: URL(string: "action")!, parameters: [])
+        XCTAssertEqual(channel.request!.request.root.xmlString,
+                       "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\"><soap:Body></soap:Body></soap:Envelope>")
+    }
+
+    /// Verify that headers are added to the envelope.
+    func testSetHeaders() throws {
+        let channel = _Channel(response: .success(Envelope()))
+        let client = Client(channel: channel)
+        client.headers.append((QualifiedName(uri: "System", localName: "String"), "ABC"))
+        _ = try client.send(action: URL(string: "action")!, parameters: [])
+        XCTAssertEqual(channel.request!.request.header.xmlString,
+                       "<soap:Header><String xmlns=\"System\">ABC</String></soap:Header>")
     }
 }
