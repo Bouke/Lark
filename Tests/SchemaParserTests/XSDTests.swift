@@ -4,7 +4,10 @@ import XCTest
 
 class XSDTests: XCTestCase {
     func deserialize(_ input: String) throws -> XSD {
-        let url = URL(fileURLWithPath: #file).deletingLastPathComponent().appendingPathComponent("Inputs").appendingPathComponent(input)
+        let url = URL(fileURLWithPath: #file)
+            .deletingLastPathComponent()
+            .appendingPathComponent("Inputs")
+            .appendingPathComponent(input)
         return try parseXSD(contentsOf: url)
     }
 

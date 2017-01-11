@@ -21,7 +21,7 @@ open class Channel {
             let fault = try Fault(deserialize: faultNode)
             throw fault
         }
-        let doc = try! XMLDocument(data: response, options: 0)
+        let doc = try XMLDocument(data: response, options: 0)
         logger.debug("Received response: \(doc.xmlString)")
         return Envelope(document: doc)
     }

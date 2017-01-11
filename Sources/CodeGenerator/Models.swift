@@ -72,8 +72,7 @@ public struct SwiftList: SwiftMetaType {
     let nestedTypes: [SwiftMetaType]
 }
 
-
-// MARK:- SOAP Client
+// MARK: - SOAP Client
 
 public struct SwiftClientClass: SwiftMetaType {
     public let name: Identifier

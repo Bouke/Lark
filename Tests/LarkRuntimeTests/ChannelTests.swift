@@ -16,12 +16,12 @@ class _Transport: Transport {
 }
 
 class ChannelTests: XCTestCase {
-    func testFault() {
+    func testFault() throws {
         let fault = Fault(faultcode: "SOAP-ENV:Server", faultstring: "NullReferenceException occurred.", faultactor: nil, detail: [])
         let envelope = Envelope()
-        let faultNode = try! envelope.body.createElement(localName: "Fault", uri: NS_SOAP)
+        let faultNode = try envelope.body.createElement(localName: "Fault", uri: NS_SOAP)
         envelope.body.addChild(faultNode)
-        try! fault.serialize(faultNode)
+        try fault.serialize(faultNode)
         let transport = _Transport(response: .failure(HTTPTransportError.notOk(500, envelope.document.xmlData)))
         let channel = Channel(transport: transport)
         do {

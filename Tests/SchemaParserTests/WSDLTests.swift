@@ -5,29 +5,36 @@ import XCTest
 
 class WSDLTests: XCTestCase {
     func deserialize(_ input: String) throws -> WSDL {
-        let url = URL(fileURLWithPath: #file).deletingLastPathComponent().appendingPathComponent("Inputs").appendingPathComponent(input)
+        let url = URL(fileURLWithPath: #file)
+            .deletingLastPathComponent()
+            .appendingPathComponent("Inputs")
+            .appendingPathComponent(input)
         return try parseWSDL(contentsOf: url)
+    }
+
+    func qname(_ localName: String) -> QualifiedName {
+        return QualifiedName(uri: "http://www.dataaccess.com/webservicesserver/", localName: localName)
     }
 
     func testNumberConversion() throws {
         let wsdl = try deserialize("numberconversion.wsdl")
         XCTAssertEqual(wsdl.bindings.count, 2)
-        XCTAssertEqual(wsdl.bindings.first?.name, QualifiedName(uri: "http://www.dataaccess.com/webservicesserver/", localName: "NumberConversionSoapBinding"))
+        XCTAssertEqual(wsdl.bindings.first?.name, qname("NumberConversionSoapBinding"))
         XCTAssertEqual(wsdl.bindings.map({ $0.operations }).count, 2)
 
         XCTAssertEqual(wsdl.messages.count, 4)
-        XCTAssertEqual(wsdl.messages.first?.name, QualifiedName(uri: "http://www.dataaccess.com/webservicesserver/", localName: "NumberToWordsSoapRequest"))
+        XCTAssertEqual(wsdl.messages.first?.name, qname("NumberToWordsSoapRequest"))
         XCTAssertEqual(wsdl.messages.flatMap({ $0.parts }).count, 4)
 
         XCTAssertEqual(wsdl.portTypes.count, 1)
-        XCTAssertEqual(wsdl.portTypes.first?.name, QualifiedName(uri: "http://www.dataaccess.com/webservicesserver/", localName: "NumberConversionSoapType"))
+        XCTAssertEqual(wsdl.portTypes.first?.name, qname("NumberConversionSoapType"))
         XCTAssertEqual(wsdl.portTypes.flatMap({ $0.operations }).count, 2)
 
         XCTAssertEqual(wsdl.schema.count, 4)
-        XCTAssertEqual(wsdl.schema.first?.element?.name, QualifiedName(uri: "http://www.dataaccess.com/webservicesserver/", localName: "NumberToWords"))
+        XCTAssertEqual(wsdl.schema.first?.element?.name, qname("NumberToWords"))
 
         XCTAssertEqual(wsdl.services.count, 1)
-        XCTAssertEqual(wsdl.services.first?.name, QualifiedName(uri: "http://www.dataaccess.com/webservicesserver/", localName: "NumberConversion"))
+        XCTAssertEqual(wsdl.services.first?.name, qname("NumberConversion"))
         XCTAssertEqual(wsdl.services.flatMap({ $0.ports }).count, 2)
     }
 

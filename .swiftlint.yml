@@ -1,0 +1,14 @@
+disabled_rules:
+  - force_cast
+  - variable_name
+  - type_name
+excluded:
+  - .build
+  - .build.tmp
+  - Packages
+cyclomatic_complexity:
+  error: 50
+variable_name:
+  severity: warning
+  excluded:
+    - to
