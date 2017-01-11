@@ -1,6 +1,6 @@
 import Foundation
 import SchemaParser
-
+import LarkRuntime
 
 extension WSDL {
     enum Node {

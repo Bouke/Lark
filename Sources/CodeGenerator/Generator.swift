@@ -1,5 +1,6 @@
 import Foundation
 import SchemaParser
+import LarkRuntime
 
 enum GeneratorError: Error {
     case missingTypes(Set<QualifiedName>)

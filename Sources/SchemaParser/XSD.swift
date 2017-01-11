@@ -1,4 +1,5 @@
 import Foundation
+import LarkRuntime
 
 public struct XSD {
     public enum Node {
