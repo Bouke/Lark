@@ -46,6 +46,7 @@ open class HTTPTransport: Transport {
 
     open func send(_ request: URLRequest) throws -> (HTTPURLResponse, Data) {
         var response: URLResponse? = nil
+        // TODO: configuration of connection timeouts
         let data = try NSURLConnection.sendSynchronousRequest(request, returning: &response)
         guard let httpResponse = response as? HTTPURLResponse else {
             fatalError("Expected HTTPURLResponse")

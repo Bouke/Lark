@@ -69,7 +69,6 @@ Backlog:
 * [ ] Parse `nillable=true` in XSD
 * [ ] Asynchronous
 * [ ] Authentication (SOAP headers)
-* [ ] Control connection timeouts
 
 Ideas for the future:
 
