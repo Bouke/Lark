@@ -16,3 +16,11 @@ public enum XMLDeserializationError: Error {
 public enum XMLSerializationError: Error {
     case invalidNamespace(String)
 }
+
+public protocol StringDeserializable {
+    init(string: String) throws
+}
+
+public protocol StringSerializable {
+    func serialize() throws -> String
+}
