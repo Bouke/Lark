@@ -65,7 +65,7 @@ Backlog:
 * [x] Move Demo code to separate repository
 * [x] Unit tests
 * [x] Authentication (by setting HTTP / SOAP headers)
-* [ ] Implement `simpleType`s: list and list (wrapped)
+* [x] Implement `simpleType`s: list and list (wrapped)
 * [ ] Parse `nillable=true` in XSD
 * [ ] Asynchronous
 

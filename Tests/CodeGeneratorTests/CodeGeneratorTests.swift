@@ -44,6 +44,47 @@ class CodeGeneratorTests: XCTestCase {
         ])
     }
 
+    func testList() throws {
+        let schema = XSD(nodes: [
+            .simpleType(.init(
+                name: qname("FooBar"),
+                content: .restriction(.init(
+                    base: STRING,
+                    enumeration: ["foo", "bar"],
+                    pattern: nil
+                ))
+            )),
+            .simpleType(.init(
+                name: qname("FooBarList"),
+                content: .list(itemType: qname("FooBar"))
+            ))
+        ])
+        XCTAssertCode(actual: try schema.generateCode(), expected: [
+            "struct FooBarList: StringSerializableList {",
+            "    var _contents: [FooBar] = []",
+            "    init(_ contents: [FooBar]) {",
+            "        _contents = contents",
+            "    }",
+            "}",
+            "enum FooBar: String, XMLSerializable, XMLDeserializable, StringSerializable, StringDeserializable {",
+            "    case bar = \"bar\"",
+            "    case foo = \"foo\"",
+            "    init(deserialize element: XMLElement) throws {",
+            "        self.init(rawValue: element.stringValue!)!",
+            "    }",
+            "    func serialize(_ element: XMLElement) throws {",
+            "        element.stringValue = self.rawValue",
+            "    }",
+            "    init(string: String) throws {",
+            "        self.init(rawValue: string)!",
+            "    }",
+            "    func serialize() throws -> String {",
+            "        return self.rawValue",
+            "    }",
+            "}",
+            ])
+    }
+
     func testListWrapped() throws {
         let schema = XSD(nodes: [
             .simpleType(.init(

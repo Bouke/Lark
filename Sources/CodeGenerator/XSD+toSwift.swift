@@ -58,8 +58,9 @@ extension SimpleType {
     public func toSwift(name: String? = nil, mapping: TypeMapping, types: Types) throws -> SwiftMetaType {
         let name = name ?? mapping[.type(self.name!)]!
         switch self.content {
-        case .list:
-            throw GeneratorError.notImplemented
+        case let .list(itemType):
+            let itemName = mapping[.type(itemType)]!
+            return SwiftList(name: name, element: .identifier(itemName), nestedTypes: [])
         case let .listWrapped(wrapped):
             let nested = try wrapped.toSwift(name: "Element", mapping: mapping, types: types)
             return SwiftList(name: name, element: .identifier(nested.name), nestedTypes: [nested])
