@@ -92,7 +92,7 @@ public func generate(wsdl: WSDL, service: Service) throws -> String {
 
 func generateTypes(inSchema schema: XSD) throws -> Types {
     var mapping: TypeMapping = baseTypes.dictionary { (Type.type($0), $1) }
-    var scope = Set<String>()
+    var scope: Set<String> = globalScope
     var hierarchy = ElementHierarchy.Graph()
 
     // Assign unique names to all nodes. First, elements are given a name. Sometimes
@@ -110,9 +110,14 @@ func generateTypes(inSchema schema: XSD) throws -> Types {
     let simples = schema.flatMap { $0.simpleType }.dictionary { ($0.name!, $0) }
 
     for element in elements.values {
-        let className = element.name.localName.toSwiftTypeName()
-        guard !scope.contains(className) else {
-            fatalError("Element name must be unique")
+        let className: String
+        let baseName = element.name.localName.toSwiftTypeName()
+        if !scope.contains(baseName) {
+            className = baseName
+        } else if !scope.contains("\(baseName)Type") {
+            className = "\(baseName)Type"
+        } else {
+            className = (2...Int.max).lazy.map { "\(baseName)Type\($0)" }.first { !scope.contains($0) }!
         }
         mapping[.element(element.name)] = className
         scope.insert(className)
@@ -210,3 +215,9 @@ let baseTypes: [QualifiedName: Identifier] = [
     QualifiedName(uri: NS_XSD, localName: "QName"): "QualifiedName",
     QualifiedName(uri: NS_XSD, localName: "anyType"): "Any",
 ]
+
+let globalScope: Set<String> = Set(baseTypes.values + [
+    "LarkRuntime",
+    "Evergreen",
+    ])
+
