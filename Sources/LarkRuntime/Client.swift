@@ -14,18 +14,20 @@ open class Client {
         self.init(channel: Channel(transport: HTTPTransport(endpoint: endpoint)))
     }
 
-    public func send(action: URL, parameters: [XMLElement]) throws -> XMLElement {
+    public func send(action: URL, parameters: [XMLElement], completionHandler: @escaping (Result<XMLElement>) -> Void) throws {
         let request = Envelope()
-        for header in headers {
-            let node = XMLElement(name: header.0.localName, uri: header.0.uri)
-            node.setAttributesWith(["xmlns": header.0.uri])
-            try header.1.serialize(node)
+        for (key, value) in headers {
+            let node = XMLElement(name: key.localName, uri: key.uri)
+            node.setAttributesWith(["xmlns": key.uri])
+            try value.serialize(node)
             request.header.addChild(node)
         }
         for parameter in parameters {
             request.body.addChild(parameter)
         }
-        return try channel.send(action: action, request: request).body
+        channel.send(action: action, request: request) { result in
+            completionHandler(result.map { $0.body })
+        }
     }
 }
 

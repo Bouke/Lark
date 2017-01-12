@@ -370,16 +370,22 @@ extension SwiftClientClass {
 extension ServiceMethod: LinesOfCodeConvertible {
     func toLinesOfCode(at indentation: Indentation) -> [LineOfCode] {
         return indentation.apply(
-            toFirstLine: "func \(name)(_ parameter: \(input.type)) throws -> \(output.type) {",
+            toFirstLine: "func \(name)(_ parameter: \(input.type), completionHandler: @escaping (Result<\(output.type)>) -> Void) throws {",
             nestedLines: [
                 "var parameters = [XMLElement]()",
                 "let parameterNode = XMLElement(prefix: \"ns0\", localName: \"\(input.element.localName)\", uri: \"\(input.element.uri)\")",
                 "parameterNode.addNamespace(XMLNode.namespace(withName: \"ns0\", stringValue: \"\(input.element.uri)\") as! XMLNode)",
                 "try parameter.serialize(parameterNode)",
                 "parameters.append(parameterNode)",
-                "let body = try send(action: URL(string: \"\(action?.absoluteString ?? "")\")!, parameters: parameters)",
-                "let outputNode = body.elements(forLocalName: \"\(output.element.localName)\", uri: \"\(output.element.uri)\").first!",
-                "return try \(output.type)(deserialize: outputNode)"
+                "try send(action: URL(string: \"\(action?.absoluteString ?? "")\")!, parameters: parameters) {",
+                "    do {",
+                "        let body = try $0.resolve()",
+                "        let outputNode = body.elements(forLocalName: \"\(output.element.localName)\", uri: \"\(output.element.uri)\").first!",
+                "        completionHandler(.success(try \(output.type)(deserialize: outputNode)))",
+                "    } catch {",
+                "        completionHandler(.failure(error))",
+                "    }",
+                "}",
             ],
             andLastLine: "}")
     }

@@ -5,7 +5,7 @@ import XCTest
 
 class _Channel: Channel {
     struct _Transport: Transport {
-        func send(action: URL, message: Data) throws -> Data {
+        func send(action: URL, message: Data, completionHandler: (Result<Data>) -> Void) {
             fatalError("Not implemented")
         }
     }
@@ -15,26 +15,31 @@ class _Channel: Channel {
         self.response = response
         super.init(transport: _Transport())
     }
-    override func send(action: URL?, request: Envelope) throws -> Envelope {
+    override func send(action: URL, request: Envelope, completionHandler: @escaping (Result<Envelope>) -> Void) {
         self.request = (action, request)
-        return try response.resolve()
+        completionHandler(response)
     }
 }
 
 class ClientTests: XCTestCase {
     /// Verify that request is serialized correctly and correct response is returned.
-    func test() {
+    func test() throws {
         let expected = Envelope()
         expected.body.addChild(XMLElement(name: "hello", stringValue: "world"))
         let channel = _Channel(response: .success(expected))
         let client = Client(channel: channel)
-        do {
-            let actual = try client.send(action: URL(string: "action")!, parameters: [XMLElement(name: "foo", stringValue: "bar")])
-            XCTAssertEqual(channel.request!.request.body.xmlString,
-                           "<soap:Body><foo>bar</foo></soap:Body>")
-            XCTAssertEqual(actual.xmlString, expected.body.xmlString)
-        } catch {
-            XCTFail("Failed with error: \(error)")
+        try expect { future in
+            try client.send(action: URL(string: "action")!, parameters: [XMLElement(name: "foo", stringValue: "bar")]) {
+                do {
+                    let actual = try $0.resolve()
+                    XCTAssertEqual(channel.request!.request.body.xmlString,
+                                   "<soap:Body><foo>bar</foo></soap:Body>")
+                    XCTAssertEqual(actual.xmlString, expected.body.xmlString)
+                } catch {
+                    XCTFail("Failed with error: \(error)")
+                }
+                future.fulfill()
+            }
         }
     }
 
@@ -42,9 +47,14 @@ class ClientTests: XCTestCase {
     func testNoHeaders() throws {
         let channel = _Channel(response: .success(Envelope()))
         let client = Client(channel: channel)
-        _ = try client.send(action: URL(string: "action")!, parameters: [])
-        XCTAssertEqual(channel.request!.request.root.xmlString,
-                       "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\"><soap:Body></soap:Body></soap:Envelope>")
+        try expect { future in
+            try client.send(action: URL(string: "action")!, parameters: []) {
+                _ = try! $0.resolve()
+                XCTAssertEqual(channel.request!.request.root.xmlString,
+                               "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\"><soap:Body></soap:Body></soap:Envelope>")
+                future.fulfill()
+            }
+        }
     }
 
     /// Verify that headers are added to the envelope.
@@ -52,8 +62,13 @@ class ClientTests: XCTestCase {
         let channel = _Channel(response: .success(Envelope()))
         let client = Client(channel: channel)
         client.headers.append((QualifiedName(uri: "System", localName: "String"), "ABC"))
-        _ = try client.send(action: URL(string: "action")!, parameters: [])
-        XCTAssertEqual(channel.request!.request.header.xmlString,
-                       "<soap:Header><String xmlns=\"System\">ABC</String></soap:Header>")
+        try expect { future in
+            try client.send(action: URL(string: "action")!, parameters: []) {
+                _ = try! $0.resolve()
+                XCTAssertEqual(channel.request!.request.header.xmlString,
+                               "<soap:Header><String xmlns=\"System\">ABC</String></soap:Header>")
+                future.fulfill()
+            }
+        }
     }
 }

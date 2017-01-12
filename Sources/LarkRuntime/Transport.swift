@@ -1,8 +1,9 @@
 import Foundation
 import Evergreen
+import Alamofire
 
 public protocol Transport {
-    func send(action: URL, message: Data) throws -> Data
+    func send(action: URL, message: Data, completionHandler: @escaping (Result<Data>) -> Void)
 }
 
 public enum HTTPTransportError: Error {
@@ -19,7 +20,7 @@ open class HTTPTransport: Transport {
         self.endpoint = endpoint
     }
 
-    open func send(action: URL, message: Data) throws -> Data {
+    open func send(action: URL, message: Data, completionHandler: @escaping (Result<Data>) -> Void) {
         var request = URLRequest(url: endpoint)
         request.httpBody = message
         request.httpMethod = "POST"
@@ -31,17 +32,21 @@ open class HTTPTransport: Transport {
         }
         logger.debug("Request: " + request.debugDescription + "\n" + (request.allHTTPHeaderFields?.map({"\($0): \($1)"}).joined(separator: "\n") ?? ""))
 
-        let (response, data) = try send(request)
+        do {
+            let (response, data) = try send(request)
 
-        logger.debug("Response: " + response.debugDescription)
-        logger.debug("Response body: " + (String(data: data, encoding: .utf8) ?? "Failed to decode the body as UTF-8 for logging"))
-        guard response.statusCode == 200 else {
-            throw HTTPTransportError.notOk(response.statusCode, data)
+            logger.debug("Response: " + response.debugDescription)
+            logger.debug("Response body: " + (String(data: data, encoding: .utf8) ?? "Failed to decode the body as UTF-8 for logging"))
+            guard response.statusCode == 200 else {
+                throw HTTPTransportError.notOk(response.statusCode, data)
+            }
+            guard response.mimeType == "text/xml" else {
+                throw HTTPTransportError.invalidMimeType(response.mimeType)
+            }
+            completionHandler(.success(data))
+        } catch {
+            completionHandler(.failure(error))
         }
-        guard response.mimeType == "text/xml" else {
-            throw HTTPTransportError.invalidMimeType(response.mimeType)
-        }
-        return data
     }
 
     open func send(_ request: URLRequest) throws -> (HTTPURLResponse, Data) {
