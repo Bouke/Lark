@@ -59,3 +59,26 @@ open class HTTPTransport: Transport {
         return (httpResponse, data)
     }
 }
+
+public class AlamofireTransport: Transport {
+    open let endpoint: URL
+    open let logger = Evergreen.getLogger("Lark.HTTPTransport")
+    open var headers: [String: String] = [:]
+
+    public init(endpoint: URL) {
+        self.endpoint = endpoint
+    }
+
+    struct Encoding: ParameterEncoding {
+        func encode(_ urlRequest: URLRequestConvertible, with parameters: Parameters?) throws -> URLRequest {
+            abort()
+        }
+    }
+
+    public func send(action: URL, message: Data, completionHandler: @escaping (Result<Data>) -> Void) {
+        Alamofire.request(endpoint, method: .post, parameters: ["_": message], encoding: Encoding(), headers: [:]).response {
+            completionHandler(.success($0.data!))
+        }
+    }
+}
+
