@@ -32,23 +32,34 @@ open class HTTPTransport: Transport {
         }
         logger.debug("Request: " + request.debugDescription + "\n" + (request.allHTTPHeaderFields?.map({"\($0): \($1)"}).joined(separator: "\n") ?? ""))
 
+        // TODO: configuration of connection timeouts
+
+        _send(request: request) {
+            do {
+                let (response, data) = try $0.resolve()
+                logger.debug("Response: " + response.debugDescription)
+                logger.debug("Response body: " + (String(data: data, encoding: .utf8) ?? "Failed to decode the body as UTF-8 for logging"))
+                guard response.statusCode == 200 else {
+                    throw HTTPTransportError.notOk(response.statusCode, data)
+                }
+                guard response.mimeType == "text/xml" else {
+                    throw HTTPTransportError.invalidMimeType(response.mimeType)
+                }
+                completionHandler(.success(data))
+            } catch {
+                completionHandler(.failure(error))
+            }
+        }
+    }
+
+    open func _send(request: URLRequest, completionHandler: (Result<(HTTPURLResponse, Data)>) -> Void) {
         do {
             var response: URLResponse? = nil
-            // TODO: configuration of connection timeouts
             let data = try NSURLConnection.sendSynchronousRequest(request, returning: &response)
             guard let httpResponse = response as? HTTPURLResponse else {
                 fatalError("Expected HTTPURLResponse")
             }
-
-            logger.debug("Response: " + httpResponse.debugDescription)
-            logger.debug("Response body: " + (String(data: data, encoding: .utf8) ?? "Failed to decode the body as UTF-8 for logging"))
-            guard httpResponse.statusCode == 200 else {
-                throw HTTPTransportError.notOk(httpResponse.statusCode, data)
-            }
-            guard httpResponse.mimeType == "text/xml" else {
-                throw HTTPTransportError.invalidMimeType(httpResponse.mimeType)
-            }
-            completionHandler(.success(data))
+            completionHandler(.success(httpResponse, data))
         } catch {
             completionHandler(.failure(error))
         }

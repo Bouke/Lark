@@ -9,7 +9,7 @@ class _Transport: Transport {
     public init(response: Result<Data>) {
         self.response = response
     }
-    func send(action: URL, message: Data, completionHandler: (Result<Data>) -> Void) {
+    func send(action: URL, message: Data, completionHandler: @escaping (Result<Data>) -> Void) {
         request = (action, message)
         completionHandler(response)
     }

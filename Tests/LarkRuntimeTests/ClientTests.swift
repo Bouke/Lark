@@ -5,7 +5,7 @@ import XCTest
 
 class _Channel: Channel {
     struct _Transport: Transport {
-        func send(action: URL, message: Data, completionHandler: (Result<Data>) -> Void) {
+        func send(action: URL, message: Data, completionHandler: @escaping (Result<Data>) -> Void) {
             fatalError("Not implemented")
         }
     }

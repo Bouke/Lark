@@ -12,9 +12,9 @@ class _HTTPTransport: HTTPTransport {
         super.init(endpoint: endpoint)
     }
 
-    override func send(_ request: URLRequest) throws -> (HTTPURLResponse, Data) {
+    override func _send(request: URLRequest, completionHandler: (Result<(HTTPURLResponse, Data)>) -> Void) {
         self.request = request
-        return try response.resolve()
+        completionHandler(response)
     }
 }
 
