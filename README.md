@@ -3,7 +3,7 @@ Lark: Swift SOAP Client
 
 Lark is a SOAP library written in Swift.
 
-[![Build Status](https://travis-ci.org/Bouke/Lark.svg?branch=master)][0]
+[![Build Status](https://travis-ci.org/Bouke/Lark.svg?branch=master)](https://travis-ci.org/Bouke/Lark)
 
 ## Features
 
@@ -13,6 +13,7 @@ Lark is a SOAP library written in Swift.
 * [x] Strictly typed
 * [x] SOAP 1.1
 * [x] SOAP document/literal (wrapped) encoding
+* [x] Both synchronous and asynchronous
 
 ## Communication
 
@@ -43,9 +44,13 @@ In your code you can now use the generated `Client` like this:
         print("Server generated a Fault: \(fault)")
     }
 
+### Asynchronous
+
+The `HTTPTransport` included is synchronous. Asynchronous however is also possible through Alamofire. See [Lark-Alamofire](https://github.com/Bouke/Lark-Alamofire) for more information.
+
 ## Example
 
-See the [LarkExample](https://github.com/Bouke/LarkExample) repository for an
+See the [Lark-Example](https://github.com/Bouke/Lark-Example) repository for an
 example of how to use Lark.
 
 ## Development
@@ -66,8 +71,8 @@ Backlog:
 * [x] Unit tests
 * [x] Authentication (by setting HTTP / SOAP headers)
 * [x] Implement `simpleType`s: list and list (wrapped)
+* [x] Asynchronous
 * [ ] Parse `nillable=true` in XSD
-* [ ] Asynchronous
 
 Ideas for the future:
 
@@ -78,6 +83,7 @@ Ideas for the future:
 * [ ] Support multiple ports / bindings
 * [ ] Cocoapods / Carthage support
 * [ ] Wrap all errors, or bubble cocoa errors -- what's common for Swift libraries?
+* [ ] Provide asynchronous `HTTPTransport`s out-of-the-box
 
 ## FAQ
 
@@ -87,7 +93,4 @@ SOAP is sometimes referred to as a fat messaging protocol. Swift is an elegant b
 
 ## Credits
 
-This library was written by [Bouke Haarsma][1].
-
-[0]: https://travis-ci.org/Bouke/Lark
-[1]: https://twitter.com/BoukeHaarsma
+This library was written by [Bouke Haarsma](https://twitter.com/BoukeHaarsma).
