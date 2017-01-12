@@ -9,6 +9,5 @@ let package = Package(
     ],
     dependencies: [
         .Package(url: "https://github.com/Bouke/Evergreen.git", majorVersion: 0),
-        .Package(url: "https://github.com/Alamofire/Alamofire.git", majorVersion: 4),
     ]
 )

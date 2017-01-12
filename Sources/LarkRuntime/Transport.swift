@@ -33,51 +33,24 @@ open class HTTPTransport: Transport {
         logger.debug("Request: " + request.debugDescription + "\n" + (request.allHTTPHeaderFields?.map({"\($0): \($1)"}).joined(separator: "\n") ?? ""))
 
         do {
-            let (response, data) = try send(request)
-
-            logger.debug("Response: " + response.debugDescription)
-            logger.debug("Response body: " + (String(data: data, encoding: .utf8) ?? "Failed to decode the body as UTF-8 for logging"))
-            guard response.statusCode == 200 else {
-                throw HTTPTransportError.notOk(response.statusCode, data)
+            var response: URLResponse? = nil
+            // TODO: configuration of connection timeouts
+            let data = try NSURLConnection.sendSynchronousRequest(request, returning: &response)
+            guard let httpResponse = response as? HTTPURLResponse else {
+                fatalError("Expected HTTPURLResponse")
             }
-            guard response.mimeType == "text/xml" else {
-                throw HTTPTransportError.invalidMimeType(response.mimeType)
+
+            logger.debug("Response: " + httpResponse.debugDescription)
+            logger.debug("Response body: " + (String(data: data, encoding: .utf8) ?? "Failed to decode the body as UTF-8 for logging"))
+            guard httpResponse.statusCode == 200 else {
+                throw HTTPTransportError.notOk(httpResponse.statusCode, data)
+            }
+            guard httpResponse.mimeType == "text/xml" else {
+                throw HTTPTransportError.invalidMimeType(httpResponse.mimeType)
             }
             completionHandler(.success(data))
         } catch {
             completionHandler(.failure(error))
-        }
-    }
-
-    open func send(_ request: URLRequest) throws -> (HTTPURLResponse, Data) {
-        var response: URLResponse? = nil
-        // TODO: configuration of connection timeouts
-        let data = try NSURLConnection.sendSynchronousRequest(request, returning: &response)
-        guard let httpResponse = response as? HTTPURLResponse else {
-            fatalError("Expected HTTPURLResponse")
-        }
-        return (httpResponse, data)
-    }
-}
-
-public class AlamofireTransport: Transport {
-    open let endpoint: URL
-    open let logger = Evergreen.getLogger("Lark.HTTPTransport")
-    open var headers: [String: String] = [:]
-
-    public init(endpoint: URL) {
-        self.endpoint = endpoint
-    }
-
-    struct Encoding: ParameterEncoding {
-        func encode(_ urlRequest: URLRequestConvertible, with parameters: Parameters?) throws -> URLRequest {
-            abort()
-        }
-    }
-
-    public func send(action: URL, message: Data, completionHandler: @escaping (Result<Data>) -> Void) {
-        Alamofire.request(endpoint, method: .post, parameters: ["_": message], encoding: Encoding(), headers: [:]).response {
-            completionHandler(.success($0.data!))
         }
     }
 }
