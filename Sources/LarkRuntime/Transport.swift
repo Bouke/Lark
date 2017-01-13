@@ -1,6 +1,5 @@
 import Foundation
 import Evergreen
-import Alamofire
 
 public protocol Transport {
     func send(action: URL, message: Data, completionHandler: @escaping (Result<Data>) -> Void)
