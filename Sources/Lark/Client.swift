@@ -29,5 +29,31 @@ open class Client {
             completionHandler(result.map { $0.body })
         }
     }
+
+    public func call<T>(
+        action: URL,
+        serialize: (Envelope) throws -> Envelope,
+        deserialize: @escaping (Envelope) throws -> T)
+        -> Request<T>
+    {
+        let originalEnvelope = Envelope()
+        do {
+            let envelope = try serialize(originalEnvelope)
+
+            //TODO: send request
+            print(envelope)
+
+            return Request(responseDeserializer: { envelope in
+                //TODO: validate response
+                do {
+                    return .success(try deserialize(envelope))
+                } catch {
+                    return .failure(error)
+                }
+            })
+        } catch {
+            fatalError("TODO: return failed Request")
+        }
+    }
 }
 
