@@ -122,7 +122,15 @@ extension SwiftTypeClass {
         let override = properties.count == 0 && base != nil ? "override " : ""
 
         let signature = (inheritedProperties + properties)
-            .map { "\($0.name): \($0.type.toSwiftCode())" }
+            .map {
+                let base = "\($0.name): \($0.type.toSwiftCode())"
+                let `default`: String
+                switch $0.type {
+                case .optional: `default` = " = nil"
+                default: `default` = ""
+                }
+                return "\(base)\(`default`)"
+            }
             .joined(separator: ", ")
 
         return indentation.apply(

@@ -77,7 +77,7 @@ Backlog:
 Ideas for the future:
 
 * [ ] Collapse messages into client methods (instead of passing request objects, pass request's parameters into client method)
-* [ ] Default value `nil` for `Optional`s
+* [x] Default value `nil` for `Optional`s
 * [ ] Generate Envelope/SoapFault types from XSD (become self-hosted)
 * [ ] Stricter SOAP 1.0 / 1.1 / 1.2 support
 * [ ] Support multiple ports / bindings
