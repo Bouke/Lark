@@ -59,7 +59,6 @@ Pull requests welcome!
 
 Known issues:
 
-* [ ] RPC encoding not supported
 * [x] Support mixed namespaces in generated code
 * [ ] Support all `XSD` base types: `decimal`, `dateTime` etc
 * [ ] Support other content types: `simpleTypes`, `choice` etc
@@ -72,19 +71,25 @@ Backlog:
 * [x] Authentication (by setting HTTP / SOAP headers)
 * [x] Implement `simpleType`s: list and list (wrapped)
 * [x] Asynchronous
-* [ ] Parse `nillable=true` in XSD
 * [x] Client endpoint as static variable
+* [x] Default value `nil` for `Optional`s
+* [ ] Parse `nillable=true` in XSD
+* [ ] Instead of passing a completionHandler, return an 'Awaitable' (promise-like) object -- client.call(...).success { print($0) }
+* [ ] Less verbose logging by default
 
 Ideas for the future:
 
 * [ ] Collapse messages into client methods (instead of passing request objects, pass request's parameters into client method)
-* [x] Default value `nil` for `Optional`s
 * [ ] Generate Envelope/SoapFault types from XSD (become self-hosted)
 * [ ] Stricter SOAP 1.0 / 1.1 / 1.2 support
 * [ ] Support multiple ports / bindings
 * [ ] Cocoapods / Carthage support
 * [ ] Wrap all errors, or bubble cocoa errors -- what's common for Swift libraries?
 * [ ] Provide asynchronous `HTTPTransport`s out-of-the-box
+
+Not on the backlog:
+
+* RPC encoding support
 
 ## FAQ
 
