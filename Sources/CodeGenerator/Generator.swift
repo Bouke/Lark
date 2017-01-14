@@ -1,6 +1,6 @@
 import Foundation
 import SchemaParser
-import LarkRuntime
+import Lark
 
 enum GeneratorError: Error {
     case missingTypes(Set<QualifiedName>)
@@ -217,7 +217,7 @@ let baseTypes: [QualifiedName: Identifier] = [
 ]
 
 let globalScope: Set<String> = Set(baseTypes.values + [
-    "LarkRuntime",
+    "Lark",
     "Evergreen",
     ])
 

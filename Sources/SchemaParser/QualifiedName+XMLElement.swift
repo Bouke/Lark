@@ -1,5 +1,5 @@
 import Foundation
-import LarkRuntime
+import Lark
 
 extension QualifiedName {
     public init(type: String, inTree tree: XMLElement) throws {

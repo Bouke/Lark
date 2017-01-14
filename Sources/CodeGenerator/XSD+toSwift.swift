@@ -1,6 +1,6 @@
 import Foundation
 import SchemaParser
-import LarkRuntime
+import Lark
 
 // MARK:- SOAP Types
 

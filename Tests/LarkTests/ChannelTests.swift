@@ -1,7 +1,7 @@
 import Foundation
 import XCTest
 
-@testable import LarkRuntime
+@testable import Lark
 
 class _Transport: Transport {
     var request: (action: URL, message: Data)? = nil

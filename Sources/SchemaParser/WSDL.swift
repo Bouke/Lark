@@ -1,5 +1,5 @@
 import Foundation
-import LarkRuntime
+import Lark
 
 public struct Message {
     public struct Part {

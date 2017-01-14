@@ -2,7 +2,7 @@ import Foundation
 import XCTest
 
 @testable import CodeGenerator
-@testable import LarkRuntime
+@testable import Lark
 @testable import SchemaParser
 
 class WSDLVerifyTests: XCTestCase {

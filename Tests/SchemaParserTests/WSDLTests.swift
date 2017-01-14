@@ -1,6 +1,6 @@
 import XCTest
 
-@testable import LarkRuntime
+@testable import Lark
 @testable import SchemaParser
 
 class WSDLTests: XCTestCase {

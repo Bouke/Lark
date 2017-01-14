@@ -1,7 +1,7 @@
 import Foundation
 import XCTest
 
-@testable import LarkRuntime
+@testable import Lark
 
 fileprivate struct _Foo: StringSerializableList {
     enum Item: String, StringSerializable, StringDeserializable {

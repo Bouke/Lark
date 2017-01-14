@@ -1,7 +1,7 @@
 import Foundation
 import XCTest
 
-@testable import LarkRuntime
+@testable import Lark
 
 class _HTTPTransport: HTTPTransport {
     var request: URLRequest? = nil

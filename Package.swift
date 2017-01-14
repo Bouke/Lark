@@ -3,8 +3,8 @@ import PackageDescription
 let package = Package(
     name: "Lark",
     targets: [
-        Target(name: "CodeGenerator", dependencies: ["LarkRuntime", "SchemaParser"]),
-        Target(name: "SchemaParser", dependencies: ["LarkRuntime"]),
+        Target(name: "CodeGenerator", dependencies: ["Lark", "SchemaParser"]),
+        Target(name: "SchemaParser", dependencies: ["Lark"]),
         Target(name: "lark-generate-client", dependencies: ["SchemaParser", "CodeGenerator"]),
     ],
     dependencies: [
