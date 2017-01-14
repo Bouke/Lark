@@ -1,33 +1,12 @@
+import Alamofire
 import Foundation
 import Evergreen
 
 open class Client {
-    open let channel: Channel
-    open let logger = Evergreen.getLogger("Lark.Client")
-    open var headers: [(QualifiedName, XMLSerializable)] = []
+    open let endpoint: URL
 
-    public init(channel: Channel) {
-        self.channel = channel
-    }
-
-    public convenience init(endpoint: URL) {
-        self.init(channel: Channel(transport: HTTPTransport(endpoint: endpoint)))
-    }
-
-    public func send(action: URL, parameters: [XMLElement], completionHandler: @escaping (Result<XMLElement>) -> Void) throws {
-        let request = Envelope()
-        for (key, value) in headers {
-            let node = XMLElement(name: key.localName, uri: key.uri)
-            node.setAttributesWith(["xmlns": key.uri])
-            try value.serialize(node)
-            request.header.addChild(node)
-        }
-        for parameter in parameters {
-            request.body.addChild(parameter)
-        }
-        channel.send(action: action, request: request) { result in
-            completionHandler(result.map { $0.body })
-        }
+    public init(endpoint: URL) {
+        self.endpoint = endpoint
     }
 
     public func call<T>(
@@ -37,23 +16,24 @@ open class Client {
         -> Request<T>
     {
         let originalEnvelope = Envelope()
+        // TODO: append soap headers
         do {
             let envelope = try serialize(originalEnvelope)
 
-            //TODO: send request
-            print(envelope)
+            var request = URLRequest(url: endpoint)
+            request.httpMethod = "POST"
+            request.addValue(action.absoluteString, forHTTPHeaderField: "SOAPAction")
+            request.addValue("text/xml; charset=utf-8", forHTTPHeaderField: "Content-Type")
 
-            return Request(responseDeserializer: { envelope in
-                //TODO: validate response
-                do {
-                    return .success(try deserialize(envelope))
-                } catch {
-                    return .failure(error)
-                }
-            })
+            let body = envelope.document.xmlData
+            request.httpBody = body
+            request.addValue("\(body.count)", forHTTPHeaderField: "Content-Length")
+
+            return Request(
+                request: Alamofire.request(request),
+                responseDeserializer: { try deserialize($0) })
         } catch {
             fatalError("TODO: return failed Request")
         }
     }
 }
-

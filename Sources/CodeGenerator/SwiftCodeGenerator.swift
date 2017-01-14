@@ -346,7 +346,6 @@ extension SwiftClientClass {
 
     private func linesOfCodeForMembers(at indentation: Indentation) -> [LineOfCode] {
         return properties(at: indentation)
-            + rule2initializer(at: indentation)
             + initializer(at: indentation)
             + methods.flatMap { $0.toLinesOfCode(at: indentation) }
     }
@@ -359,18 +358,6 @@ extension SwiftClientClass {
         return [
             "static let defaultEndpoint = URL(string: \"\(endpoint)\")!"
             ].map { indentation.apply(toLineOfCode: $0) }
-    }
-
-    /// Per "Rule 2", we need to provide our own implementation of the designated
-    /// initializer to inherit the convenience initializers. So while this 
-    /// initializer does nothing; it fullfills the requirements of Rule 2.
-    private func rule2initializer(at indentation: Indentation) -> [LineOfCode] {
-        return indentation.apply(
-            toFirstLine: "override init(channel: Channel) {",
-            nestedLines: [
-                "super.init(channel: channel)"
-            ],
-            andLastLine: "}")
     }
 
     private func initializer(at indentation: Indentation) -> [LineOfCode] {
@@ -386,22 +373,21 @@ extension SwiftClientClass {
 extension ServiceMethod: LinesOfCodeConvertible {
     func toLinesOfCode(at indentation: Indentation) -> [LineOfCode] {
         return indentation.apply(
-            toFirstLine: "func \(name)(_ parameter: \(input.type), completionHandler: @escaping (Result<\(output.type)>) -> Void) throws {",
+            toFirstLine: "func \(name)(_ parameter: \(input.type)) -> Request<\(output.type)> {",
             nestedLines: [
-                "var parameters = [XMLElement]()",
-                "let parameterNode = XMLElement(prefix: \"ns0\", localName: \"\(input.element.localName)\", uri: \"\(input.element.uri)\")",
-                "parameterNode.addNamespace(XMLNode.namespace(withName: \"ns0\", stringValue: \"\(input.element.uri)\") as! XMLNode)",
-                "try parameter.serialize(parameterNode)",
-                "parameters.append(parameterNode)",
-                "try send(action: URL(string: \"\(action?.absoluteString ?? "")\")!, parameters: parameters) {",
-                "    do {",
-                "        let body = try $0.resolve()",
-                "        let outputNode = body.elements(forLocalName: \"\(output.element.localName)\", uri: \"\(output.element.uri)\").first!",
-                "        completionHandler(.success(try \(output.type)(deserialize: outputNode)))",
-                "    } catch {",
-                "        completionHandler(.failure(error))",
-                "    }",
-                "}",
+                "return call(",
+                "    action: URL(string: \"\(action?.absoluteString ?? "")\")!,",
+                "    serialize: { envelope in",
+                "        let node = XMLElement(prefix: \"ns0\", localName: \"\(input.element.localName)\", uri: \"\(input.element.uri)\")",
+                "        node.addNamespace(XMLNode.namespace(withName: \"ns0\", stringValue: \"\(input.element.uri)\") as! XMLNode)",
+                "        try parameter.serialize(node)",
+                "        envelope.body.addChild(node)",
+                "        return envelope",
+                "    },",
+                "    deserialize: { envelope in",
+                "        let node = envelope.body.elements(forLocalName: \"\(output.element.localName)\", uri: \"\(output.element.uri)\").first!",
+                "        return try \(output.type)(deserialize: node)",
+                "    })",
             ],
             andLastLine: "}")
     }
