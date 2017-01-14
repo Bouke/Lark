@@ -345,9 +345,20 @@ extension SwiftClientClass {
     }
 
     private func linesOfCodeForMembers(at indentation: Indentation) -> [LineOfCode] {
-        return rule2initializer(at: indentation)
+        return properties(at: indentation)
+            + rule2initializer(at: indentation)
             + initializer(at: indentation)
             + methods.flatMap { $0.toLinesOfCode(at: indentation) }
+    }
+
+    private func properties(at indentation: Indentation) -> [LineOfCode] {
+        guard case let .soap11(endpoint) = port.address else {
+            fatalError("Expected SOAP 1.1 port")
+        }
+
+        return [
+            "static let defaultEndpoint = URL(string: \"\(endpoint)\")!"
+            ].map { indentation.apply(toLineOfCode: $0) }
     }
 
     /// Per "Rule 2", we need to provide our own implementation of the designated
@@ -363,13 +374,10 @@ extension SwiftClientClass {
     }
 
     private func initializer(at indentation: Indentation) -> [LineOfCode] {
-        guard case let .soap11(endpoint) = port.address else {
-            fatalError("Expected SOAP 1.1 port")
-        }
         return indentation.apply(
             toFirstLine: "convenience init() {",
             nestedLines: [
-                "self.init(endpoint: URL(string: \"\(endpoint)\")!)"
+                "self.init(endpoint: \(name).defaultEndpoint)"
             ],
             andLastLine: "}")
     }

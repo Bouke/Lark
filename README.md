@@ -73,6 +73,7 @@ Backlog:
 * [x] Implement `simpleType`s: list and list (wrapped)
 * [x] Asynchronous
 * [ ] Parse `nillable=true` in XSD
+* [x] Client endpoint as static variable
 
 Ideas for the future:
 
