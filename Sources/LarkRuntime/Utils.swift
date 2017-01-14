@@ -9,10 +9,27 @@ extension XMLElement {
         }
     }
 
-    public func createElement(localName: String, uri: String, stringValue: String? = nil) throws -> XMLElement {
-        guard let prefix = resolvePrefix(forNamespaceURI: uri) else {
-            throw XMLSerializationError.invalidNamespace(uri)
+    func addNamespace(uri: String) -> String {
+        for i in 1..<Int.max {
+            let prefix = "ns\(i)"
+            if resolveNamespace(forName: prefix) == nil {
+                let namespace = XMLNode.namespace(withName: prefix, stringValue: uri) as! XMLNode
+                addNamespace(namespace)
+                return prefix
+            }
         }
+        fatalError()
+    }
+
+    func resolveOrAddPrefix(forNamespaceURI uri: String) -> String {
+        if let prefix = resolvePrefix(forNamespaceURI: uri) {
+            return prefix
+        }
+        return addNamespace(uri: uri)
+    }
+
+    public func createElement(localName: String, uri: String, stringValue: String? = nil) throws -> XMLElement {
+        let prefix = resolveOrAddPrefix(forNamespaceURI: uri)
         let element: XMLElement
         if prefix != "" {
             element = XMLElement(name: "\(prefix):\(localName)", uri: uri)

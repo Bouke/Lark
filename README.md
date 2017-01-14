@@ -60,10 +60,10 @@ Pull requests welcome!
 Known issues:
 
 * [ ] RPC encoding not supported
+* [x] Support mixed namespaces in generated code
 * [ ] Support all `XSD` base types: `decimal`, `dateTime` etc
 * [ ] Support other content types: `simpleTypes`, `choice` etc
 * [ ] Handle `sequence` correctly (elements are strictly ordered)
-* [ ] Support mixed namespaces in generated code (currently uses "ns0" everywhere)
 
 Backlog:
 
