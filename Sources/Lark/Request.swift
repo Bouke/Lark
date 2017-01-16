@@ -1,9 +1,14 @@
 import Alamofire
 import Foundation
 
-public struct Request<T> {
-    var request: DataRequest
-    var responseDeserializer: (Envelope) throws -> T
+public class Request<T> {
+    let request: DataRequest
+    let responseDeserializer: (Envelope) throws -> T
+
+    public init(request: DataRequest, responseDeserializer: @escaping (Envelope) throws -> T) {
+        self.request = request
+        self.responseDeserializer = responseDeserializer
+    }
 
     @discardableResult
     public func response(
@@ -14,8 +19,11 @@ public struct Request<T> {
             .validate(contentType: ["text/xml"])
             .validate(statusCode: 200...200) // todo: write custom validator for SoapFault
             .response(responseSerializer: EnvelopeDeserializer()) { originalResponse in
+
+                // TODO: replace `Response<>` with `DataResponse<>`?
                 let response = Response(
-                    request: self,
+                    request: self.request,
+                    response: originalResponse,
                     result: originalResponse.result.map { try self.responseDeserializer($0) }
                 )
                 completionHandler(response)

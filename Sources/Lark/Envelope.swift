@@ -42,7 +42,7 @@ public struct Envelope {
 
 struct EnvelopeDeserializer: DataResponseSerializerProtocol {
     typealias SerializedObject = Envelope
-    var serializeResponse: (URLRequest?, HTTPURLResponse?, Data?, Error?) -> Alamofire.Result<Envelope> = {
+    let serializeResponse: (URLRequest?, HTTPURLResponse?, Data?, Error?) -> Alamofire.Result<Envelope> = {
         if let error = $3 {
             return .failure(error)
         }
@@ -58,4 +58,23 @@ struct EnvelopeDeserializer: DataResponseSerializerProtocol {
     }
 }
 
+public protocol HeaderSerializable {
+    func serialize() throws -> XMLElement
+}
 
+public struct Header<Value: XMLSerializable>: HeaderSerializable {
+    public let name: QualifiedName
+    public let value: Value
+    
+    public init(name: QualifiedName, value: Value) {
+        self.name = name
+        self.value = value
+    }
+
+    public func serialize() throws -> XMLElement {
+        let node = XMLElement(name: name.localName, uri: name.uri)
+        node.setAttributesWith(["xmlns": name.uri])
+        try value.serialize(node)
+        return node
+    }
+}
