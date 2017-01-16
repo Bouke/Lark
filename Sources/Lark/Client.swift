@@ -15,6 +15,27 @@ open class Client {
         self.sessionManager = sessionManager
     }
     
+    open func call<T>(
+        action: URL,
+        serialize: (Envelope) throws -> Envelope,
+        deserialize: @escaping (Envelope) throws -> T)
+        throws -> T
+    {
+        let semaphore = DispatchSemaphore(value: 0)
+        var response: DataResponse<T>!
+        request(action: action, serialize: serialize).responseSOAP(queue: DispatchQueue.global(qos: .default)) {
+            response = DataResponse(
+                request: $0.request,
+                response: $0.response,
+                data: $0.data,
+                result: $0.result.map { try deserialize($0) },
+                timeline: $0.timeline)
+            semaphore.signal()
+        }
+        _ = semaphore.wait(timeout: .distantFuture)
+        return try response.result.resolve()
+    }
+
     open func callAsync<T>(
         action: URL,
         serialize: (Envelope) throws -> Envelope,

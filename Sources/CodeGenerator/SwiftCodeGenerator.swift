@@ -373,6 +373,31 @@ extension SwiftClientClass {
 
 extension ServiceMethod: LinesOfCodeConvertible {
     func toLinesOfCode(at indentation: Indentation) -> [LineOfCode] {
+        return syncCall(at: indentation) + asyncCall(at: indentation)
+    }
+    
+    func syncCall(at indentation: Indentation) -> [LineOfCode] {
+        return indentation.apply(
+            toFirstLine: "@discardableResult func \(name)(_ parameter: \(input.type)) throws -> \(output.type) {",
+            nestedLines: [
+                "return try call(",
+                "    action: URL(string: \"\(action?.absoluteString ?? "")\")!,",
+                "    serialize: { envelope in",
+                "        let node = XMLElement(prefix: \"ns0\", localName: \"\(input.element.localName)\", uri: \"\(input.element.uri)\")",
+                "        node.addNamespace(XMLNode.namespace(withName: \"ns0\", stringValue: \"\(input.element.uri)\") as! XMLNode)",
+                "        try parameter.serialize(node)",
+                "        envelope.body.addChild(node)",
+                "        return envelope",
+                "    },",
+                "    deserialize: { envelope in",
+                "        let node = envelope.body.elements(forLocalName: \"\(output.element.localName)\", uri: \"\(output.element.uri)\").first!",
+                "        return try \(output.type)(deserialize: node)",
+                "    })",
+                ],
+            andLastLine: "}")
+    }
+    
+    func asyncCall(at indentation: Indentation) -> [LineOfCode] {
         return indentation.apply(
             toFirstLine: "@discardableResult func \(name)Async(_ parameter: \(input.type), completionHandler: @escaping (Result<\(output.type)>) -> Void) -> DataRequest {",
             nestedLines: [
