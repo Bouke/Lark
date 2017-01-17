@@ -27,12 +27,16 @@ struct SwiftCodeGenerator {
             "//",
             "// MARK: - SOAP Structures",
             "//",
-            types.map { $0.toSwiftCode(indentedBy: "    ") }.joined(separator: "\n\n"),
+            types.map { $0.toSwiftCode(indentedBy: "    ") }
+                .filter { $0 != "" }
+                .joined(separator: "\n\n"),
             "",
             "//",
             "// MARK: - SOAP Client",
             "//",
-            clients.map { $0.toSwiftCode(indentedBy: "    ") }.joined(separator: "\n\n"),
+            clients.map { $0.toSwiftCode(indentedBy: "    ") }
+                .filter { $0 != "" }
+                .joined(separator: "\n\n"),
             ""].joined(separator: "\n")
     }
 
