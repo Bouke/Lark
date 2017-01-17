@@ -18,13 +18,3 @@ extension Result {
     }
 }
 
-extension DataRequest {
-    @discardableResult
-    func responseSOAP(
-        queue: DispatchQueue? = nil,
-        completionHandler: @escaping (_ response: DataResponse<Envelope>) -> Void)
-        -> Self
-    {
-        return response(queue: queue, responseSerializer: EnvelopeDeserializer(), completionHandler: completionHandler)
-    }
-}

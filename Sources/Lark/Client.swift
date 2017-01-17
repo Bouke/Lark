@@ -17,7 +17,7 @@ open class Client {
     
     open func call<T>(
         action: URL,
-        serialize: (Envelope) throws -> Envelope,
+        serialize: @escaping (Envelope) throws -> Envelope,
         deserialize: @escaping (Envelope) throws -> T)
         throws -> T
     {
@@ -38,7 +38,7 @@ open class Client {
 
     open func callAsync<T>(
         action: URL,
-        serialize: (Envelope) throws -> Envelope,
+        serialize: @escaping (Envelope) throws -> Envelope,
         deserialize: @escaping (Envelope) throws -> T,
         completionHandler: @escaping (Result<T>) -> Void)
         -> DataRequest
@@ -54,32 +54,57 @@ open class Client {
     
     open func request(
         action: URL,
-        serialize: (Envelope) throws -> Envelope)
+        serialize: @escaping (Envelope) throws -> Envelope)
         -> DataRequest
     {
-        let originalEnvelope = Envelope()
-        do {
-            for header in headers {
-                originalEnvelope.header.addChild(try header.serialize())
-            }
-            
-            let envelope = try serialize(originalEnvelope)
-            
-            var request = URLRequest(url: endpoint)
-            request.httpMethod = "POST"
-            request.addValue(action.absoluteString, forHTTPHeaderField: "SOAPAction")
-            request.addValue("text/xml; charset=utf-8", forHTTPHeaderField: "Content-Type")
-            
-            let body = envelope.document.xmlData
-            request.httpBody = body
-            request.addValue("\(body.count)", forHTTPHeaderField: "Content-Length")
-            
-            return sessionManager.request(request)
-                .validate(contentType: ["text/xml"])
-                .validate(statusCode: 200...200) // todo: write custom validator for SoapFault
-        } catch {
-            // todo: move into custom serializer
-            fatalError("TODO: return failed Request")
+        let call = Call(
+            endpoint: endpoint,
+            action: action,
+            serialize: serialize,
+            headers: headers)
+        return sessionManager.request(call)
+            .validate(contentType: ["text/xml"])
+            .validate(statusCode: [200, 500])
+            .validateSOAP()
+            .validate(statusCode: 200...200)
+    }
+}
+
+
+struct Call: URLRequestConvertible {
+    let endpoint: URL
+    let action: URL
+    let serialize: (Envelope) throws -> Envelope
+    let headers: [HeaderSerializable]
+
+    func asURLRequest() throws -> URLRequest {
+        let envelope = try serialize(Envelope())
+
+        for header in headers {
+            envelope.header.addChild(try header.serialize())
         }
+
+        var request = URLRequest(url: endpoint)
+        request.httpMethod = "POST"
+        request.addValue(action.absoluteString, forHTTPHeaderField: "SOAPAction")
+        request.addValue("text/xml; charset=utf-8", forHTTPHeaderField: "Content-Type")
+
+        let body = envelope.document.xmlData
+        request.httpBody = body
+        request.addValue("\(body.count)", forHTTPHeaderField: "Content-Length")
+
+        return request
+    }
+}
+
+
+extension DataRequest {
+    @discardableResult
+    func responseSOAP(
+        queue: DispatchQueue? = nil,
+        completionHandler: @escaping (_ response: DataResponse<Envelope>) -> Void)
+        -> Self
+    {
+        return response(queue: queue, responseSerializer: EnvelopeDeserializer(), completionHandler: completionHandler)
     }
 }

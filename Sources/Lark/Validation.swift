@@ -1,4 +1,28 @@
+import Alamofire
 import Foundation
+
+
+extension DataRequest {
+    func validateSOAP() -> Self {
+        return validate { _, response, data in
+            switch response.statusCode {
+            case 200: return .success
+            case 500:
+                do {
+                    let document = try XMLDocument(data: data!, options: 0)
+                    let envelope = Envelope(document: document)
+                    let fault = try Fault(deserialize: envelope.body.elements(forLocalName: "Fault", uri: NS_SOAP).first!)
+                    return .failure(fault)
+                } catch {
+                    return .failure(error)
+                }
+            default:
+                fatalError("Unexpected status code \(response.statusCode). Verify that validate(statusCode:) is called before this validation.")
+            }
+        }
+    }
+}
+
 
 public struct Fault: Error, CustomStringConvertible, XMLDeserializable, XMLSerializable {
     let faultcode: String // TODO: should be QualifiedName (from SchemaParser module)
