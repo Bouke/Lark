@@ -36,17 +36,18 @@ Then, build your package. This will result in an executable named `lark-generate
 
 In your code you can now use the generated `Client` like this:
 
-    let client = Client()
-    try {
-        let result = try client.sayHello(SayHello(name: "World", times: 2))
-        print(result.sayHelloResult.string)
-    } catch let fault as LarkRuntime.Fault {
-        print("Server generated a Fault: \(fault)")
+    let client = HelloWorldServiceClient()
+
+To call a remote method, inspect the generated functions on the Client. For example the `sayHello` method that takes a `SayHello` parameter and returns a `SayHelloResponse`:
+
+    let result = try client.sayHello(SayHello(name: "World", times: 2))
+    print(result.sayHelloResult)
+
+Or if you're building a GUI that requires non-blocking networking, use the async version:
+
+    client.sayHelloAsync(SayHello(name: "World", times: 2)) { result in
+        print(result?.value.sayHelloResult)
     }
-
-### Asynchronous
-
-The `HTTPTransport` included is synchronous. Asynchronous however is also possible through Alamofire. See [Lark-Alamofire](https://github.com/Bouke/Lark-Alamofire) for more information.
 
 ## Example
 
@@ -73,21 +74,21 @@ Backlog:
 * [x] Asynchronous
 * [x] Client endpoint as static variable
 * [x] Default value `nil` for `Optional`s
+* [x] Revise API for both sync/async calls
 * [ ] Parse `nillable=true` in XSD
-* [ ] Instead of passing a completionHandler, return an 'Awaitable' (promise-like) object -- client.call(...).success { print($0) }
-* [ ] Less verbose logging by default
+* [ ] Provide helper methods for inspecting requests / replies
 
 Ideas for the future:
 
+* [x] Provide asynchronous `HTTPTransport`s out-of-the-box
 * [ ] Collapse messages into client methods (instead of passing request objects, pass request's parameters into client method)
 * [ ] Generate Envelope/SoapFault types from XSD (become self-hosted)
 * [ ] Stricter SOAP 1.0 / 1.1 / 1.2 support
 * [ ] Support multiple ports / bindings
 * [ ] Cocoapods / Carthage support
 * [ ] Wrap all errors, or bubble cocoa errors -- what's common for Swift libraries?
-* [ ] Provide asynchronous `HTTPTransport`s out-of-the-box
 
-Not on the backlog:
+Out of (my) scope:
 
 * RPC encoding support
 
