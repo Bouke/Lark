@@ -2,6 +2,7 @@ import Alamofire
 import Foundation
 import Evergreen
 
+
 open class Client {
     open let endpoint: URL
     open let sessionManager: SessionManager
@@ -66,7 +67,6 @@ open class Client {
             .validate(contentType: ["text/xml"])
             .validate(statusCode: [200, 500])
             .validateSOAP()
-            .validate(statusCode: 200...200)
     }
 }
 
