@@ -9,6 +9,6 @@ extension QualifiedName {
         guard let tns = node.targetNamespace else {
             return nil
         }
-        return try QualifiedName(uri: tns, localName: localName)
+        return QualifiedName(uri: tns, localName: localName)
     }
 }
