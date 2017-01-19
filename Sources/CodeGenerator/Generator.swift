@@ -219,6 +219,5 @@ let baseTypes: [QualifiedName: Identifier] = [
 
 let globalScope: Set<String> = Set(baseTypes.values + [
     "Lark",
-    "Evergreen",
     ])
 

@@ -1,6 +1,5 @@
 import Alamofire
 import Foundation
-import Evergreen
 
 
 open class Client {
