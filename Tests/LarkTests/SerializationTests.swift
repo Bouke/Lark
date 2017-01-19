@@ -124,9 +124,15 @@ class TypesTests: XCTestCase {
     }
 
     func testDate() {
-        test(value: Date(timeIntervalSinceReferenceDate: 0), expected: "<test>2001-01-01T01:00:00+01:00</test>")
-        // test other timezone identifiers
+        Date.isoDateFormatter.timeZone = TimeZone(identifier: "UTC")!
+        test(value: Date(timeIntervalSinceReferenceDate: 0), expected: "<test>2001-01-01T00:00:00Z</test>")
         test(serialized: "<test>2001-01-01T00:00:00Z</test>", expected: Date(timeIntervalSinceReferenceDate: 0))
+
+        Date.isoDateFormatter.timeZone = TimeZone(identifier: "Europe/Amsterdam")!
+        test(value: Date(timeIntervalSinceReferenceDate: 0), expected: "<test>2001-01-01T01:00:00+01:00</test>")
+        test(serialized: "<test>2001-01-01T00:00:00Z</test>", expected: Date(timeIntervalSinceReferenceDate: 0))
+
+        Date.isoDateFormatter.locale = nil
     }
 
     func testQualifiedName() {
