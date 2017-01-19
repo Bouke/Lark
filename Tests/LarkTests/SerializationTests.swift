@@ -128,6 +128,30 @@ class TypesTests: XCTestCase {
         // test other timezone identifiers
         test(serialized: "<test>2001-01-01T00:00:00Z</test>", expected: Date(timeIntervalSinceReferenceDate: 0))
     }
+
+    func testQualifiedName() {
+        let qname = QualifiedName(uri: "http://tempuri.org/", localName: "foo")
+        test(value: qname, expected: "<test xmlns:ns1=\"http://tempuri.org/\">ns1:foo</test>")
+
+        do {
+            let node = XMLElement(name: "test")
+            node.addAttribute(XMLNode.attribute(withName: "targetNamespace", stringValue: "http://tempuri.org/") as! XMLNode)
+            try qname.serialize(node)
+            XCTAssertEqual(node.xmlString, "<test targetNamespace=\"http://tempuri.org/\">foo</test>")
+            let deserialized = try QualifiedName(deserialize: node)
+            XCTAssertEqual(qname, deserialized)
+        } catch {
+            XCTFail("Failed with error: \(error)")
+        }
+    }
+
+//    func testXMLElement() {
+//        test(value: XMLElement(name: "foo", stringValue: "bar"), expected: "<test><foo>bar</foo></bar>")
+//
+//        let element = XMLElement(name: "foo", stringValue: "bar")
+//        element.setAttributesWith(["hello": "world", "baz": "buz"])
+//        test(value: element, expected: "<test><foo>bar</foo></bar>")
+//    }
 }
 
 
@@ -168,13 +192,6 @@ func test<T>(value: T, expected: String, file: StaticString = #file, line: UInt 
     }
 }
 
-
-/// Asserts that the given xml cannot be deserialized
-///
-/// - Parameters:
-///   - deserialization: statement that will be executed
-///   - file: (set automatically)
-///   - line: (set automatically)
 func testFails<T>(_ deserialization: @autoclosure () throws -> T, file: StaticString = #file, line: UInt = #line) where T: XMLSerializable, T: XMLDeserializable, T: Equatable {
     do {
         _ = try deserialization()

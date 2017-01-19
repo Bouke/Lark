@@ -245,6 +245,28 @@ extension Date: XMLDeserializable, XMLSerializable {
 
 // TODO: implement TimeInterval extension
 
-// TODO: impelement QualifiedName
+extension QualifiedName: XMLDeserializable, XMLSerializable {
+    public init(deserialize node: XMLElement) throws {
+        try self.init(type: node.stringValue ?? "", inTree: node)
+    }
+    public func serialize(_ element: XMLElement) throws {
+        switch element.targetNamespace {
+        case uri?:
+            element.stringValue = localName
+        default:
+            let prefix = element.resolveOrAddPrefix(forNamespaceURI: uri)
+            element.stringValue = "\(prefix):\(localName)"
+        }
+    }
+}
 
-// TODO: impelement anyType
+// Ugh required convenience designated final initializer. Swift is drunk.
+//extension XMLElement: XMLDeserializable, XMLSerializable {
+//    public required convenience init(deserialize node: XMLElement) throws {
+//        try self.init(xmlString: node.xmlString)
+//    }
+//    public func serialize(_ element: XMLElement) throws {
+//        // might not work
+//        element.addChild(self)
+//    }
+//}

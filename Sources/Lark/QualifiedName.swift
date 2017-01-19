@@ -31,3 +31,20 @@ extension QualifiedName: Hashable {
         return uri.hashValue % 17 + localName.hashValue
     }
 }
+
+extension QualifiedName {
+    public init(type: String, inTree tree: XMLElement) throws {
+        if type.contains(":") {
+            guard let namespace = tree.resolveNamespace(forName: type) else {
+                throw Error.invalidNamespacePrefix
+            }
+            uri = namespace.stringValue!
+        } else {
+            guard let tns = tree.targetNamespace else {
+                throw Error.invalidNamespacePrefix
+            }
+            uri = tns
+        }
+        localName = XMLElement(name: type).localName!
+    }
+}

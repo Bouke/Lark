@@ -1,4 +1,5 @@
 import Foundation
+import Lark
 
 public let NS_WSDL = "http://schemas.xmlsoap.org/wsdl/"
 public let NS_XSD = "http://www.w3.org/2001/XMLSchema"
@@ -32,11 +33,8 @@ extension Sequence {
 }
 
 func targetNamespace(ofNode node: XMLElement) throws -> String {
-    if let tns = node.attribute(forName: "targetNamespace")?.stringValue {
-        return tns
-    }
-    guard let parent = node.parent as? XMLElement else {
+    guard let tns = node.targetNamespace else {
         throw ParseError.noTargetNamespace
     }
-    return try targetNamespace(ofNode: parent)
+    return tns
 }

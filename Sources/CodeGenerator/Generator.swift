@@ -193,12 +193,13 @@ extension XSD {
 // todo: cleanup
 let baseTypes: [QualifiedName: Identifier] = [
     QualifiedName(uri: NS_XSD, localName: "byte"): "Int8",
-    QualifiedName(uri: NS_XSD, localName: "unsignedByte"): "UInt8",
     QualifiedName(uri: NS_XSD, localName: "short"): "Int16",
-    QualifiedName(uri: NS_XSD, localName: "unsignedShort"): "UInt16",
     QualifiedName(uri: NS_XSD, localName: "int"): "Int32",
-    QualifiedName(uri: NS_XSD, localName: "unsignedInt"): "UInt32",
     QualifiedName(uri: NS_XSD, localName: "long"): "Int64",
+
+    QualifiedName(uri: NS_XSD, localName: "unsignedByte"): "UInt8",
+    QualifiedName(uri: NS_XSD, localName: "unsignedShort"): "UInt16",
+    QualifiedName(uri: NS_XSD, localName: "unsignedInt"): "UInt32",
     QualifiedName(uri: NS_XSD, localName: "unsignedLong"): "UInt64",
 
     QualifiedName(uri: NS_XSD, localName: "boolean"): "Bool",
@@ -213,7 +214,7 @@ let baseTypes: [QualifiedName: Identifier] = [
     QualifiedName(uri: NS_XSD, localName: "dateTime"): "Date",
     QualifiedName(uri: NS_XSD, localName: "duration"): "TimeInterval",
     QualifiedName(uri: NS_XSD, localName: "QName"): "QualifiedName",
-    QualifiedName(uri: NS_XSD, localName: "anyType"): "Any",
+    QualifiedName(uri: NS_XSD, localName: "anyType"): "XMLElement",
 ]
 
 let globalScope: Set<String> = Set(baseTypes.values + [

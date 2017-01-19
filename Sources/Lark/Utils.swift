@@ -39,6 +39,16 @@ extension XMLElement {
         element.stringValue = stringValue
         return element
     }
+
+    public var targetNamespace: String? {
+        if let tns = self.attribute(forName: "targetNamespace")?.stringValue {
+            return tns
+        }
+        guard let parent = parent as? XMLElement else {
+            return nil
+        }
+        return parent.targetNamespace
+    }
 }
 
 extension XMLNode {
