@@ -1,6 +1,10 @@
 import Foundation
 
 internal extension String {
+    static let caseRegex = {
+        return try! NSRegularExpression(pattern: "([A-Z]+(?=$|[A-Z][a-z])|[A-Z]?[a-z]+)", options: [])
+    }()
+    
     func toSwiftTypeName() -> String {
         let name = capitalizedWithoutInvalidChars.prefixedWithUnderscoreIfNecessary
         return name.isEmpty ? "DefaultStructName" : name
@@ -13,7 +17,13 @@ internal extension String {
 
     private var capitalizedWithoutInvalidChars: String {
         let trimmed = trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
-        let parts = trimmed.components(separatedBy: invalidSwiftNameCharacters)
+        let parts = trimmed
+            .components(separatedBy: invalidSwiftNameCharacters)
+            .flatMap { String.caseRegex.matches(in: $0) }
+            .enumerated().map { (index, word) -> String in
+                if index == 0 { return word.lowercased() }
+                else { return word }
+            }
         let capitalizedParts = parts.map { $0.uppercasedFirstCharacter }
         return capitalizedParts.joined()
     }
