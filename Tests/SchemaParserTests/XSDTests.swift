@@ -23,4 +23,27 @@ class XSDTests: XCTestCase {
         }
         XCTAssertEqual(sequence.elements.count, 3)
     }
+
+    func testNillable() throws {
+        let xsd = try deserialize("nillable.xsd")
+        XCTAssertEqual(xsd.count, 1)
+
+        // unwrap into expected type
+        guard case let .element(type)? = xsd.first,
+            case let .complex(complex) = type.content,
+            case let .sequence(sequence) = complex.content else {
+                return XCTFail("Expected element with complexType with sequence.")
+        }
+
+        // assure xsd is parsed as expected
+        XCTAssertEqual(sequence.elements.count, 3)
+        XCTAssertEqual(sequence.elements[0].name.localName, "firstname")
+        XCTAssertEqual(sequence.elements[1].name.localName, "tussenvoegsel")
+        XCTAssertEqual(sequence.elements[2].name.localName, "lastname")
+
+        // actual tests
+        XCTAssertEqual(sequence.elements[0].nillable, false, "Should parse nillable=false as false")
+        XCTAssertEqual(sequence.elements[1].nillable, true, "Should parse nillable=true as true")
+        XCTAssertEqual(sequence.elements[2].nillable, false, "Should parse absence of nillable as false")
+    }
 }

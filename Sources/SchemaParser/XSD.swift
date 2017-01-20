@@ -117,6 +117,7 @@ public struct Element {
     public let name: QualifiedName
     public let content: Content
     public let occurs: CountableRange<Int>?
+    public let nillable: Bool
 }
 
 extension Element {
@@ -136,6 +137,8 @@ extension Element {
 
         occurs = range(node.attribute(forLocalName: "minOccurs", uri: nil)?.stringValue,
                        node.attribute(forLocalName: "maxOccurs", uri: nil)?.stringValue)
+
+        nillable = node.attribute(forLocalName: "nillable", uri: nil)?.stringValue ?? "false" == "true"
     }
 }
 

@@ -166,11 +166,11 @@ class CodeGeneratorTests: XCTestCase {
                 name: qname("my-type"),
                 content: .sequence(.init(
                     elements: [
-                        .init(name: qname("a"), content: .base(STRING), occurs: nil),
-                        .init(name: qname("b"), content: .base(STRING), occurs: 0..<1),
-                        .init(name: qname("c"), content: .base(STRING), occurs: 1..<1),
-                        .init(name: qname("d"), content: .base(STRING), occurs: 1..<2),
-                        .init(name: qname("e"), content: .base(STRING), occurs: 1..<Int.max),
+                        .init(name: qname("a"), content: .base(STRING), occurs: nil, nillable: false),
+                        .init(name: qname("b"), content: .base(STRING), occurs: 0..<1, nillable: false),
+                        .init(name: qname("c"), content: .base(STRING), occurs: 1..<1, nillable: false),
+                        .init(name: qname("d"), content: .base(STRING), occurs: 1..<2, nillable: false),
+                        .init(name: qname("e"), content: .base(STRING), occurs: 1..<Int.max, nillable: false),
                     ]
                 ))
             ))
@@ -229,18 +229,19 @@ class CodeGeneratorTests: XCTestCase {
                 name: qname("my-type"),
                 content: .sequence(.init(
                     elements: [
-                        .init(name: qname("a"), content: .base(STRING), occurs: nil),
-                        .init(name: qname("b"), content: .base(STRING), occurs: 0..<1),
-                        .init(name: qname("c"), content: .base(STRING), occurs: 1..<1),
-                        .init(name: qname("d"), content: .base(STRING), occurs: 1..<2),
-                        .init(name: qname("e"), content: .base(STRING), occurs: 1..<Int.max),
+                        .init(name: qname("a"), content: .base(STRING), occurs: nil, nillable: false),
+                        .init(name: qname("b"), content: .base(STRING), occurs: 0..<1, nillable: false),
+                        .init(name: qname("c"), content: .base(STRING), occurs: 1..<1, nillable: false),
+                        .init(name: qname("d"), content: .base(STRING), occurs: 1..<2, nillable: false),
+                        .init(name: qname("e"), content: .base(STRING), occurs: 1..<Int.max, nillable: false),
                         ]
                     ))
                 )),
             .element(.init(
                 name: qname("my-element"),
                 content: .base(qname("my-type")),
-                occurs: nil
+                occurs: nil,
+                nillable: false
                 ))
             ])
         XCTAssertCode(actual: try schema.generateCode(), expected: [
@@ -298,14 +299,15 @@ class CodeGeneratorTests: XCTestCase {
                 name: qname("my-type"),
                 content: .sequence(.init(
                     elements: [
-                        .init(name: qname("a"), content: .base(STRING), occurs: nil),
+                        .init(name: qname("a"), content: .base(STRING), occurs: nil, nillable: false),
                         ]
                     ))
                 )),
             .element(.init(
                 name: qname("my-element"),
                 content: .base(qname("my-type")),
-                occurs: nil
+                occurs: nil,
+                nillable: false
                 ))
             ])
         XCTAssertCode(actual: try schema.generateCode(), expected: [
