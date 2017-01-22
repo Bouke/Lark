@@ -384,4 +384,22 @@ class CodeGeneratorTests: XCTestCase {
             "}",
             ])
     }
+
+    func testNillableIdentifier() throws {
+        let schema = try deserialize("nillable_identifier.xsd")
+        let expected = try readlines("nillable_identifier.txt")
+        XCTAssertCode(actual: try schema.generateCode(), expected: expected)
+    }
+
+    func testNillableOptional() throws {
+        let schema = try deserialize("nillable_optional.xsd")
+        let expected = try readlines("nillable_optional.txt")
+        XCTAssertCode(actual: try schema.generateCode(), expected: expected)
+    }
+
+    func testNillableArray() throws {
+        let schema = try deserialize("nillable_array.xsd")
+        let expected = try readlines("nillable_array.txt")
+        XCTAssertCode(actual: try schema.generateCode(), expected: expected)
+    }
 }

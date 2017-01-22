@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xsd:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/tns" xmlns:tns="http://tempuri.org/tns" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <xsd:element name="employee">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="firstname" type="xsd:string" nillable="false"/>
+                <xsd:element name="tussenvoegsel" type="xsd:string" nillable="true"/>
+                <xsd:element name="lastname" type="xsd:string"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+</xsd:schema>

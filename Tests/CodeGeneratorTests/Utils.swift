@@ -9,6 +9,11 @@ func deserialize(_ input: String) throws -> XSD {
     return try parseXSD(contentsOf: url)
 }
 
+func readlines(_ input: String) throws -> [String] {
+    let url = URL(fileURLWithPath: #file).deletingLastPathComponent().appendingPathComponent("Inputs").appendingPathComponent(input)
+    return Array(try String(contentsOf: url).components(separatedBy: "\n").dropLast())
+}
+
 func XCTAssertCode(actual: [String], expected: [String], file: StaticString = #file, line: UInt = #line) {
     if actual == expected {
         return

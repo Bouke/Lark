@@ -131,7 +131,7 @@ extension SwiftTypeClass {
                 let base = "\($0.name): \($0.type.toSwiftCode())"
                 let `default`: String
                 switch $0.type {
-                case .optional: `default` = " = nil"
+                case .optional, .nillable: `default` = " = nil"
                 default: `default` = ""
                 }
                 return "\(base)\(`default`)"
@@ -152,16 +152,68 @@ extension SwiftTypeClass {
         return indentation.apply(
             toFirstLine: "required init(deserialize element: XMLElement) throws {",
             nestedLines:
-                properties.map { property in
+                properties.flatMap { property -> [LineOfCode] in
                     let element = property.element.name
+                    let throwNoElement = "throw XMLDeserializationError.noElementWithName(QualifiedName(uri: \"\(element.uri)\", localName: \"\(element.localName)\"))"
                     switch property.type {
                     case let .identifier(identifier):
-                        return "self.\(property.name) = try \(identifier)(deserialize: element.elements(forLocalName: \"\(element.localName)\", uri: \"\(element.uri)\").first!)"
+                        return [
+                            "do {",
+                            "    guard let node = element.elements(forLocalName: \"\(element.localName)\", uri: \"\(element.uri)\").first else {",
+                            "        \(throwNoElement)",
+                            "    }",
+                            "    self.\(property.name) = try \(identifier)(deserialize: node)",
+                            "}"
+                        ]
                     case let .optional(.identifier(identifier)):
-                        return "self.\(property.name) = try element.elements(forLocalName: \"\(element.localName)\", uri: \"\(element.uri)\").first.map(\(identifier).init(deserialize:))"
+                        return [
+                            "do {",
+                            "    if let node = element.elements(forLocalName: \"\(element.localName)\", uri: \"\(element.uri)\").first {",
+                            "        self.\(property.name) = try \(identifier)(deserialize: node)",
+                            "    } else {",
+                            "        self.\(property.name) = nil",
+                            "    }",
+                            "}"
+                        ]
+                    case let .nillable(.identifier(identifier)):
+                        return [
+                            "do {",
+                            "    guard let node = element.elements(forLocalName: \"\(element.localName)\", uri: \"\(element.uri)\").first else {",
+                            "        \(throwNoElement)",
+                            "    }",
+                            "    if node.attribute(forLocalName: \"nil\", uri: NS_XSI)?.stringValue != \"true\" {",
+                            "        self.\(property.name) = try \(identifier)(deserialize: node)",
+                            "    } else {",
+                            "        self.\(property.name) = nil",
+                            "    }",
+                            "}"
+                        ]
+                    case let .optional(.nillable(.identifier(identifier))):
+                        return [
+                            "do {",
+                            "    if let node = element.elements(forLocalName: \"\(element.localName)\", uri: \"\(element.uri)\").first, node.attribute(forLocalName: \"nil\", uri: NS_XSI)?.stringValue != \"true\" {",
+                            "        self.\(property.name) = try \(identifier)(deserialize: node)",
+                            "    } else {",
+                            "        self.\(property.name) = nil",
+                            "    }",
+                            "}"
+                        ]
                     case let .array(.identifier(identifier)):
-                        return "self.\(property.name) = try element.elements(forLocalName: \"\(element.localName)\", uri: \"\(element.uri)\").map(\(identifier).init(deserialize:))"
+                        return [
+                            "self.\(property.name) = try element.elements(forLocalName: \"\(element.localName)\", uri: \"\(element.uri)\").map(\(identifier).init(deserialize:))"
+                        ]
+                    case let .array(.nillable(.identifier(identifier))):
+                        return [
+                            "self.\(property.name) = try element.elements(forLocalName: \"\(element.localName)\", uri: \"\(element.uri)\").map { node in",
+                            "        if node.attribute(forLocalName: \"nil\", uri: NS_XSI)?.stringValue != \"true\" {",
+                            "            return try \(identifier)(deserialize: node)",
+                            "        } else {",
+                            "            return nil",
+                            "        }",
+                            "}"
+                        ]
                     default:
+                        // Should not happen as the cases should match whats generated by `SwiftType(init:)`
                         fatalError("Type \(property.type) not supported")
                     }
                 } + superInit,
@@ -176,6 +228,7 @@ extension SwiftTypeClass {
             nestedLines:
             properties.flatMap { property -> [LineOfCode] in
                 let element = property.element.name
+                let setNil = "addAttribute(XMLNode.attribute(prefix: \"xsi\", localName: \"nil\", uri: NS_XSI, stringValue: \"true\"))"
                 switch property.type {
                 case .identifier:
                     return [
@@ -183,12 +236,22 @@ extension SwiftTypeClass {
                         "element.addChild(\(property.name)Node)",
                         "try \(property.name).serialize(\(property.name)Node)",
                     ]
-                case .optional(.identifier):
+                case .optional(.identifier), .optional(.nillable(.identifier)):
                     return [
                         "if let \(property.name) = \(property.name) {",
                         "    let \(property.name)Node = try element.createElement(localName: \"\(element.localName)\", uri: \"\(element.uri)\")",
                         "    element.addChild(\(property.name)Node)",
                         "    try \(property.name).serialize(\(property.name)Node)",
+                        "}"
+                    ]
+                case .nillable(.identifier):
+                    return [
+                        "let \(property.name)Node = try element.createElement(localName: \"\(element.localName)\", uri: \"\(element.uri)\")",
+                        "element.addChild(\(property.name)Node)",
+                        "if let \(property.name) = \(property.name) {",
+                        "    try \(property.name).serialize(\(property.name)Node)",
+                        "} else {",
+                        "    \(property.name)Node.\(setNil)",
                         "}"
                     ]
                 case .array(.identifier):
@@ -197,6 +260,18 @@ extension SwiftTypeClass {
                         "    let itemNode = try element.createElement(localName: \"\(element.localName)\", uri: \"\(element.uri)\")",
                         "    element.addChild(itemNode)",
                         "    try item.serialize(itemNode)",
+                        "}"
+                    ]
+                case .array(.nillable(.identifier)):
+                    return [
+                        "for item in \(property.name) {",
+                        "    let itemNode = try element.createElement(localName: \"\(element.localName)\", uri: \"\(element.uri)\")",
+                        "    element.addChild(itemNode)",
+                        "    if let item = item {",
+                        "        try item.serialize(itemNode)",
+                        "    } else {",
+                        "        itemNode.\(setNil)",
+                        "    }",
                         "}"
                     ]
                 default:
@@ -238,7 +313,9 @@ extension SwiftType {
     func toSwiftCode() -> SwiftCode {
         switch self {
         case let .identifier(name): return name
+        case let .optional(.nillable(type)): return "\(type.toSwiftCode())?"
         case let .optional(type): return "\(type.toSwiftCode())?"
+        case let .nillable(type): return "\(type.toSwiftCode())?"
         case let .array(type): return "[\(type.toSwiftCode())]"
         }
     }

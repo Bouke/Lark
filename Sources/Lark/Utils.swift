@@ -1,5 +1,7 @@
 import Foundation
 
+public let NS_XSI = "http://www.w3.org/2001/XMLSchema-instance"
+
 extension XMLElement {
     public convenience init(prefix: String, localName: String, uri: String) {
         if prefix != "" {
@@ -52,7 +54,7 @@ extension XMLElement {
 }
 
 extension XMLNode {
-    static func attribute(prefix: String, localName: String, uri: String, stringValue value: String) -> XMLNode {
+    public static func attribute(prefix: String, localName: String, uri: String, stringValue value: String) -> XMLNode {
         if prefix != "" {
             return XMLNode.attribute(withName: "\(prefix):\(localName)", uri: uri, stringValue: value) as! XMLNode
         } else {

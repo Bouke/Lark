@@ -1,0 +1,26 @@
+class Employee: XMLDeserializable {
+    let nicknames: [String?]
+    init(nicknames: [String?]) {
+        self.nicknames = nicknames
+    }
+    required init(deserialize element: XMLElement) throws {
+        self.nicknames = try element.elements(forLocalName: "nicknames", uri: "http://tempuri.org/tns").map { node in
+                if node.attribute(forLocalName: "nil", uri: NS_XSI)?.stringValue != "true" {
+                    return try String(deserialize: node)
+                } else {
+                    return nil
+                }
+        }
+    }
+    func serialize(_ element: XMLElement) throws {
+        for item in nicknames {
+            let itemNode = try element.createElement(localName: "nicknames", uri: "http://tempuri.org/tns")
+            element.addChild(itemNode)
+            if let item = item {
+                try item.serialize(itemNode)
+            } else {
+                itemNode.addAttribute(XMLNode.attribute(prefix: "xsi", localName: "nil", uri: NS_XSI, stringValue: "true"))
+            }
+        }
+    }
+}

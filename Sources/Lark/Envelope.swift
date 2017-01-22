@@ -9,6 +9,7 @@ public struct Envelope {
     init() {
         let root = XMLElement.element(withName: "soap:Envelope", uri: NS_SOAP) as! XMLElement
         root.addNamespace(XMLElement.namespace(withName: "soap", stringValue: NS_SOAP) as! XMLNode)
+        root.addNamespace(XMLElement.namespace(withName: "xsi", stringValue: NS_XSI) as! XMLNode)
         let body = XMLElement.element(withName: "soap:Body", uri: NS_SOAP) as! XMLElement
         root.addChild(body)
         document = XMLDocument(rootElement: root)

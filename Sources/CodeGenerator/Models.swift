@@ -7,13 +7,37 @@ import Lark
 indirect enum SwiftType {
     case identifier(Identifier)
     case optional(SwiftType)
+    case nillable(SwiftType)
     case array(SwiftType)
 
     init(type: Identifier, element: Element) {
-        switch (element.occurs?.startIndex, element.occurs?.endIndex) {
-        case (0?, 1?): self = .optional(.identifier(type))
-        case (nil, nil), (1?, 1?): self = .identifier(type)
-        default: self = .array(.identifier(type))
+        switch (element.nillable, element.occurs?.startIndex, element.occurs?.endIndex) {
+        case (false, 0?, 1?):
+            self = .optional(.identifier(type))
+        case (true, 0?, 1?):
+            self = .optional(.nillable(.identifier(type)))
+
+        case (false, nil, nil), (false, 1?, 1?):
+            self = .identifier(type)
+        case (true, nil, nil), (true, 1?, 1?):
+            self = .nillable(.identifier(type))
+
+        case (false, _, _):
+            self = .array(.identifier(type))
+        case (true, _, _):
+            self = .array(.nillable(.identifier(type)))
+        }
+    }
+}
+
+extension SwiftType: Equatable {
+    static func ==(lhs: SwiftType, rhs: SwiftType) -> Bool {
+        switch (lhs, rhs) {
+        case let (.identifier(lhs), .identifier(rhs)): return lhs == rhs
+        case let (.optional(lhs), .optional(rhs)): return lhs == rhs
+        case let (.nillable(lhs), .nillable(rhs)): return lhs == rhs
+        case let (.array(lhs), .array(rhs)): return lhs == rhs
+        default: return false
         }
     }
 }

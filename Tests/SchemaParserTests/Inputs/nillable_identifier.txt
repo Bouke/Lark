@@ -1,0 +1,49 @@
+class Employee: XMLDeserializable {
+    let firstname: String
+    let lastname: String
+    let tussenvoegsel: String?
+    init(firstname: String, tussenvoegsel: String? = nil, lastname: String) {
+        self.firstname = firstname
+        self.tussenvoegsel = tussenvoegsel
+        self.lastname = lastname
+    }
+    required init(deserialize element: XMLElement) throws {
+        do {
+            guard let node = element.elements(forLocalName: "firstname", uri: "http://tempuri.org/tns").first else {
+                throw XMLDeserializationError.noElementWithName(QualifiedName(uri: "http://tempuri.org/tns", localName: "firstname"))
+            }
+            self.firstname = try String(deserialize: node)
+        }
+        do {
+            guard let node = element.elements(forLocalName: "tussenvoegsel", uri: "http://tempuri.org/tns").first else {
+                throw XMLDeserializationError.noElementWithName(QualifiedName(uri: "http://tempuri.org/tns", localName: "tussenvoegsel"))
+            }
+            if node.attribute(forLocalName: "nil", uri: NS_XSI)?.stringValue != "true" {
+                self.tussenvoegsel = try String(deserialize: node)
+            } else {
+                self.tussenvoegsel = nil
+            }
+        }
+        do {
+            guard let node = element.elements(forLocalName: "lastname", uri: "http://tempuri.org/tns").first else {
+                throw XMLDeserializationError.noElementWithName(QualifiedName(uri: "http://tempuri.org/tns", localName: "lastname"))
+            }
+            self.lastname = try String(deserialize: node)
+        }
+    }
+    func serialize(_ element: XMLElement) throws {
+        let firstnameNode = try element.createElement(localName: "firstname", uri: "http://tempuri.org/tns")
+        element.addChild(firstnameNode)
+        try firstname.serialize(firstnameNode)
+        let tussenvoegselNode = try element.createElement(localName: "tussenvoegsel", uri: "http://tempuri.org/tns")
+        element.addChild(tussenvoegselNode)
+        if let tussenvoegsel = tussenvoegsel {
+            try tussenvoegsel.serialize(tussenvoegselNode)
+        } else {
+            tussenvoegselNode.addAttribute(XMLNode.attribute(prefix: "xsi", localName: "nil", uri: NS_XSI, stringValue: "true"))
+        }
+        let lastnameNode = try element.createElement(localName: "lastname", uri: "http://tempuri.org/tns")
+        element.addChild(lastnameNode)
+        try lastname.serialize(lastnameNode)
+    }
+}
