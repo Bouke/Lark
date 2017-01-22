@@ -1,7 +1,8 @@
 import Alamofire
 import Foundation
 
-let NS_SOAP = "http://schemas.xmlsoap.org/soap/envelope/"
+public let NS_SOAP = "http://schemas.xmlsoap.org/soap/envelope/"
+public let NS_XSI = "http://www.w3.org/2001/XMLSchema-instance"
 
 public struct Envelope {
     let document: XMLDocument

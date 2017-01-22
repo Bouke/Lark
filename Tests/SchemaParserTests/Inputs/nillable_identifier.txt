@@ -32,18 +32,15 @@ class Employee: XMLDeserializable {
         }
     }
     func serialize(_ element: XMLElement) throws {
-        let firstnameNode = try element.createElement(localName: "firstname", uri: "http://tempuri.org/tns")
-        element.addChild(firstnameNode)
+        let firstnameNode = element.createChildElement(localName: "firstname", uri: "http://tempuri.org/tns")
         try firstname.serialize(firstnameNode)
-        let tussenvoegselNode = try element.createElement(localName: "tussenvoegsel", uri: "http://tempuri.org/tns")
-        element.addChild(tussenvoegselNode)
+        let tussenvoegselNode = element.createChildElement(localName: "tussenvoegsel", uri: "http://tempuri.org/tns")
         if let tussenvoegsel = tussenvoegsel {
             try tussenvoegsel.serialize(tussenvoegselNode)
         } else {
             tussenvoegselNode.addAttribute(XMLNode.attribute(prefix: "xsi", localName: "nil", uri: NS_XSI, stringValue: "true"))
         }
-        let lastnameNode = try element.createElement(localName: "lastname", uri: "http://tempuri.org/tns")
-        element.addChild(lastnameNode)
+        let lastnameNode = element.createChildElement(localName: "lastname", uri: "http://tempuri.org/tns")
         try lastname.serialize(lastnameNode)
     }
 }

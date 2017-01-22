@@ -14,8 +14,7 @@ class Employee: XMLDeserializable {
     }
     func serialize(_ element: XMLElement) throws {
         if let manager = manager {
-            let managerNode = try element.createElement(localName: "manager", uri: "http://tempuri.org/tns")
-            element.addChild(managerNode)
+            let managerNode = element.createChildElement(localName: "manager", uri: "http://tempuri.org/tns")
             try manager.serialize(managerNode)
         }
     }

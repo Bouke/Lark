@@ -5,17 +5,16 @@ class Employee: XMLDeserializable {
     }
     required init(deserialize element: XMLElement) throws {
         self.nicknames = try element.elements(forLocalName: "nicknames", uri: "http://tempuri.org/tns").map { node in
-                if node.attribute(forLocalName: "nil", uri: NS_XSI)?.stringValue != "true" {
-                    return try String(deserialize: node)
-                } else {
-                    return nil
-                }
+            if node.attribute(forLocalName: "nil", uri: NS_XSI)?.stringValue != "true" {
+                return try String(deserialize: node)
+            } else {
+                return nil
+            }
         }
     }
     func serialize(_ element: XMLElement) throws {
         for item in nicknames {
-            let itemNode = try element.createElement(localName: "nicknames", uri: "http://tempuri.org/tns")
-            element.addChild(itemNode)
+            let itemNode = element.createChildElement(localName: "nicknames", uri: "http://tempuri.org/tns")
             if let item = item {
                 try item.serialize(itemNode)
             } else {

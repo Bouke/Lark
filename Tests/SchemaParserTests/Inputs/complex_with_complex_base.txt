@@ -13,8 +13,7 @@ class MyType: XMLDeserializable {
         }
     }
     func serialize(_ element: XMLElement) throws {
-        let aNode = try element.createElement(localName: "a", uri: "http://tempuri.org/")
-        element.addChild(aNode)
+        let aNode = element.createChildElement(localName: "a", uri: "http://tempuri.org/")
         try a.serialize(aNode)
     }
 }

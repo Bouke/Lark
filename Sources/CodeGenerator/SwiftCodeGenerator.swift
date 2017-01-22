@@ -205,11 +205,11 @@ extension SwiftTypeClass {
                     case let .array(.nillable(.identifier(identifier))):
                         return [
                             "self.\(property.name) = try element.elements(forLocalName: \"\(element.localName)\", uri: \"\(element.uri)\").map { node in",
-                            "        if node.attribute(forLocalName: \"nil\", uri: NS_XSI)?.stringValue != \"true\" {",
-                            "            return try \(identifier)(deserialize: node)",
-                            "        } else {",
-                            "            return nil",
-                            "        }",
+                            "    if node.attribute(forLocalName: \"nil\", uri: NS_XSI)?.stringValue != \"true\" {",
+                            "        return try \(identifier)(deserialize: node)",
+                            "    } else {",
+                            "        return nil",
+                            "    }",
                             "}"
                         ]
                     default:
@@ -232,22 +232,19 @@ extension SwiftTypeClass {
                 switch property.type {
                 case .identifier:
                     return [
-                        "let \(property.name)Node = try element.createElement(localName: \"\(element.localName)\", uri: \"\(element.uri)\")",
-                        "element.addChild(\(property.name)Node)",
+                        "let \(property.name)Node = element.createChildElement(localName: \"\(element.localName)\", uri: \"\(element.uri)\")",
                         "try \(property.name).serialize(\(property.name)Node)",
                     ]
                 case .optional(.identifier), .optional(.nillable(.identifier)):
                     return [
                         "if let \(property.name) = \(property.name) {",
-                        "    let \(property.name)Node = try element.createElement(localName: \"\(element.localName)\", uri: \"\(element.uri)\")",
-                        "    element.addChild(\(property.name)Node)",
+                        "    let \(property.name)Node = element.createChildElement(localName: \"\(element.localName)\", uri: \"\(element.uri)\")",
                         "    try \(property.name).serialize(\(property.name)Node)",
                         "}"
                     ]
                 case .nillable(.identifier):
                     return [
-                        "let \(property.name)Node = try element.createElement(localName: \"\(element.localName)\", uri: \"\(element.uri)\")",
-                        "element.addChild(\(property.name)Node)",
+                        "let \(property.name)Node = element.createChildElement(localName: \"\(element.localName)\", uri: \"\(element.uri)\")",
                         "if let \(property.name) = \(property.name) {",
                         "    try \(property.name).serialize(\(property.name)Node)",
                         "} else {",
@@ -257,16 +254,14 @@ extension SwiftTypeClass {
                 case .array(.identifier):
                     return [
                         "for item in \(property.name) {",
-                        "    let itemNode = try element.createElement(localName: \"\(element.localName)\", uri: \"\(element.uri)\")",
-                        "    element.addChild(itemNode)",
+                        "    let itemNode = element.createChildElement(localName: \"\(element.localName)\", uri: \"\(element.uri)\")",
                         "    try item.serialize(itemNode)",
                         "}"
                     ]
                 case .array(.nillable(.identifier)):
                     return [
                         "for item in \(property.name) {",
-                        "    let itemNode = try element.createElement(localName: \"\(element.localName)\", uri: \"\(element.uri)\")",
-                        "    element.addChild(itemNode)",
+                        "    let itemNode = element.createChildElement(localName: \"\(element.localName)\", uri: \"\(element.uri)\")",
                         "    if let item = item {",
                         "        try item.serialize(itemNode)",
                         "    } else {",

@@ -31,14 +31,11 @@ class Fullpersoninfo: Personinfo {
         try super.init(deserialize: element)
     }
     override func serialize(_ element: XMLElement) throws {
-        let addressNode = try element.createElement(localName: "address", uri: "http://tempuri.org/tns")
-        element.addChild(addressNode)
+        let addressNode = element.createChildElement(localName: "address", uri: "http://tempuri.org/tns")
         try address.serialize(addressNode)
-        let cityNode = try element.createElement(localName: "city", uri: "http://tempuri.org/tns")
-        element.addChild(cityNode)
+        let cityNode = element.createChildElement(localName: "city", uri: "http://tempuri.org/tns")
         try city.serialize(cityNode)
-        let countryNode = try element.createElement(localName: "country", uri: "http://tempuri.org/tns")
-        element.addChild(countryNode)
+        let countryNode = element.createChildElement(localName: "country", uri: "http://tempuri.org/tns")
         try country.serialize(countryNode)
         try super.serialize(element)
     }
@@ -65,11 +62,9 @@ class Personinfo: XMLDeserializable {
         }
     }
     func serialize(_ element: XMLElement) throws {
-        let firstnameNode = try element.createElement(localName: "firstname", uri: "http://tempuri.org/tns")
-        element.addChild(firstnameNode)
+        let firstnameNode = element.createChildElement(localName: "firstname", uri: "http://tempuri.org/tns")
         try firstname.serialize(firstnameNode)
-        let lastnameNode = try element.createElement(localName: "lastname", uri: "http://tempuri.org/tns")
-        element.addChild(lastnameNode)
+        let lastnameNode = element.createChildElement(localName: "lastname", uri: "http://tempuri.org/tns")
         try lastname.serialize(lastnameNode)
     }
 }

@@ -35,25 +35,20 @@ class MyType: XMLDeserializable {
         self.e = try element.elements(forLocalName: "e", uri: "http://tempuri.org/").map(String.init(deserialize:))
     }
     func serialize(_ element: XMLElement) throws {
-        let aNode = try element.createElement(localName: "a", uri: "http://tempuri.org/")
-        element.addChild(aNode)
+        let aNode = element.createChildElement(localName: "a", uri: "http://tempuri.org/")
         try a.serialize(aNode)
         if let b = b {
-            let bNode = try element.createElement(localName: "b", uri: "http://tempuri.org/")
-            element.addChild(bNode)
+            let bNode = element.createChildElement(localName: "b", uri: "http://tempuri.org/")
             try b.serialize(bNode)
         }
-        let cNode = try element.createElement(localName: "c", uri: "http://tempuri.org/")
-        element.addChild(cNode)
+        let cNode = element.createChildElement(localName: "c", uri: "http://tempuri.org/")
         try c.serialize(cNode)
         for item in d {
-            let itemNode = try element.createElement(localName: "d", uri: "http://tempuri.org/")
-            element.addChild(itemNode)
+            let itemNode = element.createChildElement(localName: "d", uri: "http://tempuri.org/")
             try item.serialize(itemNode)
         }
         for item in e {
-            let itemNode = try element.createElement(localName: "e", uri: "http://tempuri.org/")
-            element.addChild(itemNode)
+            let itemNode = element.createChildElement(localName: "e", uri: "http://tempuri.org/")
             try item.serialize(itemNode)
         }
     }
