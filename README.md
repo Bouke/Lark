@@ -54,44 +54,6 @@ Or if you're building a GUI that requires non-blocking networking, use the async
 See the [Lark-Example](https://github.com/Bouke/Lark-Example) repository for an
 example of how to use Lark.
 
-## Development
-
-Pull requests welcome!
-
-Known issues:
-
-* [x] Support mixed namespaces in generated code
-* [ ] Support all `XSD` base types: `decimal`, `dateTime` etc
-* [ ] Support other content types: `simpleTypes`, `choice` etc
-* [ ] Handle `sequence` correctly (elements are strictly ordered)
-
-Backlog:
-
-* [x] Move Demo code to separate repository
-* [x] Unit tests
-* [x] Authentication (by setting HTTP / SOAP headers)
-* [x] Implement `simpleType`s: list and list (wrapped)
-* [x] Asynchronous
-* [x] Client endpoint as static variable
-* [x] Default value `nil` for `Optional`s
-* [x] Revise API for both sync/async calls
-* [ ] Parse `nillable=true` in XSD
-* [ ] Provide helper methods for inspecting requests / replies
-
-Ideas for the future:
-
-* [x] Provide asynchronous `HTTPTransport`s out-of-the-box
-* [ ] Collapse messages into client methods (instead of passing request objects, pass request's parameters into client method)
-* [ ] Generate Envelope/SoapFault types from XSD (become self-hosted)
-* [ ] Stricter SOAP 1.0 / 1.1 / 1.2 support
-* [ ] Support multiple ports / bindings
-* [ ] Cocoapods / Carthage support
-* [ ] Wrap all errors, or bubble cocoa errors -- what's common for Swift libraries?
-
-Out of (my) scope:
-
-* RPC encoding support
-
 ## FAQ
 
 ### Why is it called Lark?
