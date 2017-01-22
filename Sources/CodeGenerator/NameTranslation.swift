@@ -19,10 +19,15 @@ internal extension String {
         let trimmed = trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
         let parts = trimmed
             .components(separatedBy: invalidSwiftNameCharacters)
-            .flatMap { String.caseRegex.matches(in: $0) }
             .enumerated().map { (index, word) -> String in
-                if index == 0 { return word.lowercased() }
-                else { return word }
+                if index > 0 {
+                    return word
+                }
+                var word = word
+                if let firstWordRange: Range<String.Index> = String.caseRegex.matches(in: word).first {
+                    word.replaceSubrange(firstWordRange, with: word[firstWordRange].lowercased())
+                }
+                return word
             }
         let capitalizedParts = parts.map { $0.uppercasedFirstCharacter }
         return capitalizedParts.joined()

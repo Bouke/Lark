@@ -9,6 +9,11 @@ class NameTranslationTests: XCTestCase {
         XCTAssertEqual("PreHTTPAuthentication".toSwiftPropertyName(), "preHTTPAuthentication")
     }
 
+    func testNumbered() {
+        XCTAssertEqual("AddressLine1".toSwiftPropertyName(), "addressLine1")
+        XCTAssertEqual("Address1City".toSwiftPropertyName(), "address1City")
+    }
+
     func testInvalidCharacters() {
 //        XCTAssertEqual("PULL-REQUEST".toSwiftPropertyName(), "pullRequest")
 //        XCTAssertEqual("PULL_REQUEST".toSwiftPropertyName(), "pullRequest")
