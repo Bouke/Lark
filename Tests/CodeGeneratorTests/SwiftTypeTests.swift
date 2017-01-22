@@ -27,6 +27,6 @@ class SwiftTypeTests: XCTestCase {
     func testNillableArray() {
         let element = Element(name: qname("foo"), content: .base(STRING), occurs: 0..<Int.max, nillable: true)
         let type = SwiftType(type: "String", element: element)
-        XCTAssertEqual(type, SwiftType.nillable(.array(.identifier("String"))))
+        XCTAssertEqual(type, SwiftType.array(.nillable(.identifier("String"))))
     }
 }

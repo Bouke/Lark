@@ -1,0 +1,8 @@
+class MyType: XMLDeserializable {
+    init() {
+    }
+    required init(deserialize element: XMLElement) throws {
+    }
+    func serialize(_ element: XMLElement) throws {
+    }
+}

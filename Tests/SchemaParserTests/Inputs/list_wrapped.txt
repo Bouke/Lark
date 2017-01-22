@@ -1,0 +1,22 @@
+struct FooBar: StringSerializableList {
+    enum Element: String, XMLSerializable, XMLDeserializable, StringSerializable, StringDeserializable {
+        case bar = "bar"
+        case foo = "foo"
+        init(deserialize element: XMLElement) throws {
+            self.init(rawValue: element.stringValue!)!
+        }
+        func serialize(_ element: XMLElement) throws {
+            element.stringValue = self.rawValue
+        }
+        init(string: String) throws {
+            self.init(rawValue: string)!
+        }
+        func serialize() throws -> String {
+            return self.rawValue
+        }
+    }
+    var _contents: [Element] = []
+    init(_ contents: [Element]) {
+        _contents = contents
+    }
+}

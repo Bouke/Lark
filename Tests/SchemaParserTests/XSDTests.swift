@@ -25,7 +25,7 @@ class XSDTests: XCTestCase {
     }
 
     func testNillable() throws {
-        let xsd = try deserialize("nillable.xsd")
+        let xsd = try deserialize("nillable_identifier.xsd")
         XCTAssertEqual(xsd.count, 1)
 
         // unwrap into expected type
