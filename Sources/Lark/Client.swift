@@ -36,7 +36,7 @@ open class Client {
     ///   - deserialize: closure that will be called to deserialize the reponse message.
     /// - Returns: the server's response.
     /// - Throws: errors that might occur when serializing, deserializing or in
-    ///   the communication with the server. Also it might throw a Fault if the
+    ///   the communication with the server. Also it might throw a `Fault` if the
     ///   server was unable to process the request.
     open func call<T>(
         action: URL,
@@ -67,7 +67,7 @@ open class Client {
     ///   - deserialize: closure that will be called to deserialize the reponse message.
     ///   - completionHandler: closure that will be called when a response has
     ///     been received and deserialized. If an error occurs, the closure will
-    ///     be called with a `Result.failure` value.
+    ///     be called with a `Result.failure(Error)` value.
     /// - Returns: an `Alamofire.DataRequest` instance for chaining additional
     ///   response handlers and to facilitate logging.
     open func callAsync<T>(

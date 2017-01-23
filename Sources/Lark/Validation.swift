@@ -30,7 +30,11 @@ extension DataRequest {
 /// processed, it will return a `Fault`. The issue could for example that the
 /// provided data is invalid, some object could not be deserialized, the
 /// server performed an illegal operation.
-public struct Fault: Error, CustomStringConvertible, XMLDeserializable {
+///
+/// For more information on SOAP Faults see the [SOAP reference, section 4.4][0].
+///
+/// [0]: https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383507
+public struct Fault: Error, CustomStringConvertible {
 
     /// Provides an algorithmic mechanism for identifying the fault.
     public let faultcode: QualifiedName
@@ -51,11 +55,13 @@ public struct Fault: Error, CustomStringConvertible, XMLDeserializable {
         return "Fault(code=\(faultcode), actor=\(actor), string=\(faultstring), detail=\(detail))"
     }
 
+    // MARK:- Internal API
+
     /// Deserializes a `<soap:fault/>` into a `Fault` instance.
     ///
     /// - Parameter element: the `<soap:fault/>` node
     /// - Throws: errors when a typed property cannot be deserialized
-    public init(deserialize element: XMLElement) throws {
+    init(deserialize element: XMLElement) throws {
         guard let faultcode = element.elements(forName: "faultcode").first?.stringValue else {
             fatalError("Missing faultcode")
         }
@@ -65,8 +71,6 @@ public struct Fault: Error, CustomStringConvertible, XMLDeserializable {
         detail = element.elements(forName: "detail").first?.children ?? []
     }
 
-    // MARK:- Internal API
-
     init(faultcode: QualifiedName, faultstring: String, faultactor: URL?, detail: [XMLNode]) {
         self.faultcode = faultcode
         self.faultstring = faultstring
@@ -74,6 +78,11 @@ public struct Fault: Error, CustomStringConvertible, XMLDeserializable {
         self.detail = detail
     }
 
+    /// Serializes a `Fault` instance into a `XMLElement`.
+    ///
+    /// Useful for testing `Fault` deserialization.
+    ///
+    /// - Parameter element: the `XMLElement` node to serialize into.
     func serialize(_ element: XMLElement) {
         let faultcodePrefix = element.resolveOrAddPrefix(forNamespaceURI: faultcode.uri)
         element.addChild(XMLElement(name: "faultcode", stringValue: "\(faultcodePrefix):\(faultcode.localName)"))
