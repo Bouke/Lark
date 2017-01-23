@@ -1,0 +1,4 @@
+xcodebuild_arguments:
+  - -scheme
+  - Lark
+module: Lark
