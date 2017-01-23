@@ -24,28 +24,60 @@ extension DataRequest {
 }
 
 
-public struct Fault: Error, CustomStringConvertible, XMLDeserializable, XMLSerializable {
-    let faultcode: String // TODO: should be QualifiedName (from SchemaParser module)
-    let faultstring: String
-    let faultactor: URL?
-    let detail: [XMLNode]
+/// Typed error message returned by the server.
+///
+/// If the message was received by the server, but could somehow not be 
+/// processed, it will return a `Fault`. The issue could for example that the
+/// provided data is invalid, some object could not be deserialized, the
+/// server performed an illegal operation.
+public struct Fault: Error, CustomStringConvertible, XMLDeserializable {
 
-    public init(faultcode: String, faultstring: String, faultactor: URL?, detail: [XMLNode]) {
+    /// Provides an algorithmic mechanism for identifying the fault.
+    public let faultcode: QualifiedName
+
+    /// Provides a human readable explanation of the fault and is not intended for algorithmic processing.
+    public let faultstring: String
+
+    /// Provides information about who caused the fault to happen within the message path.
+    public let faultactor: URL?
+
+    /// Carries application specific error information related to the Body element.
+    public let detail: [XMLNode]
+
+    /// A textual representation of this Fault instance.
+    public var description: String {
+        let actor = faultactor?.absoluteString ?? "nil"
+        let detail = self.detail.map({ $0.xmlString }).joined(separator: ", ")
+        return "Fault(code=\(faultcode), actor=\(actor), string=\(faultstring), detail=\(detail))"
+    }
+
+    /// Deserializes a `<soap:fault/>` into a `Fault` instance.
+    ///
+    /// - Parameter element: the `<soap:fault/>` node
+    /// - Throws: errors when a typed property cannot be deserialized
+    public init(deserialize element: XMLElement) throws {
+        guard let faultcode = element.elements(forName: "faultcode").first?.stringValue else {
+            fatalError("Missing faultcode")
+        }
+        self.faultcode = try QualifiedName(type: faultcode, inTree: element)
+        faultstring = element.elements(forName: "faultstring").first!.stringValue!
+        faultactor = try element.elements(forName: "faultactor").first.map(URL.init(deserialize:))
+        detail = element.elements(forName: "detail").first?.children ?? []
+    }
+
+    // MARK:- Internal API
+
+    init(faultcode: QualifiedName, faultstring: String, faultactor: URL?, detail: [XMLNode]) {
         self.faultcode = faultcode
         self.faultstring = faultstring
         self.faultactor = faultactor
         self.detail = detail
     }
 
-    public init(deserialize element: XMLElement) throws {
-        faultcode = element.elements(forName: "faultcode").first!.stringValue!
-        faultstring = element.elements(forName: "faultstring").first!.stringValue!
-        faultactor = nil //element.elements(forName: "faultactor").first.map(URL.init(deserialize:))
-        detail = element.elements(forName: "detail").first?.children ?? []
-    }
+    func serialize(_ element: XMLElement) {
+        let faultcodePrefix = element.resolveOrAddPrefix(forNamespaceURI: faultcode.uri)
+        element.addChild(XMLElement(name: "faultcode", stringValue: "\(faultcodePrefix):\(faultcode.localName)"))
 
-    public func serialize(_ element: XMLElement) throws {
-        element.addChild(XMLElement(name: "faultcode", stringValue: faultcode))
         element.addChild(XMLElement(name: "faultstring", stringValue: faultstring))
         element.addChild(XMLElement(name: "faultactor", stringValue: faultactor?.absoluteString))
 
@@ -53,11 +85,5 @@ public struct Fault: Error, CustomStringConvertible, XMLDeserializable, XMLSeria
         for child in detail {
             detailNode.addChild(child)
         }
-    }
-
-    public var description: String {
-        let actor = faultactor?.absoluteString ?? "nil"
-        let detail = self.detail.map({ $0.xmlString }).joined(separator: ", ")
-        return "Fault(code=\(faultcode), actor=\(actor), string=\(faultstring), detail=\(detail))"
     }
 }
