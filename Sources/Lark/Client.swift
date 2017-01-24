@@ -50,7 +50,7 @@ open class Client {
         action: URL,
         serialize: @escaping (Envelope) throws -> Envelope,
         deserialize: @escaping (Envelope) throws -> T)
-        throws -> T
+        throws -> DataResponse<T>
     {
         let semaphore = DispatchSemaphore(value: 0)
         var response: DataResponse<T>!
@@ -64,7 +64,7 @@ open class Client {
             semaphore.signal()
         }
         _ = semaphore.wait(timeout: .distantFuture)
-        return try response.result.resolve()
+        return response
     }
 
     /// Asynchronously call a method on the service.

@@ -456,7 +456,7 @@ extension ServiceMethod: LinesOfCodeConvertible {
         return indentation.apply(
             toFirstLine: "@discardableResult func \(name)(_ parameter: \(input.type)) throws -> \(output.type) {",
             nestedLines: [
-                "return try call(",
+                "let response = try call(",
                 "    action: URL(string: \"\(action?.absoluteString ?? "")\")!,",
                 "    serialize: { envelope in",
                 "        let node = XMLElement(prefix: \"ns0\", localName: \"\(input.element.localName)\", uri: \"\(input.element.uri)\")",
@@ -465,10 +465,11 @@ extension ServiceMethod: LinesOfCodeConvertible {
                 "        envelope.body.addChild(node)",
                 "        return envelope",
                 "    },",
-                "    deserialize: { envelope in",
+                "    deserialize: { envelope -> \(output.type) in",
                 "        let node = envelope.body.elements(forLocalName: \"\(output.element.localName)\", uri: \"\(output.element.uri)\").first!",
                 "        return try \(output.type)(deserialize: node)",
                 "    })",
+                "return try response.result.resolve()",
                 ],
             andLastLine: "}")
     }
