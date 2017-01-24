@@ -42,29 +42,31 @@ public struct XSD {
             throw XSDParseError.incorrectRootElement
         }
 
-        nodes = try (node.children ?? [])
-            .flatMap { $0 as? XMLElement }
-            .flatMap { child -> Node? in
-                guard child.uri == NS_XSD else {
-                    throw XSDParseError.incorrectNamespace
-                }
-
-                switch child.localName! {
-                case "annotation", "attribute", "attributeGroup", "group", "include", "notation", "redefine":
-                    // silently ignore these unsupported top level elements
-                    return nil
-                case "import":
-                    return try .import(Import(deserialize: child))
-                case "simpleType":
-                    return try .simpleType(SimpleType(deserialize: child))
-                case "complexType":
-                    return try .complexType(ComplexType(deserialize: child))
-                case "element":
-                    return try .element(Element(deserialize: child))
-                default:
-                    throw XSDParseError.incorrectTopLevelElement(child.localName!)
-                }
+        var nodes = [Node]()
+        for child in node.children ?? [] {
+            guard let node = child as? XMLElement else {
+                continue
             }
+            guard node.uri == NS_XSD else {
+                throw XSDParseError.incorrectNamespace
+            }
+            switch node.localName! {
+            case "annotation", "attribute", "attributeGroup", "group", "include", "notation", "redefine":
+                // silently ignore these unsupported top level elements
+                break
+            case "import":
+                nodes.append(try .import(Import(deserialize: node)))
+            case "simpleType":
+                nodes.append(try .simpleType(SimpleType(deserialize: node)))
+            case "complexType":
+                nodes.append(try .complexType(ComplexType(deserialize: node)))
+            case "element":
+                nodes.append(try .element(Element(deserialize: node)))
+            default:
+                throw XSDParseError.incorrectTopLevelElement(node.localName!)
+            }
+        }
+        self.nodes = nodes
     }
 }
 
