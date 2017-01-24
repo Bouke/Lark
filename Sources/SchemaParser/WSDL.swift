@@ -76,29 +76,29 @@ public struct Binding {
                 action = URL(string: operation.attribute(forName: "soapAction")!.stringValue!)
                 style = Style(rawValue: operation.attribute(forName: "style")!.stringValue!)!
             } else {
-                throw ParseError.unsupportedOperation
+                throw WSDLParseError.unsupportedOperation(name)
             }
 
             guard let input = element.elements(forLocalName: "input", uri: NS_WSDL).first else {
-                throw ParseError.bindingOperationIncomplete
+                throw WSDLParseError.bindingOperationMissingInput(name)
             }
             if let body = input.elements(forLocalName: "body", uri: NS_SOAP).first {
                 self.input = Use(rawValue: body.attribute(forName: "use")!.stringValue!)!
             } else if let body = input.elements(forLocalName: "body", uri: NS_SOAP12).first {
                 self.input = Use(rawValue: body.attribute(forName: "use")!.stringValue!)!
             } else {
-                throw ParseError.bindingOperationIncomplete
+                throw WSDLParseError.unsupportedBindingOperationEncoding(name)
             }
 
             guard let output = element.elements(forLocalName: "output", uri: NS_WSDL).first else {
-                throw ParseError.bindingOperationIncomplete
+                throw WSDLParseError.bindingOperationMissingOutput(name)
             }
             if let body = output.elements(forLocalName: "body", uri: NS_SOAP).first {
                 self.output = Use(rawValue: body.attribute(forName: "use")!.stringValue!)!
             } else if let body = output.elements(forLocalName: "body", uri: NS_SOAP12).first {
                 self.output = Use(rawValue: body.attribute(forName: "use")!.stringValue!)!
             } else {
-                throw ParseError.bindingOperationIncomplete
+                throw WSDLParseError.unsupportedBindingOperationEncoding(name)
             }
         }
     }
@@ -133,7 +133,7 @@ public struct Service {
             } else if let address = element.elements(forLocalName: "address", uri: NS_SOAP12).first {
                 self.address = .soap12(address.attribute(forName: "location")!.stringValue!)
             } else {
-                throw ParseError.unsupportedPortAddress
+                throw WSDLParseError.unsupportedPortAddress(name)
             }
         }
     }
@@ -164,7 +164,7 @@ public struct WSDL {
     /// - throws: `ParserError` and any upstream Cocoa error
     init(deserialize element: XMLElement, relativeTo url: URL?) throws {
         guard element.localName == "definitions" && element.uri == NS_WSDL else {
-            throw ParseError.incorrectRootElement
+            throw WSDLParseError.incorrectRootElement
         }
 
         var nodes: [XSD.Node] = []
@@ -197,3 +197,42 @@ public struct WSDL {
         services = try element.elements(forLocalName: "service", uri: NS_WSDL).map(Service.init(deserialize:))
     }
 }
+
+fileprivate func targetNamespace(ofNode node: XMLElement) throws -> String {
+    guard let tns = node.targetNamespace else {
+        throw WSDLParseError.nodeWithoutTargetNamespace
+    }
+    return tns
+}
+
+public enum WSDLParseError: Error {
+    case incorrectRootElement
+    case unsupportedPortAddress(QualifiedName)
+    case unsupportedOperation(QualifiedName)
+    case bindingOperationMissingInput(QualifiedName)
+    case bindingOperationMissingOutput(QualifiedName)
+    case unsupportedBindingOperationEncoding(QualifiedName)
+    case nodeWithoutTargetNamespace
+}
+
+extension WSDLParseError: CustomStringConvertible {
+    public var description: String {
+        switch self {
+        case .incorrectRootElement:
+            return "incorrect root element. The root element of the WSDL should be (\(NS_WSDL))definitions."
+        case let .unsupportedPortAddress(port):
+            return "port address of port '\(port)' is unsupported. The port address must be either (\(NS_SOAP))address or (\(NS_SOAP12))address."
+        case let .unsupportedOperation(operation):
+            return "binding operation '\(operation)' is invalid. The operation must be either (\(NS_SOAP))operation or (\(NS_SOAP12))operation."
+        case let .bindingOperationMissingInput(operation):
+            return "binding operation '\(operation)' contains an operation without an input."
+        case let .bindingOperationMissingOutput(operation):
+            return "binding operation '\(operation)' contains an operation without an output."
+        case let .unsupportedBindingOperationEncoding(operation):
+            return "binding operation '\(operation)' contains a message with unsupported encoding."
+        case .nodeWithoutTargetNamespace:
+            return "XSD node must have a target namespace."
+        }
+    }
+}
+

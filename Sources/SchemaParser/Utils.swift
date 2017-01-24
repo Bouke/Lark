@@ -32,9 +32,6 @@ extension Sequence {
     }
 }
 
-func targetNamespace(ofNode node: XMLElement) throws -> String {
-    guard let tns = node.targetNamespace else {
-        throw ParseError.noTargetNamespace
-    }
-    return tns
+func importSchema(url: URL) throws -> XMLElement {
+    return try XMLDocument(contentsOf: url, options: 0).rootElement()!
 }
