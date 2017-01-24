@@ -1,9 +1,14 @@
 import Alamofire
 import Foundation
 
+/// SOAP Namespace URI
 public let NS_SOAP = "http://schemas.xmlsoap.org/soap/envelope/"
+
+/// XML Schema-Instance Namespace URI
 public let NS_XSI = "http://www.w3.org/2001/XMLSchema-instance"
 
+/// SOAP messages are encoded as XML documents called Envelope. An Envelope
+/// consists of an optional SOAP header and a mandatory SOAP body.
 public struct Envelope {
     let document: XMLDocument
 
