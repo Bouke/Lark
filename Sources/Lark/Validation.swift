@@ -67,7 +67,12 @@ public struct Fault: Error, CustomStringConvertible {
         }
         self.faultcode = try QualifiedName(type: faultcode, inTree: element)
         faultstring = element.elements(forName: "faultstring").first!.stringValue!
-        faultactor = try element.elements(forName: "faultactor").first.map(URL.init(deserialize:))
+
+        if let actor = element.elements(forName: "faultactor").first, actor.stringValue != "" {
+            faultactor = try URL(deserialize: actor)
+        } else {
+            faultactor = nil
+        }
         detail = element.elements(forName: "detail").first?.children ?? []
     }
 
