@@ -86,8 +86,9 @@ extension WSDL {
             }
         }
         let baseNodes = baseTypes.keys.map { Node.type($0) }
-        if missing.subtracting(baseNodes).count > 0 {
-            throw GeneratorError.missingNodes(missing)
+        missing.subtract(baseNodes)
+        if missing.count > 0 {
+            throw WSDLVerifyError.missingNodes(missing)
         }
     }
 
@@ -164,6 +165,19 @@ extension WSDL.Node: CustomDebugStringConvertible {
         case let .message(qname): return ".message(\(qname.debugDescription))"
         case let .element(qname): return ".element(\(qname.debugDescription))"
         case let .type(qname): return ".type(\(qname.debugDescription))"
+        }
+    }
+}
+
+enum WSDLVerifyError: Error {
+    case missingNodes(Set<WSDL.Node>)
+}
+
+extension WSDLVerifyError: CustomStringConvertible {
+    var description: String {
+        switch self {
+        case let .missingNodes(nodes):
+            return "WSDL is incomplete. WSDL contains references to the following missing nodes: \(nodes)."
         }
     }
 }

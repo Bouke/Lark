@@ -3,14 +3,26 @@ import SchemaParser
 import Lark
 
 enum GeneratorError: Error {
-    case missingTypes(Set<QualifiedName>)
+    case missingType(QualifiedName)
     case messageNotFound(QualifiedName)
-    case missingNodes(Set<WSDL.Node>)
     case noSOAP11Port
     case rpcNotSupported
-    case notImplemented
 }
 
+extension GeneratorError: CustomStringConvertible {
+    var description: String {
+        switch self {
+        case let .missingType(type):
+            return "the type '\(type)' was referenced, but couldn't be found."
+        case let .messageNotFound(message):
+            return "the message '\(message)' was referenced, but couldn't be found."
+        case .noSOAP11Port:
+            return "no SOAP 1.1 port could be found."
+        case .rpcNotSupported:
+            return "message style RPC is not supported."
+        }
+    }
+}
 
 public enum Type {
     case element(QualifiedName)
@@ -175,7 +187,7 @@ func generateTypes(inSchema schema: XSD) throws -> Types {
             } else if let simple = simples[name] {
                 types[node] = try simple.toSwift(mapping: mapping, types: types)
             } else {
-                throw GeneratorError.missingTypes([name])
+                throw GeneratorError.missingType(name)
             }
         }
     }
