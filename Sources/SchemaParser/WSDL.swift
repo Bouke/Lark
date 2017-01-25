@@ -184,7 +184,7 @@ public struct WSDL {
         }
 
         var nodes: [XSD.Node] = []
-        if let typesNode = element.elements(forLocalName: "types", uri: NS_WSDL).first, let schemaNode = typesNode.elements(forLocalName: "schema", uri: NS_XSD).first {
+        if let typesNode = element.elements(forLocalName: "types", uri: NS_WSDL).first, let schemaNode = typesNode.elements(forLocalName: "schema", uri: NS_XS).first {
             var remainingImports: Set<URL> = []
             var seenSchemaURLs: Set<URL> = []
 

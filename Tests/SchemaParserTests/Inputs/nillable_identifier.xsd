@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xsd:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/tns" xmlns:tns="http://tempuri.org/tns" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-    <xsd:element name="employee">
-        <xsd:complexType>
-            <xsd:sequence>
-                <xsd:element name="firstname" type="xsd:string" nillable="false"/>
-                <xsd:element name="tussenvoegsel" type="xsd:string" nillable="true"/>
-                <xsd:element name="lastname" type="xsd:string"/>
-            </xsd:sequence>
-        </xsd:complexType>
-    </xsd:element>
-</xsd:schema>
+<xs:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/tns" xmlns:tns="http://tempuri.org/tns" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="employee">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="firstname" type="xs:string" nillable="false"/>
+                <xs:element name="tussenvoegsel" type="xs:string" nillable="true"/>
+                <xs:element name="lastname" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

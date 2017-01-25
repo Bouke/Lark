@@ -1,10 +1,18 @@
 import Foundation
 import Lark
 
-public let NS_WSDL = "http://schemas.xmlsoap.org/wsdl/"
-public let NS_XSD = "http://www.w3.org/2001/XMLSchema"
+/// SOAP Namespace URI
 public let NS_SOAP = "http://schemas.xmlsoap.org/wsdl/soap/"
+
+/// WSDL Namespace URI
+public let NS_WSDL = "http://schemas.xmlsoap.org/wsdl/"
+
+/// XML Schema (XSD) Namespace URI
+public let NS_XS = "http://www.w3.org/2001/XMLSchema"
+
+/// SOAP 1.2 Namespace URI
 public let NS_SOAP12 = "http://schemas.xmlsoap.org/wsdl/soap12/"
+
 
 extension Sequence {
     public func dictionary<Key, Value>(_ pair: (Iterator.Element) -> (Key, Value)) -> [Key: Value] where Key: Hashable {

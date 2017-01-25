@@ -38,7 +38,7 @@ public struct XSD {
     }
 
     init(deserialize node: XMLElement) throws {
-        guard node.localName == "schema" && node.uri == NS_XSD else {
+        guard node.localName == "schema" && node.uri == NS_XS else {
             throw XSDParseError.incorrectRootElement
         }
 
@@ -47,7 +47,7 @@ public struct XSD {
             guard let node = child as? XMLElement else {
                 continue
             }
-            guard node.uri == NS_XSD else {
+            guard node.uri == NS_XS else {
                 throw XSDParseError.incorrectNamespace
             }
             switch node.localName! {
@@ -153,7 +153,7 @@ extension Element {
 
         if let base = node.attribute(forLocalName: "type", uri: nil)?.stringValue {
             content = .base(try QualifiedName(type: base, inTree: node))
-        } else if let complex = node.elements(forLocalName: "complexType", uri: NS_XSD).first {
+        } else if let complex = node.elements(forLocalName: "complexType", uri: NS_XS).first {
             content = .complex(try ComplexType(deserialize: complex))
         } else {
             throw XSDParseError.elementContentNotSupported
@@ -187,13 +187,13 @@ public struct SimpleType: NamedType {
                 throw XSDParseError.restrictionWithoutBase
             }
             self.base = try QualifiedName(type: base, inTree: node)
-            enumeration = try node.elements(forLocalName: "enumeration", uri: NS_XSD).map {
+            enumeration = try node.elements(forLocalName: "enumeration", uri: NS_XS).map {
                 guard let value = $0.attribute(forLocalName: "value", uri: nil)?.stringValue else {
                     throw XSDParseError.enumerationWithoutValue
                 }
                 return value
             }
-            pattern = node.elements(forLocalName: "pattern", uri: NS_XSD).first?.attribute(forName: "value")?.stringValue
+            pattern = node.elements(forLocalName: "pattern", uri: NS_XS).first?.attribute(forName: "value")?.stringValue
         }
     }
 
@@ -213,12 +213,12 @@ extension SimpleType {
     init(deserialize node: XMLElement) throws {
         name = try .name(ofElement: node)
 
-        if let restriction = node.elements(forLocalName: "restriction", uri: NS_XSD).first {
+        if let restriction = node.elements(forLocalName: "restriction", uri: NS_XS).first {
             content = try .restriction(Restriction(deserialize: restriction))
-        } else if let list = node.elements(forLocalName: "list", uri: NS_XSD).first {
+        } else if let list = node.elements(forLocalName: "list", uri: NS_XS).first {
             if let itemType = list.attribute(forLocalName: "itemType", uri: nil)?.stringValue {
                 content = try .list(itemType: QualifiedName(type: itemType, inTree: list))
-            } else if let simpleType = list.elements(forLocalName: "simpleType", uri: NS_XSD).first {
+            } else if let simpleType = list.elements(forLocalName: "simpleType", uri: NS_XS).first {
                 content = try .listWrapped(SimpleType(deserialize: simpleType))
             } else {
                 throw XSDParseError.simpleTypeContentNotSupported
@@ -261,17 +261,17 @@ extension ComplexType {
     init(deserialize node: XMLElement) throws {
         name = try .name(ofElement: node)
 
-        if let _ = node.elements(forLocalName: "simpleContent", uri: NS_XSD).first {
+        if let _ = node.elements(forLocalName: "simpleContent", uri: NS_XS).first {
             throw XSDParseError.complexTypeContentNotSupported
-        } else if let complexContent = node.elements(forLocalName: "complexContent", uri: NS_XSD).first {
+        } else if let complexContent = node.elements(forLocalName: "complexContent", uri: NS_XS).first {
             content = .complex(try .init(deserialize: complexContent))
-        } else if let _ = node.elements(forLocalName: "group", uri: NS_XSD).first {
+        } else if let _ = node.elements(forLocalName: "group", uri: NS_XS).first {
             throw XSDParseError.complexTypeContentNotSupported
-        } else if let _ = node.elements(forLocalName: "all", uri: NS_XSD).first {
+        } else if let _ = node.elements(forLocalName: "all", uri: NS_XS).first {
             throw XSDParseError.complexTypeContentNotSupported
-        } else if let _ = node.elements(forLocalName: "choice", uri: NS_XSD).first {
+        } else if let _ = node.elements(forLocalName: "choice", uri: NS_XS).first {
             throw XSDParseError.complexTypeContentNotSupported
-        } else if let sequence = node.elements(forLocalName: "sequence", uri: NS_XSD).first {
+        } else if let sequence = node.elements(forLocalName: "sequence", uri: NS_XS).first {
             content = .sequence(try Content.Sequence(deserialize: sequence))
         } else {
             content = .empty
@@ -281,16 +281,16 @@ extension ComplexType {
 
 extension ComplexType.Content.Sequence {
     init(deserialize node: XMLElement) throws {
-        elements = try node.elements(forLocalName: "element", uri: NS_XSD).map(Element.init(deserialize:))
+        elements = try node.elements(forLocalName: "element", uri: NS_XS).map(Element.init(deserialize:))
     }
 }
 
 extension ComplexType.Content.ComplexContent {
     init(deserialize node: XMLElement) throws {
-        if let restriction = node.elements(forLocalName: "restriction", uri: NS_XSD).first {
+        if let restriction = node.elements(forLocalName: "restriction", uri: NS_XS).first {
             base = try .init(type: restriction.attribute(forName: "base")!.stringValue!, inTree: node)
             content = .restriction(try .init(deserialize: restriction))
-        } else if let `extension` = node.elements(forLocalName: "extension", uri: NS_XSD).first {
+        } else if let `extension` = node.elements(forLocalName: "extension", uri: NS_XS).first {
             base = try .init(type: `extension`.attribute(forName: "base")!.stringValue!, inTree: node)
             content = .`extension`(try .init(deserialize: `extension`))
         } else {
@@ -302,7 +302,7 @@ extension ComplexType.Content.ComplexContent {
 
 extension ComplexType.Content.ComplexContent.Content.Content {
     init(deserialize node: XMLElement) throws {
-        if let sequence = node.elements(forLocalName: "sequence", uri: NS_XSD).first {
+        if let sequence = node.elements(forLocalName: "sequence", uri: NS_XS).first {
             self = .sequence(try .init(deserialize: sequence))
         } else {
             // there's a few others (e.g. choice)
@@ -332,9 +332,9 @@ extension XSDParseError: CustomStringConvertible {
     public var description: String {
         switch self {
         case .incorrectRootElement:
-            return "incorrect root element. The root element of the XSD should be (\(NS_XSD))type."
+            return "incorrect root element. The root element of the XSD should be (\(NS_XS))type."
         case .incorrectNamespace:
-            return "incorrect namespace of root type, should have the namespace \(NS_XSD)."
+            return "incorrect namespace of root type, should have the namespace \(NS_XS)."
         case .incorrectTopLevelElement(let localName):
             return "incorrect top level element '\(localName)'."
         case .importWithoutNamespace:

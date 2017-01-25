@@ -1,8 +1,8 @@
 import Alamofire
 import Foundation
 
-/// SOAP Namespace URI
-public let NS_SOAP = "http://schemas.xmlsoap.org/soap/envelope/"
+/// SOAP Envelope Namespace URI
+public let NS_SOAP_ENVELOPE = "http://schemas.xmlsoap.org/soap/envelope/"
 
 /// XML Schema-Instance Namespace URI
 public let NS_XSI = "http://www.w3.org/2001/XMLSchema-instance"
@@ -13,10 +13,10 @@ public struct Envelope {
     let document: XMLDocument
 
     init() {
-        let root = XMLElement.element(withName: "soap:Envelope", uri: NS_SOAP) as! XMLElement
-        root.addNamespace(XMLElement.namespace(withName: "soap", stringValue: NS_SOAP) as! XMLNode)
+        let root = XMLElement.element(withName: "soap:Envelope", uri: NS_SOAP_ENVELOPE) as! XMLElement
+        root.addNamespace(XMLElement.namespace(withName: "soap", stringValue: NS_SOAP_ENVELOPE) as! XMLNode)
         root.addNamespace(XMLElement.namespace(withName: "xsi", stringValue: NS_XSI) as! XMLNode)
-        let body = XMLElement.element(withName: "soap:Body", uri: NS_SOAP) as! XMLElement
+        let body = XMLElement.element(withName: "soap:Body", uri: NS_SOAP_ENVELOPE) as! XMLElement
         root.addChild(body)
         document = XMLDocument(rootElement: root)
         document.version = "1.0"
@@ -33,16 +33,16 @@ public struct Envelope {
     }
 
     public var header: XMLElement {
-        if let header = root.elements(forLocalName: "Header", uri: NS_SOAP).first {
+        if let header = root.elements(forLocalName: "Header", uri: NS_SOAP_ENVELOPE).first {
             return header
         }
-        let header = XMLElement.element(withName: "soap:Header", uri: NS_SOAP) as! XMLElement
+        let header = XMLElement.element(withName: "soap:Header", uri: NS_SOAP_ENVELOPE) as! XMLElement
         root.insertChild(header, at: 0)
         return header
     }
 
     public var body: XMLElement {
-        return root.elements(forLocalName: "Body", uri: NS_SOAP).first!
+        return root.elements(forLocalName: "Body", uri: NS_SOAP_ENVELOPE).first!
     }
 }
 

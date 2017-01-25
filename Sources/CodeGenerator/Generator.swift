@@ -204,29 +204,29 @@ extension XSD {
 
 // todo: cleanup
 let baseTypes: [QualifiedName: Identifier] = [
-    QualifiedName(uri: NS_XSD, localName: "byte"): "Int8",
-    QualifiedName(uri: NS_XSD, localName: "short"): "Int16",
-    QualifiedName(uri: NS_XSD, localName: "int"): "Int32",
-    QualifiedName(uri: NS_XSD, localName: "long"): "Int64",
+    QualifiedName(uri: NS_XS, localName: "byte"): "Int8",
+    QualifiedName(uri: NS_XS, localName: "short"): "Int16",
+    QualifiedName(uri: NS_XS, localName: "int"): "Int32",
+    QualifiedName(uri: NS_XS, localName: "long"): "Int64",
 
-    QualifiedName(uri: NS_XSD, localName: "unsignedByte"): "UInt8",
-    QualifiedName(uri: NS_XSD, localName: "unsignedShort"): "UInt16",
-    QualifiedName(uri: NS_XSD, localName: "unsignedInt"): "UInt32",
-    QualifiedName(uri: NS_XSD, localName: "unsignedLong"): "UInt64",
+    QualifiedName(uri: NS_XS, localName: "unsignedByte"): "UInt8",
+    QualifiedName(uri: NS_XS, localName: "unsignedShort"): "UInt16",
+    QualifiedName(uri: NS_XS, localName: "unsignedInt"): "UInt32",
+    QualifiedName(uri: NS_XS, localName: "unsignedLong"): "UInt64",
 
-    QualifiedName(uri: NS_XSD, localName: "boolean"): "Bool",
-    QualifiedName(uri: NS_XSD, localName: "float"): "Float",
-    QualifiedName(uri: NS_XSD, localName: "double"): "Double",
-    QualifiedName(uri: NS_XSD, localName: "integer"): "Int", // undefined size
-    QualifiedName(uri: NS_XSD, localName: "decimal"): "Decimal",
+    QualifiedName(uri: NS_XS, localName: "boolean"): "Bool",
+    QualifiedName(uri: NS_XS, localName: "float"): "Float",
+    QualifiedName(uri: NS_XS, localName: "double"): "Double",
+    QualifiedName(uri: NS_XS, localName: "integer"): "Int", // undefined size
+    QualifiedName(uri: NS_XS, localName: "decimal"): "Decimal",
 
-    QualifiedName(uri: NS_XSD, localName: "string"): "String",
-    QualifiedName(uri: NS_XSD, localName: "anyURI"): "URL",
-    QualifiedName(uri: NS_XSD, localName: "base64Binary"): "Data",
-    QualifiedName(uri: NS_XSD, localName: "dateTime"): "Date",
-    QualifiedName(uri: NS_XSD, localName: "duration"): "TimeInterval",
-    QualifiedName(uri: NS_XSD, localName: "QName"): "QualifiedName",
-    QualifiedName(uri: NS_XSD, localName: "anyType"): "XMLElement",
+    QualifiedName(uri: NS_XS, localName: "string"): "String",
+    QualifiedName(uri: NS_XS, localName: "anyURI"): "URL",
+    QualifiedName(uri: NS_XS, localName: "base64Binary"): "Data",
+    QualifiedName(uri: NS_XS, localName: "dateTime"): "Date",
+    QualifiedName(uri: NS_XS, localName: "duration"): "TimeInterval",
+    QualifiedName(uri: NS_XS, localName: "QName"): "QualifiedName",
+    QualifiedName(uri: NS_XS, localName: "anyType"): "XMLElement",
 ]
 
 let globalScope: Set<String> = Set(baseTypes.values + [

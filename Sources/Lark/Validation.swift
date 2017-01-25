@@ -11,7 +11,7 @@ extension DataRequest {
                 do {
                     let document = try XMLDocument(data: data!, options: 0)
                     let envelope = Envelope(document: document)
-                    let fault = try Fault(deserialize: envelope.body.elements(forLocalName: "Fault", uri: NS_SOAP).first!)
+                    let fault = try Fault(deserialize: envelope.body.elements(forLocalName: "Fault", uri: NS_SOAP_ENVELOPE).first!)
                     return .failure(fault)
                 } catch {
                     return .failure(error)

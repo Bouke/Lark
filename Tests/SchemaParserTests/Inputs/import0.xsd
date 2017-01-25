@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xsd:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/import" xmlns:tns="http://tempuri.org/import" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-    <xsd:import namespace="http://tempuri.org/import" schemaLocation="import2.xsd"/>
-    <xsd:element name="Import0">
-        <xsd:complexType>
-            <xsd:sequence/>
-        </xsd:complexType>
-    </xsd:element>
-</xsd:schema>
+<xs:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/import" xmlns:tns="http://tempuri.org/import" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:import namespace="http://tempuri.org/import" schemaLocation="import2.xsd"/>
+    <xs:element name="Import0">
+        <xs:complexType>
+            <xs:sequence/>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

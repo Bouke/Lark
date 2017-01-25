@@ -6,7 +6,7 @@ import XCTest
 
 class SwiftTypeTests: XCTestCase {
     let NS = "http://tempuri.org/"
-    let STRING = QualifiedName(uri: NS_XSD, localName: "string")
+    let STRING = QualifiedName(uri: NS_XS, localName: "string")
 
     func qname(_ name: String) -> QualifiedName {
         return QualifiedName(uri: NS, localName: name)
