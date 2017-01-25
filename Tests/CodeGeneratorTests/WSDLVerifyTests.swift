@@ -24,7 +24,7 @@ class WSDLVerifyTests: XCTestCase {
         let wsdl = try deserialize("missing_binding.wsdl")
         do {
             try wsdl.verify()
-        } catch GeneratorError.missingNodes(let nodes) {
+        } catch WSDLVerifyError.missingNodes(let nodes) {
             XCTAssertEqual(nodes, [.binding(QualifiedName(uri: "http://tempuri.org/", localName: "ImportSoapBinding"))])
         } catch {
             XCTFail("Failed with error: \(error)")
@@ -35,7 +35,7 @@ class WSDLVerifyTests: XCTestCase {
         let wsdl = try deserialize("missing_port.wsdl")
         do {
             try wsdl.verify()
-        } catch GeneratorError.missingNodes(let nodes) {
+        } catch WSDLVerifyError.missingNodes(let nodes) {
             XCTAssertEqual(nodes, [.port(QualifiedName(uri: "http://tempuri.org/", localName: "ImportSoapType"))])
         } catch {
             XCTFail("Failed with error: \(error)")
