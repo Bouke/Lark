@@ -8,7 +8,7 @@
             <xs:import namespace="http://microsoft.com/wsdl/types/"/>
             <xs:complexType name="MyType">
                 <xs:sequence>
-                    <xs:element name="Id" type="s1:guid"/>
+                    <xs:element name="Id" type="ms:guid"/>
                 </xs:sequence>
             </xs:complexType>
         </xs:schema>

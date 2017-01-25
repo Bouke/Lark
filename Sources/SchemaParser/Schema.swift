@@ -31,9 +31,11 @@ public struct Schema {
         }
     }
 
+    let targetNamespace: String?
     let nodes: [Node]
 
     public init(nodes: [Node]) {
+        self.targetNamespace = nil
         self.nodes = nodes
     }
 
@@ -41,6 +43,7 @@ public struct Schema {
         guard node.localName == "schema" && node.uri == NS_XS else {
             throw SchemaParseError.incorrectRootElement
         }
+        targetNamespace = node.attribute(forName: "targetNamespace")?.stringValue
 
         var nodes = [Node]()
         for child in node.children ?? [] {
@@ -94,7 +97,7 @@ extension Schema: Collection {
 
 public struct Import {
     public let namespace: String
-    public let schemaLocation: String
+    public let schemaLocation: String?
 }
 
 extension Import {
@@ -103,11 +106,7 @@ extension Import {
             throw SchemaParseError.importWithoutNamespace
         }
         self.namespace = namespace
-
-        guard let schemaLocation = node.attribute(forLocalName: "schemaLocation", uri: nil)?.stringValue else {
-            throw SchemaParseError.importWithoutSchemaLocation
-        }
-        self.schemaLocation = schemaLocation
+        self.schemaLocation = node.attribute(forLocalName: "schemaLocation", uri: nil)?.stringValue
     }
 }
 

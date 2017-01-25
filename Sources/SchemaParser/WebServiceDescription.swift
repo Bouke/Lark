@@ -184,26 +184,53 @@ public struct WebServiceDescription {
         }
 
         var nodes: [Schema.Node] = []
-        if let typesNode = element.elements(forLocalName: "types", uri: NS_WSDL).first, let schemaNode = typesNode.elements(forLocalName: "schema", uri: NS_XS).first {
+        if let typesNode = element.elements(forLocalName: "types", uri: NS_WSDL).first {
             var remainingImports: Set<URL> = []
             var seenSchemaURLs: Set<URL> = []
+            var requiredNamespaces: Set<String> = []
+            var importedNamespaces: Set<String> = []
 
             func append(xsd: Schema, relativeTo url: URL?) {
                 for node in xsd {
                     switch node {
                     case let .import(`import`):
-                        let url = URL(string: `import`.schemaLocation, relativeTo: url)!
-                        if seenSchemaURLs.insert(url).inserted {
-                            remainingImports.insert(url)
+                        requiredNamespaces.insert(`import`.namespace)
+
+                        if let schemaLocation = `import`.schemaLocation {
+                            let url = URL(string: schemaLocation, relativeTo: url)!
+                            if seenSchemaURLs.insert(url).inserted {
+                                remainingImports.insert(url)
+                            }
                         }
                     default:
                         nodes.append(node)
                     }
                 }
             }
-            append(xsd: try Schema(deserialize: schemaNode), relativeTo: url)
+
+            // Parse all schemas inside the WSDL.
+            for schemaNode in typesNode.elements(forLocalName: "schema", uri: NS_XS) {
+                let schema = try Schema(deserialize: schemaNode)
+                guard let tns = schema.targetNamespace else {
+                    throw WSDLParseError.schemaWithoutTargetNamespace
+                }
+                importedNamespaces.insert(tns)
+                append(xsd: schema, relativeTo: url)
+            }
+
+            // Download and parse all imported schemas.
             while let importUrl = remainingImports.popFirst() {
-                append(xsd: try parseSchema(contentsOf: importUrl), relativeTo: importUrl)
+                let schema = try parseSchema(contentsOf: importUrl)
+                guard let tns = schema.targetNamespace else {
+                    throw WSDLParseError.schemaWithoutTargetNamespace
+                }
+                importedNamespaces.insert(tns)
+                append(xsd: schema, relativeTo: importUrl)
+            }
+
+            // Verify that we've got all imported schemas.
+            if !requiredNamespaces.isSubset(of: importedNamespaces) {
+                throw WSDLParseError.missingImportedNamespaces(requiredNamespaces.subtracting(importedNamespaces))
             }
         }
         self.schema = Schema(nodes: nodes)
@@ -230,6 +257,8 @@ public enum WSDLParseError: Error {
     case unsupportedBindingOperationEncoding(QualifiedName)
     case invalidOperationStyleForBindingOperation(QualifiedName)
     case nodeWithoutTargetNamespace
+    case schemaWithoutTargetNamespace
+    case missingImportedNamespaces(Set<String>)
 }
 
 extension WSDLParseError: CustomStringConvertible {
@@ -251,6 +280,10 @@ extension WSDLParseError: CustomStringConvertible {
             return "binding operation '\(operation)' has an invalid operation style."
         case .nodeWithoutTargetNamespace:
             return "schema node must have a target namespace."
+        case .schemaWithoutTargetNamespace:
+            return "schema must have a target namespace."
+        case let .missingImportedNamespaces(namespaces):
+            return "some namespaces were required, but have not been imported: \(namespaces)."
         }
     }
 }

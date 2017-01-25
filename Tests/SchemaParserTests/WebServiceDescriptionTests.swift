@@ -59,4 +59,13 @@ class WebServiceDescriptionTests: XCTestCase {
             XCTFail("Should have thrown error code 260 (file not found), not -1014 (zero byte resource). Possible cause is that a relative path was not resolved correctly.")
         }
     }
+
+    func testMultipleSchemes() throws {
+        do {
+            let webService = try deserialize("multiple_schemes.wsdl")
+            XCTAssertEqual(webService.schema.count, 2)
+        } catch {
+            XCTFail("Parse error: \(error)")
+        }
+    }
 }
