@@ -2,7 +2,7 @@ import Foundation
 import SchemaParser
 import Lark
 
-extension WSDL {
+extension WebServiceDescription {
     enum Node {
         case service(QualifiedName)
         case binding(QualifiedName)
@@ -88,7 +88,7 @@ extension WSDL {
         let baseNodes = baseTypes.keys.map { Node.type($0) }
         missing.subtract(baseNodes)
         if missing.count > 0 {
-            throw WSDLVerifyError.missingNodes(missing)
+            throw WebServiceDescriptionVerifyError.missingNodes(missing)
         }
     }
 
@@ -131,8 +131,8 @@ extension WSDL {
     }
 }
 
-extension WSDL.Node: Equatable, Hashable {
-    static func ==(lhs: WSDL.Node, rhs: WSDL.Node) -> Bool {
+extension WebServiceDescription.Node: Equatable, Hashable {
+    static func ==(lhs: WebServiceDescription.Node, rhs: WebServiceDescription.Node) -> Bool {
         switch(lhs, rhs) {
         case let (.service(lhs), .service(rhs)): return lhs == rhs
         case let (.binding(lhs), .binding(rhs)): return lhs == rhs
@@ -156,7 +156,7 @@ extension WSDL.Node: Equatable, Hashable {
     }
 }
 
-extension WSDL.Node: CustomDebugStringConvertible {
+extension WebServiceDescription.Node: CustomDebugStringConvertible {
     var debugDescription: String {
         switch self {
         case let .service(qname): return ".service(\(qname.debugDescription))"
@@ -169,11 +169,11 @@ extension WSDL.Node: CustomDebugStringConvertible {
     }
 }
 
-enum WSDLVerifyError: Error {
-    case missingNodes(Set<WSDL.Node>)
+enum WebServiceDescriptionVerifyError: Error {
+    case missingNodes(Set<WebServiceDescription.Node>)
 }
 
-extension WSDLVerifyError: CustomStringConvertible {
+extension WebServiceDescriptionVerifyError: CustomStringConvertible {
     var description: String {
         switch self {
         case let .missingNodes(nodes):

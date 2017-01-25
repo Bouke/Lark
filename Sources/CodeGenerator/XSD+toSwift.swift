@@ -94,18 +94,18 @@ extension Element {
 // MARK:- SOAP Client
 
 extension Service {
-    public func toSwift(wsdl: WSDL, types: Types) -> SwiftClientClass {
+    public func toSwift(webService: WebServiceDescription, types: Types) -> SwiftClientClass {
         // SOAP 1.1 port
         let port = ports.first { if case .soap11 = $0.address { return true } else { return false } }!
-        let binding = wsdl.bindings.first { $0.name == port.binding }!
-        let portType = wsdl.portTypes.first { $0.name == binding.type }!
+        let binding = webService.bindings.first { $0.name == port.binding }!
+        let portType = webService.portTypes.first { $0.name == binding.type }!
 
         let name = "\(self.name.localName.toSwiftTypeName())Client"
 
 //        types.first!.value.name
 
         let message = { (messageName: QualifiedName) -> (QualifiedName, Identifier) in
-            let message = wsdl.messages.first { $0.name == messageName }!
+            let message = webService.messages.first { $0.name == messageName }!
             let element = message.parts.first!.element
             return (element, types[.element(element)]!.name)
         }
@@ -114,10 +114,10 @@ extension Service {
         let methods = portType.operations
             .map { operation in (port: operation, binding: binding.operations.first(where: { $0.name == operation.name })!) }
             .map { operation -> ServiceMethod in
-//                let inputMessage = wsdl.messages.first { $0.name == operation.port.inputMessage }!
+//                let inputMessage = webService.messages.first { $0.name == operation.port.inputMessage }!
 //                let inputElement = input.parts.first!.element
 //                let input = (inputElement, types[.element(inputElement)]!)
-//                let output = wsdl.messages.first { $0.name == operation.port.outputMessage }!
+//                let output = webService.messages.first { $0.name == operation.port.outputMessage }!
                 let input = message(operation.port.inputMessage)
                 let output = message(operation.port.outputMessage)
 

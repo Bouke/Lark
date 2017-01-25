@@ -5,26 +5,26 @@ import XCTest
 @testable import Lark
 @testable import SchemaParser
 
-class WSDLVerifyTests: XCTestCase {
-    func deserialize(_ input: String) throws -> WSDL {
+class WebServiceDescriptionVerifyTests: XCTestCase {
+    func deserialize(_ input: String) throws -> WebServiceDescription {
         let url = URL(fileURLWithPath: #file).deletingLastPathComponent().appendingPathComponent("Inputs").appendingPathComponent(input)
-        return try parseWSDL(contentsOf: url)
+        return try parseWebServiceDefinition(contentsOf: url)
     }
 
     func testComplete() throws {
-        let wsdl = try deserialize("numberconversion.wsdl")
+        let webService = try deserialize("numberconversion.wsdl")
         do {
-            try wsdl.verify()
+            try webService.verify()
         } catch {
             XCTFail("Failed with error: \(error)")
         }
     }
 
     func testMissingBinding() throws {
-        let wsdl = try deserialize("missing_binding.wsdl")
+        let webService = try deserialize("missing_binding.wsdl")
         do {
-            try wsdl.verify()
-        } catch WSDLVerifyError.missingNodes(let nodes) {
+            try webService.verify()
+        } catch WebServiceDescriptionVerifyError.missingNodes(let nodes) {
             XCTAssertEqual(nodes, [.binding(QualifiedName(uri: "http://tempuri.org/", localName: "ImportSoapBinding"))])
         } catch {
             XCTFail("Failed with error: \(error)")
@@ -32,10 +32,10 @@ class WSDLVerifyTests: XCTestCase {
     }
 
     func testMissingPort() throws {
-        let wsdl = try deserialize("missing_port.wsdl")
+        let webService = try deserialize("missing_port.wsdl")
         do {
-            try wsdl.verify()
-        } catch WSDLVerifyError.missingNodes(let nodes) {
+            try webService.verify()
+        } catch WebServiceDescriptionVerifyError.missingNodes(let nodes) {
             XCTAssertEqual(nodes, [.port(QualifiedName(uri: "http://tempuri.org/", localName: "ImportSoapType"))])
         } catch {
             XCTFail("Failed with error: \(error)")

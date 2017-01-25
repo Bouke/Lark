@@ -27,22 +27,22 @@ if CommandLine.arguments.count != 2 {
     exit(1)
 }
 
-let wsdl: WSDL
+let webService: WebServiceDescription
 do {
-    let wsdlURL = CommandLine.arguments[1].hasPrefix("http") ? URL(string: CommandLine.arguments[1])! : URL(fileURLWithPath: CommandLine.arguments[1])
-    wsdl = try parseWSDL(contentsOf: wsdlURL)
+    let webServiceURL = CommandLine.arguments[1].hasPrefix("http") ? URL(string: CommandLine.arguments[1])! : URL(fileURLWithPath: CommandLine.arguments[1])
+    webService = try parseWebServiceDefinition(contentsOf: webServiceURL)
 } catch {
     print("error when parsing WSDL: \(error)", to: &standardError)
     exit(1)
 }
 
-guard let service = wsdl.services.first else {
+guard let service = webService.services.first else {
     print("error: could not find service in WSDL", to: &standardError)
     exit(1)
 }
 
 do {
-    try print(generate(wsdl: wsdl, service: service))
+    try print(generate(webService: webService, service: service))
 } catch {
     print("error when generating code: \(error)", to: &standardError)
     exit(1)

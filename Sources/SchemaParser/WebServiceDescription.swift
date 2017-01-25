@@ -165,14 +165,14 @@ public struct Service {
     }
 }
 
-public struct WSDL {
+public struct WebServiceDescription {
     public let schema: XSD
     public let messages: [Message]
     public let portTypes: [PortType]
     public let bindings: [Binding]
     public let services: [Service]
 
-    /// Deserialize a WSDL from an XMLElement
+    /// Deserialize a WebServiceDescription from an XMLElement
     ///
     /// - parameter deserialize: XML node to deserialize
     /// - parameter relativeTo: Used to resolve relative xsd schema imports

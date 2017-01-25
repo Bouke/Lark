@@ -76,26 +76,26 @@ enum ElementHierarchy {
 }
 
 
-public func generate(wsdl: WSDL, service: Service) throws -> String {
+public func generate(webService: WebServiceDescription, service: Service) throws -> String {
     // Verify service has a SOAP 1.1 port.
     guard let port = service.ports.first(where: { if case .soap11 = $0.address { return true } else { return false } }) else {
         throw GeneratorError.noSOAP11Port
     }
 
     // Verify that the binding is document/literal.
-    let binding = wsdl.bindings.first { $0.name == port.binding }!
+    let binding = webService.bindings.first { $0.name == port.binding }!
     guard binding.operations.first(where: { $0.style == .rpc || $0.input == .encoded || $0.output == .encoded }) == nil else {
         throw GeneratorError.rpcNotSupported
     }
 
     // Verify that all the types can be satisfied.
-    try wsdl.verify()
+    try webService.verify()
 
-    let types = try generateTypes(inSchema: wsdl.schema)
+    let types = try generateTypes(inSchema: webService.schema)
 
     var clients = [SwiftClientClass]()
-    for service in wsdl.services {
-        clients.append(service.toSwift(wsdl: wsdl, types: types))
+    for service in webService.services {
+        clients.append(service.toSwift(webService: webService, types: types))
     }
 
     return SwiftCodeGenerator.generateCode(for: Array(types.values), clients)
