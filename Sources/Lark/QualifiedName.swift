@@ -2,7 +2,8 @@ import Foundation
 
 public struct QualifiedName {
     public enum Error: Swift.Error {
-        case invalidNamespacePrefix
+        case invalidNamespacePrefix(String)
+        case noTargetNamespace(String)
     }
 
     public let uri: String
@@ -36,15 +37,26 @@ extension QualifiedName {
     public init(type: String, inTree tree: XMLElement) throws {
         if type.contains(":") {
             guard let namespace = tree.resolveNamespace(forName: type) else {
-                throw Error.invalidNamespacePrefix
+                throw Error.invalidNamespacePrefix(type)
             }
             uri = namespace.stringValue!
         } else {
             guard let tns = tree.targetNamespace else {
-                throw Error.invalidNamespacePrefix
+                throw Error.noTargetNamespace(type)
             }
             uri = tns
         }
         localName = XMLElement(name: type).localName!
+    }
+}
+
+extension QualifiedName.Error: CustomStringConvertible {
+    public var description: String {
+        switch self {
+        case let .invalidNamespacePrefix(type):
+            return "namespace prefix of type '\(type)' is invalid."
+        case let .noTargetNamespace(type):
+            return "no target namespace found for type '\(type)'."
+        }
     }
 }
