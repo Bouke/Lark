@@ -13,7 +13,7 @@ class CodeGeneratorTests: XCTestCase {
     }
 
     func testEnum() throws {
-        let schema = XSD(nodes: [
+        let schema = Schema(nodes: [
             .simpleType(.init(
                 name: qname("my-type"),
                 content: .restriction(.init(
@@ -27,7 +27,7 @@ class CodeGeneratorTests: XCTestCase {
     }
 
     func testList() throws {
-        let schema = XSD(nodes: [
+        let schema = Schema(nodes: [
             .simpleType(.init(
                 name: qname("FooBar"),
                 content: .restriction(.init(
@@ -45,7 +45,7 @@ class CodeGeneratorTests: XCTestCase {
     }
 
     func testListWrapped() throws {
-        let schema = XSD(nodes: [
+        let schema = Schema(nodes: [
             .simpleType(.init(
                 name: qname("FooBar"),
                 content: .listWrapped(.init(
@@ -62,7 +62,7 @@ class CodeGeneratorTests: XCTestCase {
     }
 
     func testPattern() throws {
-        let schema = XSD(nodes: [
+        let schema = Schema(nodes: [
             .simpleType(.init(
                 name: qname("guid"),
                 content: .restriction(.init(
@@ -78,7 +78,7 @@ class CodeGeneratorTests: XCTestCase {
     }
 
     func testComplexEmpty() throws {
-        let schema = XSD(nodes: [
+        let schema = Schema(nodes: [
             .complexType(.init(
                 name: qname("my-type"),
                 content: .empty
@@ -88,7 +88,7 @@ class CodeGeneratorTests: XCTestCase {
     }
 
     func testComplexSequence() throws {
-        let schema = XSD(nodes: [
+        let schema = Schema(nodes: [
             .complexType(.init(
                 name: qname("my-type"),
                 content: .sequence(.init(
@@ -106,7 +106,7 @@ class CodeGeneratorTests: XCTestCase {
     }
 
     func testElementWithComplexBase() throws {
-        let schema = XSD(nodes: [
+        let schema = Schema(nodes: [
             .complexType(.init(
                 name: qname("my-type"),
                 content: .sequence(.init(
@@ -130,7 +130,7 @@ class CodeGeneratorTests: XCTestCase {
     }
 
     func testComplexWithComplexBase() throws {
-        let schema = XSD(nodes: [
+        let schema = Schema(nodes: [
             .complexType(.init(
                 name: qname("my-type"),
                 content: .sequence(.init(

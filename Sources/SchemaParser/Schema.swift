@@ -1,7 +1,7 @@
 import Foundation
 import Lark
 
-public struct XSD {
+public struct Schema {
     public enum Node {
 //        case include
         case `import`(Import)
@@ -39,7 +39,7 @@ public struct XSD {
 
     init(deserialize node: XMLElement) throws {
         guard node.localName == "schema" && node.uri == NS_XS else {
-            throw XSDParseError.incorrectRootElement
+            throw SchemaParseError.incorrectRootElement
         }
 
         var nodes = [Node]()
@@ -48,7 +48,7 @@ public struct XSD {
                 continue
             }
             guard node.uri == NS_XS else {
-                throw XSDParseError.incorrectNamespace
+                throw SchemaParseError.incorrectNamespace
             }
             switch node.localName! {
             case "annotation", "attribute", "attributeGroup", "group", "include", "notation", "redefine":
@@ -63,20 +63,20 @@ public struct XSD {
             case "element":
                 nodes.append(try .element(Element(deserialize: node)))
             default:
-                throw XSDParseError.incorrectTopLevelElement(node.localName!)
+                throw SchemaParseError.incorrectTopLevelElement(node.localName!)
             }
         }
         self.nodes = nodes
     }
 }
 
-extension XSD: Sequence {
+extension Schema: Sequence {
     public func makeIterator() -> IndexingIterator<[Node]> {
         return nodes.makeIterator()
     }
 }
 
-extension XSD: Collection {
+extension Schema: Collection {
     public typealias Index = Int
     public var startIndex: Index {
         return nodes.startIndex
@@ -100,12 +100,12 @@ public struct Import {
 extension Import {
     init(deserialize node: XMLElement) throws {
         guard let namespace = node.attribute(forLocalName: "namespace", uri: nil)?.stringValue else {
-            throw XSDParseError.importWithoutNamespace
+            throw SchemaParseError.importWithoutNamespace
         }
         self.namespace = namespace
 
         guard let schemaLocation = node.attribute(forLocalName: "schemaLocation", uri: nil)?.stringValue else {
-            throw XSDParseError.importWithoutSchemaLocation
+            throw SchemaParseError.importWithoutSchemaLocation
         }
         self.schemaLocation = schemaLocation
     }
@@ -144,10 +144,10 @@ public struct Element {
 extension Element {
     init(deserialize node: XMLElement) throws {
         guard let localName = node.attribute(forLocalName: "name", uri: nil)?.stringValue else {
-            throw XSDParseError.elementWithoutName
+            throw SchemaParseError.elementWithoutName
         }
         guard let tns = node.targetNamespace else {
-            throw XSDParseError.elementWithoutTargetNamespace
+            throw SchemaParseError.elementWithoutTargetNamespace
         }
         name = QualifiedName(uri: tns, localName: localName)
 
@@ -156,7 +156,7 @@ extension Element {
         } else if let complex = node.elements(forLocalName: "complexType", uri: NS_XS).first {
             content = .complex(try ComplexType(deserialize: complex))
         } else {
-            throw XSDParseError.elementContentNotSupported
+            throw SchemaParseError.elementContentNotSupported
         }
 
         occurs = Element.range(node.attribute(forLocalName: "minOccurs", uri: nil)?.stringValue,
@@ -184,12 +184,12 @@ public struct SimpleType: NamedType {
 
         init(deserialize node: XMLElement) throws {
             guard let base = node.attribute(forLocalName: "base", uri: nil)?.stringValue else {
-                throw XSDParseError.restrictionWithoutBase
+                throw SchemaParseError.restrictionWithoutBase
             }
             self.base = try QualifiedName(type: base, inTree: node)
             enumeration = try node.elements(forLocalName: "enumeration", uri: NS_XS).map {
                 guard let value = $0.attribute(forLocalName: "value", uri: nil)?.stringValue else {
-                    throw XSDParseError.enumerationWithoutValue
+                    throw SchemaParseError.enumerationWithoutValue
                 }
                 return value
             }
@@ -221,10 +221,10 @@ extension SimpleType {
             } else if let simpleType = list.elements(forLocalName: "simpleType", uri: NS_XS).first {
                 content = try .listWrapped(SimpleType(deserialize: simpleType))
             } else {
-                throw XSDParseError.simpleTypeContentNotSupported
+                throw SchemaParseError.simpleTypeContentNotSupported
             }
         } else {
-            throw XSDParseError.simpleTypeContentNotSupported
+            throw SchemaParseError.simpleTypeContentNotSupported
         }
     }
 }
@@ -262,15 +262,15 @@ extension ComplexType {
         name = try .name(ofElement: node)
 
         if let _ = node.elements(forLocalName: "simpleContent", uri: NS_XS).first {
-            throw XSDParseError.complexTypeContentNotSupported
+            throw SchemaParseError.complexTypeContentNotSupported
         } else if let complexContent = node.elements(forLocalName: "complexContent", uri: NS_XS).first {
             content = .complex(try .init(deserialize: complexContent))
         } else if let _ = node.elements(forLocalName: "group", uri: NS_XS).first {
-            throw XSDParseError.complexTypeContentNotSupported
+            throw SchemaParseError.complexTypeContentNotSupported
         } else if let _ = node.elements(forLocalName: "all", uri: NS_XS).first {
-            throw XSDParseError.complexTypeContentNotSupported
+            throw SchemaParseError.complexTypeContentNotSupported
         } else if let _ = node.elements(forLocalName: "choice", uri: NS_XS).first {
-            throw XSDParseError.complexTypeContentNotSupported
+            throw SchemaParseError.complexTypeContentNotSupported
         } else if let sequence = node.elements(forLocalName: "sequence", uri: NS_XS).first {
             content = .sequence(try Content.Sequence(deserialize: sequence))
         } else {
@@ -295,7 +295,7 @@ extension ComplexType.Content.ComplexContent {
             content = .`extension`(try .init(deserialize: `extension`))
         } else {
             // should not happen, restriction and extension are the only valid content types
-            throw XSDParseError.invalidComplexContentContent
+            throw SchemaParseError.invalidComplexContentContent
         }
     }
 }
@@ -306,12 +306,12 @@ extension ComplexType.Content.ComplexContent.Content.Content {
             self = .sequence(try .init(deserialize: sequence))
         } else {
             // there's a few others (e.g. choice)
-            throw XSDParseError.complexContentContentNotSupported
+            throw SchemaParseError.complexContentContentNotSupported
         }
     }
 }
 
-public enum XSDParseError: Error {
+public enum SchemaParseError: Error {
     case incorrectRootElement
     case incorrectNamespace
     case incorrectTopLevelElement(String)
@@ -328,37 +328,37 @@ public enum XSDParseError: Error {
     case complexContentContentNotSupported
 }
 
-extension XSDParseError: CustomStringConvertible {
+extension SchemaParseError: CustomStringConvertible {
     public var description: String {
         switch self {
         case .incorrectRootElement:
-            return "incorrect root element. The root element of the XSD should be (\(NS_XS))type."
+            return "incorrect root element. The root element of the Schema should be (\(NS_XS))type."
         case .incorrectNamespace:
             return "incorrect namespace of root type, should have the namespace \(NS_XS)."
         case .incorrectTopLevelElement(let localName):
             return "incorrect top level element '\(localName)'."
         case .importWithoutNamespace:
-            return "XSD import must have a target namespace."
+            return "schema import must have a target namespace."
         case .importWithoutSchemaLocation:
-            return "XSD import must have a schema location."
+            return "schema import must have a schema location."
         case .elementWithoutName:
-            return "XSD element must have a name."
+            return "schema element must have a name."
         case .elementWithoutTargetNamespace:
-            return "XSD element must have a target namespace."
+            return "schema element must have a target namespace."
         case .elementContentNotSupported:
-            return "XSD element has content that is not (yet) supported."
+            return "schema element has content that is not (yet) supported."
         case .restrictionWithoutBase:
-            return "XSD restriction must have a base type."
+            return "schema restriction must have a base type."
         case .enumerationWithoutValue:
-            return "XSD enumeration must have a value."
+            return "schema enumeration must have a value."
         case .simpleTypeContentNotSupported:
-            return "XSD simpleType has content that is not (yet) supported."
+            return "schema simpleType has content that is not (yet) supported."
         case .complexTypeContentNotSupported:
-            return "XSD complexType has content that is not (yet) supported."
+            return "schema complexType has content that is not (yet) supported."
         case .invalidComplexContentContent:
-            return "XSD complexContent has invalid content."
+            return "schema complexContent has invalid content."
         case .complexContentContentNotSupported:
-            return "XSD complexContent {restriction,extension} has unsupported content."
+            return "schema complexContent {restriction,extension} has unsupported content."
         }
     }
 }

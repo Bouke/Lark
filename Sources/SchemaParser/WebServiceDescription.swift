@@ -166,7 +166,7 @@ public struct Service {
 }
 
 public struct WebServiceDescription {
-    public let schema: XSD
+    public let schema: Schema
     public let messages: [Message]
     public let portTypes: [PortType]
     public let bindings: [Binding]
@@ -183,12 +183,12 @@ public struct WebServiceDescription {
             throw WSDLParseError.incorrectRootElement
         }
 
-        var nodes: [XSD.Node] = []
+        var nodes: [Schema.Node] = []
         if let typesNode = element.elements(forLocalName: "types", uri: NS_WSDL).first, let schemaNode = typesNode.elements(forLocalName: "schema", uri: NS_XS).first {
             var remainingImports: Set<URL> = []
             var seenSchemaURLs: Set<URL> = []
 
-            func append(xsd: XSD, relativeTo url: URL?) {
+            func append(xsd: Schema, relativeTo url: URL?) {
                 for node in xsd {
                     switch node {
                     case let .import(`import`):
@@ -201,12 +201,12 @@ public struct WebServiceDescription {
                     }
                 }
             }
-            append(xsd: try XSD(deserialize: schemaNode), relativeTo: url)
+            append(xsd: try Schema(deserialize: schemaNode), relativeTo: url)
             while let importUrl = remainingImports.popFirst() {
-                append(xsd: try parseXSD(contentsOf: importUrl), relativeTo: importUrl)
+                append(xsd: try parseSchema(contentsOf: importUrl), relativeTo: importUrl)
             }
         }
-        self.schema = XSD(nodes: nodes)
+        self.schema = Schema(nodes: nodes)
         messages = try element.elements(forLocalName: "message", uri: NS_WSDL).map(Message.init(deserialize:))
         portTypes = try element.elements(forLocalName: "portType", uri: NS_WSDL).map(PortType.init(deserialize:))
         bindings = try element.elements(forLocalName: "binding", uri: NS_WSDL).map(Binding.init(deserialize:))
@@ -250,7 +250,7 @@ extension WSDLParseError: CustomStringConvertible {
         case let .invalidOperationStyleForBindingOperation(operation):
             return "binding operation '\(operation)' has an invalid operation style."
         case .nodeWithoutTargetNamespace:
-            return "XSD node must have a target namespace."
+            return "schema node must have a target namespace."
         }
     }
 }

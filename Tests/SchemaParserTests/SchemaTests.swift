@@ -2,13 +2,13 @@ import XCTest
 
 @testable import SchemaParser
 
-class XSDTests: XCTestCase {
-    func deserialize(_ input: String) throws -> XSD {
+class SchemaTests: XCTestCase {
+    func deserialize(_ input: String) throws -> Schema {
         let url = URL(fileURLWithPath: #file)
             .deletingLastPathComponent()
             .appendingPathComponent("Inputs")
             .appendingPathComponent(input)
-        return try parseXSD(contentsOf: url)
+        return try parseSchema(contentsOf: url)
     }
 
     func testComplexExtension() throws {

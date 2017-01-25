@@ -7,7 +7,7 @@ public let NS_SOAP = "http://schemas.xmlsoap.org/wsdl/soap/"
 /// WSDL Namespace URI
 public let NS_WSDL = "http://schemas.xmlsoap.org/wsdl/"
 
-/// XML Schema (XSD) Namespace URI
+/// XML Schema (Schema) Namespace URI
 public let NS_XS = "http://www.w3.org/2001/XMLSchema"
 
 /// SOAP 1.2 Namespace URI

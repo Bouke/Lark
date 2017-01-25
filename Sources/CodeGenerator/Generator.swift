@@ -102,7 +102,7 @@ public func generate(webService: WebServiceDescription, service: Service) throws
 }
 
 
-func generateTypes(inSchema schema: XSD) throws -> Types {
+func generateTypes(inSchema schema: Schema) throws -> Types {
     var mapping: TypeMapping = baseTypes.dictionary { (Type.type($0), $1) }
     var scope: Set<String> = globalScope
     var hierarchy = ElementHierarchy.Graph()
@@ -195,7 +195,7 @@ func generateTypes(inSchema schema: XSD) throws -> Types {
     return types
 }
 
-extension XSD {
+extension Schema {
     public func generateCode() throws -> [LineOfCode] {
         let types = try generateTypes(inSchema: self)
         return Array(types.values).flatMap { $0.toLinesOfCode(at: Indentation(chars: "    ")) }

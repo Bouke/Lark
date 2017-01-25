@@ -5,7 +5,7 @@ public func parseWebServiceDefinition(contentsOf url: URL) throws -> WebServiceD
     return try WebServiceDescription(deserialize: xml.rootElement()!, relativeTo: url)
 }
 
-public func parseXSD(contentsOf url: URL) throws -> XSD {
+public func parseSchema(contentsOf url: URL) throws -> Schema {
     let xml = try XMLDocument(contentsOf: url, options: 0)
-    return try XSD(deserialize: xml.rootElement()!)
+    return try Schema(deserialize: xml.rootElement()!)
 }

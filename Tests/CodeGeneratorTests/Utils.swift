@@ -4,9 +4,9 @@ import XCTest
 @testable import SchemaParser
 @testable import CodeGenerator
 
-func deserialize(_ input: String) throws -> XSD {
+func deserialize(_ input: String) throws -> Schema {
     let url = URL(fileURLWithPath: #file).deletingLastPathComponent().appendingPathComponent("Inputs").appendingPathComponent(input)
-    return try parseXSD(contentsOf: url)
+    return try parseSchema(contentsOf: url)
 }
 
 func readlines(_ input: String) throws -> [String] {
