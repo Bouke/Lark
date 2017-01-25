@@ -65,14 +65,36 @@ struct EnvelopeDeserializer: DataResponseSerializerProtocol {
     }
 }
 
+
+/// Adopt this protocol to create a custom SOAP header.
+/// 
+/// See also `Header` which provides a basic SOAP header.
 public protocol HeaderSerializable {
+
+    /// Serialize the header into an XMLElement. This method will be called
+    /// when an `Envelope` is created. If the serialization fails, it will
+    /// cancel the service call.
+    ///
+    /// - Returns: XML serialization of the header
+    /// - Throws: can throw any error
     func serialize() throws -> XMLElement
 }
 
+
+/// Generic SOAP Header. SOAP provides a flexible mechanism for extending a 
+/// message in a decentralized and modular way without prior knowledge between
+/// the communicating parties. Typical examples of extensions that can be 
+/// implemented as header entries are authentication, transaction management,
+/// payment etc.
 public struct Header<Value: XMLSerializable>: HeaderSerializable {
     public let name: QualifiedName
     public let value: Value
-    
+
+    /// Instantiate a `Header` instance.
+    ///
+    /// - Parameters:
+    ///   - name: qualified name of the header
+    ///   - value: the value of the header; must be XMLSerializable
     public init(name: QualifiedName, value: Value) {
         self.name = name
         self.value = value
