@@ -71,35 +71,51 @@ public struct Binding {
             name = QualifiedName(uri: try targetNamespace(ofNode: element), localName: element.attribute(forName: "name")!.stringValue!)
             if let operation = element.elements(forLocalName: "operation", uri: NS_SOAP).first {
                 action = URL(string: operation.attribute(forName: "soapAction")!.stringValue!)
-                style = Style(rawValue: operation.attribute(forName: "style")!.stringValue!)!
+                guard let style = operation.attribute(forName: "style")?.stringValue.flatMap({ Style(rawValue: $0) }) else {
+                    throw WSDLParseError.invalidOperationStyleForBindingOperation(name)
+                }
+                self.style = style
             } else if let operation = element.elements(forLocalName: "operation", uri: NS_SOAP12).first {
                 action = URL(string: operation.attribute(forName: "soapAction")!.stringValue!)
-                style = Style(rawValue: operation.attribute(forName: "style")!.stringValue!)!
+                guard let style = operation.attribute(forName: "style")?.stringValue.flatMap({ Style(rawValue: $0) }) else {
+                    throw WSDLParseError.invalidOperationStyleForBindingOperation(name)
+                }
+                self.style = style
             } else {
                 throw WSDLParseError.unsupportedOperation(name)
+            }
+
+            let use = { (element: XMLElement) -> Use? in
+                if let body = element.elements(forLocalName: "body", uri: NS_SOAP).first {
+                    guard let use = body.attribute(forName: "use")?.stringValue.flatMap({ Use(rawValue: $0) }) else {
+                        return nil
+                    }
+                    return use
+                } else if let body = element.elements(forLocalName: "body", uri: NS_SOAP12).first {
+                    guard let use = body.attribute(forName: "use")?.stringValue.flatMap({ Use(rawValue: $0) }) else {
+                        return nil
+                    }
+                    return use
+                } else {
+                    return nil
+                }
             }
 
             guard let input = element.elements(forLocalName: "input", uri: NS_WSDL).first else {
                 throw WSDLParseError.bindingOperationMissingInput(name)
             }
-            if let body = input.elements(forLocalName: "body", uri: NS_SOAP).first {
-                self.input = Use(rawValue: body.attribute(forName: "use")!.stringValue!)!
-            } else if let body = input.elements(forLocalName: "body", uri: NS_SOAP12).first {
-                self.input = Use(rawValue: body.attribute(forName: "use")!.stringValue!)!
-            } else {
+            guard let inputUse = use(input) else {
                 throw WSDLParseError.unsupportedBindingOperationEncoding(name)
             }
+            self.input = inputUse
 
             guard let output = element.elements(forLocalName: "output", uri: NS_WSDL).first else {
                 throw WSDLParseError.bindingOperationMissingOutput(name)
             }
-            if let body = output.elements(forLocalName: "body", uri: NS_SOAP).first {
-                self.output = Use(rawValue: body.attribute(forName: "use")!.stringValue!)!
-            } else if let body = output.elements(forLocalName: "body", uri: NS_SOAP12).first {
-                self.output = Use(rawValue: body.attribute(forName: "use")!.stringValue!)!
-            } else {
+            guard let outputUse = use(output) else {
                 throw WSDLParseError.unsupportedBindingOperationEncoding(name)
             }
+            self.output = outputUse
         }
     }
 
@@ -212,6 +228,7 @@ public enum WSDLParseError: Error {
     case bindingOperationMissingInput(QualifiedName)
     case bindingOperationMissingOutput(QualifiedName)
     case unsupportedBindingOperationEncoding(QualifiedName)
+    case invalidOperationStyleForBindingOperation(QualifiedName)
     case nodeWithoutTargetNamespace
 }
 
@@ -230,6 +247,8 @@ extension WSDLParseError: CustomStringConvertible {
             return "binding operation '\(operation)' contains an operation without an output."
         case let .unsupportedBindingOperationEncoding(operation):
             return "binding operation '\(operation)' contains a message with unsupported encoding."
+        case let .invalidOperationStyleForBindingOperation(operation):
+            return "binding operation '\(operation)' has an invalid operation style."
         case .nodeWithoutTargetNamespace:
             return "XSD node must have a target namespace."
         }
