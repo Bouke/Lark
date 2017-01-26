@@ -102,11 +102,10 @@ extension Service {
 
         let name = "\(self.name.localName.toSwiftTypeName())Client"
 
-//        types.first!.value.name
-
+        // returns the message's {input,output} type and corresponding type identifier
         let message = { (messageName: QualifiedName) -> (QualifiedName, Identifier) in
             let message = webService.messages.first { $0.name == messageName }!
-            let element = message.parts.first!.element
+            let element = message.parts.first!.element!
             return (element, types[.element(element)]!.name)
         }
 
@@ -114,13 +113,8 @@ extension Service {
         let methods = portType.operations
             .map { operation in (port: operation, binding: binding.operations.first(where: { $0.name == operation.name })!) }
             .map { operation -> ServiceMethod in
-//                let inputMessage = webService.messages.first { $0.name == operation.port.inputMessage }!
-//                let inputElement = input.parts.first!.element
-//                let input = (inputElement, types[.element(inputElement)]!)
-//                let output = webService.messages.first { $0.name == operation.port.outputMessage }!
                 let input = message(operation.port.inputMessage)
                 let output = message(operation.port.outputMessage)
-
                 return ServiceMethod(operation: operation.port, input: input, output: output, action: operation.binding.action)
             }
 

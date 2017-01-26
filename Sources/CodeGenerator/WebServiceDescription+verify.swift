@@ -50,13 +50,13 @@ extension WebServiceDescription {
         )
 
         nodes.formUnion(messages.map { .message($0.name) })
-        edges.append(contentsOf: messages
-            .flatMap { message in
-                message.parts.map { part in
-                    (from: .message(message.name), to: .element(part.element))
-                }
-            }
-        )
+//        edges.append(contentsOf: messages
+//            .flatMap { message in
+//                message.parts.flatMap { part in
+//                    (from: .message(message.name), to: .element(part.element))
+//                }
+//            }
+//        )
 
         nodes.formUnion(schema.flatMap { node in
             switch node {
