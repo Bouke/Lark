@@ -226,7 +226,7 @@ let baseTypes: [QualifiedName: Identifier] = [
     QualifiedName(uri: NS_XS, localName: "dateTime"): "Date",
     QualifiedName(uri: NS_XS, localName: "duration"): "TimeInterval",
     QualifiedName(uri: NS_XS, localName: "QName"): "QualifiedName",
-    QualifiedName(uri: NS_XS, localName: "anyType"): "XMLElement",
+    QualifiedName(uri: NS_XS, localName: "anyType"): "AnyType",
 ]
 
 let globalScope: Set<String> = Set(baseTypes.values + [

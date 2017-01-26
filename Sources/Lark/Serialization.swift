@@ -261,12 +261,19 @@ extension QualifiedName: XMLDeserializable, XMLSerializable {
 }
 
 // Ugh required convenience designated final initializer. Swift is drunk.
-//extension XMLElement: XMLDeserializable, XMLSerializable {
-//    public required convenience init(deserialize node: XMLElement) throws {
-//        try self.init(xmlString: node.xmlString)
-//    }
-//    public func serialize(_ element: XMLElement) throws {
-//        // might not work
-//        element.addChild(self)
-//    }
-//}
+final class AnyType: XMLElement, XMLDeserializable, XMLSerializable {
+    public convenience init(deserialize node: XMLElement) throws {
+        try self.init(xmlString: node.canonicalXMLStringPreservingComments(true))
+    }
+    public func serialize(_ element: XMLElement) throws {
+        for namespace in namespaces ?? [] {
+            element.addNamespace(namespace.copy() as! XMLNode)
+        }
+        for attribute in attributes ?? [] {
+            element.addAttribute(attribute.copy() as! XMLNode)
+        }
+        for child in children ?? [] {
+            element.addChild(child.copy() as! XMLNode)
+        }
+    }
+}

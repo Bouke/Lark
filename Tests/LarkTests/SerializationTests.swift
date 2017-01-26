@@ -151,13 +151,24 @@ class TypesTests: XCTestCase {
         }
     }
 
-//    func testXMLElement() {
-//        test(value: XMLElement(name: "foo", stringValue: "bar"), expected: "<test><foo>bar</foo></bar>")
-//
-//        let element = XMLElement(name: "foo", stringValue: "bar")
-//        element.setAttributesWith(["hello": "world", "baz": "buz"])
-//        test(value: element, expected: "<test><foo>bar</foo></bar>")
-//    }
+    func testAnyType() throws {
+        // Note that the node name doesn't matter; only AnyType's content will be (de)serialized.
+        do {
+            let element = AnyType(name: "test", stringValue: "bar")
+            test(value: element, expected: "<test>bar</test>")
+
+            element.setAttributesWith(["hello": "world", "baz": "buz"])
+            test(value: element, expected: "<test hello=\"world\" baz=\"buz\">bar</test>")
+        }
+        do {
+            let xml = "<test><!-- some comment --></test>"
+            test(value: try AnyType(xmlString: xml), expected: xml)
+        }
+        do {
+            let xml = "<test xmlns:ns=\"http://tempuri.org/test\" ns:foo=\"bar\"><!-- some comment --></test>"
+            test(value: try AnyType(xmlString: xml), expected: xml)
+        }
+    }
 }
 
 
@@ -190,9 +201,9 @@ func test<T>(value: T, expected: String, file: StaticString = #file, line: UInt 
     do {
         let element = XMLElement(name: "test")
         try value.serialize(element)
-        XCTAssertEqual(element.xmlString, expected, file: file, line: line)
+        XCTAssertEqual(element.xmlString, expected, "serialization failed", file: file, line: line)
         let deserialized = try T(deserialize: element)
-        XCTAssertEqual(deserialized, value, file: file, line: line)
+        XCTAssertEqual(deserialized, value, "deserialization failed",file: file, line: line)
     } catch {
         XCTFail("Failed with error: \(error)", file: file, line: line)
     }
