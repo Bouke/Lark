@@ -8,7 +8,7 @@ import XCTest
 class WebServiceDescriptionVerifyTests: XCTestCase {
     func deserialize(_ input: String) throws -> WebServiceDescription {
         let url = URL(fileURLWithPath: #file).deletingLastPathComponent().appendingPathComponent("Inputs").appendingPathComponent(input)
-        return try parseWebServiceDefinition(contentsOf: url)
+        return try parseWebServiceDescription(contentsOf: url)
     }
 
     func testComplete() throws {

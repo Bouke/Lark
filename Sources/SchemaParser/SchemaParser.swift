@@ -1,6 +1,6 @@
 import Foundation
 
-public func parseWebServiceDefinition(contentsOf url: URL) throws -> WebServiceDescription {
+public func parseWebServiceDescription(contentsOf url: URL) throws -> WebServiceDescription {
     let xml = try XMLDocument(contentsOf: url, options: 0)
     return try WebServiceDescription(deserialize: xml.rootElement()!, relativeTo: url)
 }

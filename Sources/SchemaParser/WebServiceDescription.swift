@@ -72,17 +72,17 @@ public struct Binding {
             if let operation = element.elements(forLocalName: "operation", uri: NS_SOAP).first {
                 action = URL(string: operation.attribute(forName: "soapAction")!.stringValue!)
                 guard let style = operation.attribute(forName: "style")?.stringValue.flatMap({ Style(rawValue: $0) }) else {
-                    throw WebServiceDefinitionParseError.invalidOperationStyleForBindingOperation(name)
+                    throw WebServiceDescriptionParseError.invalidOperationStyleForBindingOperation(name)
                 }
                 self.style = style
             } else if let operation = element.elements(forLocalName: "operation", uri: NS_SOAP12).first {
                 action = URL(string: operation.attribute(forName: "soapAction")!.stringValue!)
                 guard let style = operation.attribute(forName: "style")?.stringValue.flatMap({ Style(rawValue: $0) }) else {
-                    throw WebServiceDefinitionParseError.invalidOperationStyleForBindingOperation(name)
+                    throw WebServiceDescriptionParseError.invalidOperationStyleForBindingOperation(name)
                 }
                 self.style = style
             } else {
-                throw WebServiceDefinitionParseError.unsupportedOperation(name)
+                throw WebServiceDescriptionParseError.unsupportedOperation(name)
             }
 
             let use = { (element: XMLElement) -> Use? in
@@ -102,18 +102,18 @@ public struct Binding {
             }
 
             guard let input = element.elements(forLocalName: "input", uri: NS_WSDL).first else {
-                throw WebServiceDefinitionParseError.bindingOperationMissingInput(name)
+                throw WebServiceDescriptionParseError.bindingOperationMissingInput(name)
             }
             guard let inputUse = use(input) else {
-                throw WebServiceDefinitionParseError.unsupportedBindingOperationEncoding(name)
+                throw WebServiceDescriptionParseError.unsupportedBindingOperationEncoding(name)
             }
             self.input = inputUse
 
             guard let output = element.elements(forLocalName: "output", uri: NS_WSDL).first else {
-                throw WebServiceDefinitionParseError.bindingOperationMissingOutput(name)
+                throw WebServiceDescriptionParseError.bindingOperationMissingOutput(name)
             }
             guard let outputUse = use(output) else {
-                throw WebServiceDefinitionParseError.unsupportedBindingOperationEncoding(name)
+                throw WebServiceDescriptionParseError.unsupportedBindingOperationEncoding(name)
             }
             self.output = outputUse
         }
@@ -149,7 +149,7 @@ public struct Service {
             } else if let address = element.elements(forLocalName: "address", uri: NS_SOAP12).first {
                 self.address = .soap12(address.attribute(forName: "location")!.stringValue!)
             } else {
-                throw WebServiceDefinitionParseError.unsupportedPortAddress(name)
+                throw WebServiceDescriptionParseError.unsupportedPortAddress(name)
             }
         }
     }
@@ -180,7 +180,7 @@ public struct WebServiceDescription {
     /// - throws: `ParserError` and any upstream Cocoa error
     init(deserialize element: XMLElement, relativeTo url: URL?) throws {
         guard element.localName == "definitions" && element.uri == NS_WSDL else {
-            throw WebServiceDefinitionParseError.incorrectRootElement
+            throw WebServiceDescriptionParseError.incorrectRootElement
         }
 
         var nodes: [Schema.Node] = []
@@ -212,7 +212,7 @@ public struct WebServiceDescription {
             for schemaNode in typesNode.elements(forLocalName: "schema", uri: NS_XS) {
                 let schema = try Schema(deserialize: schemaNode)
                 guard let tns = schema.targetNamespace else {
-                    throw WebServiceDefinitionParseError.schemaWithoutTargetNamespace
+                    throw WebServiceDescriptionParseError.schemaWithoutTargetNamespace
                 }
                 importedNamespaces.insert(tns)
                 append(xsd: schema, relativeTo: url)
@@ -222,7 +222,7 @@ public struct WebServiceDescription {
             while let importUrl = remainingImports.popFirst() {
                 let schema = try parseSchema(contentsOf: importUrl)
                 guard let tns = schema.targetNamespace else {
-                    throw WebServiceDefinitionParseError.schemaWithoutTargetNamespace
+                    throw WebServiceDescriptionParseError.schemaWithoutTargetNamespace
                 }
                 importedNamespaces.insert(tns)
                 append(xsd: schema, relativeTo: importUrl)
@@ -230,7 +230,7 @@ public struct WebServiceDescription {
 
             // Verify that we've got all imported schemas.
             if !requiredNamespaces.isSubset(of: importedNamespaces) {
-                throw WebServiceDefinitionParseError.missingImportedNamespaces(requiredNamespaces.subtracting(importedNamespaces))
+                throw WebServiceDescriptionParseError.missingImportedNamespaces(requiredNamespaces.subtracting(importedNamespaces))
             }
         }
         self.schema = Schema(nodes: nodes)
@@ -243,12 +243,12 @@ public struct WebServiceDescription {
 
 fileprivate func targetNamespace(ofNode node: XMLElement) throws -> String {
     guard let tns = node.targetNamespace else {
-        throw WebServiceDefinitionParseError.nodeWithoutTargetNamespace
+        throw WebServiceDescriptionParseError.nodeWithoutTargetNamespace
     }
     return tns
 }
 
-public enum WebServiceDefinitionParseError: Error {
+public enum WebServiceDescriptionParseError: Error {
     case incorrectRootElement
     case unsupportedPortAddress(QualifiedName)
     case unsupportedOperation(QualifiedName)
@@ -261,7 +261,7 @@ public enum WebServiceDefinitionParseError: Error {
     case missingImportedNamespaces(Set<String>)
 }
 
-extension WebServiceDefinitionParseError: CustomStringConvertible {
+extension WebServiceDescriptionParseError: CustomStringConvertible {
     public var description: String {
         switch self {
         case .incorrectRootElement:

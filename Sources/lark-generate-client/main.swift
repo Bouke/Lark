@@ -30,7 +30,7 @@ if CommandLine.arguments.count != 2 {
 let webService: WebServiceDescription
 do {
     let webServiceURL = CommandLine.arguments[1].hasPrefix("http") ? URL(string: CommandLine.arguments[1])! : URL(fileURLWithPath: CommandLine.arguments[1])
-    webService = try parseWebServiceDefinition(contentsOf: webServiceURL)
+    webService = try parseWebServiceDescription(contentsOf: webServiceURL)
 } catch {
     print("error when parsing WSDL: \(error)", to: &standardError)
     exit(1)

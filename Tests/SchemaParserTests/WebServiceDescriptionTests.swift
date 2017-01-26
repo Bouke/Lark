@@ -9,7 +9,7 @@ class WebServiceDescriptionTests: XCTestCase {
             .deletingLastPathComponent()
             .appendingPathComponent("Inputs")
             .appendingPathComponent(input)
-        return try parseWebServiceDefinition(contentsOf: url)
+        return try parseWebServiceDescription(contentsOf: url)
     }
 
     func qname(_ localName: String) -> QualifiedName {
