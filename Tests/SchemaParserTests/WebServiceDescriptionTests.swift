@@ -68,4 +68,14 @@ class WebServiceDescriptionTests: XCTestCase {
             XCTFail("Parse error: \(error)")
         }
     }
+
+    func testMessageWithType() {
+        do {
+            let webService = try deserialize("message_with_type.wsdl")
+            XCTAssertNil(webService.messages.first?.parts.first?.element)
+            XCTAssertNotNil(webService.messages.first?.parts.first?.type)
+        } catch {
+            XCTFail("Parse error: \(error)")
+        }
+    }
 }
