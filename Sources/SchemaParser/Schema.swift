@@ -150,6 +150,7 @@ extension Element {
         }
         name = QualifiedName(uri: tns, localName: localName)
 
+        // Possible other content: unconstrained (raw XML), simpleType
         if let base = node.attribute(forLocalName: "type", uri: nil)?.stringValue {
             content = .base(try QualifiedName(type: base, inTree: node))
         } else if let complex = node.elements(forLocalName: "complexType", uri: NS_XS).first {
