@@ -24,6 +24,7 @@ class WebServiceDescriptionVerifyTests: XCTestCase {
         let webService = try deserialize("missing_binding.wsdl")
         do {
             try webService.verify()
+            XCTFail("Should not verified")
         } catch WebServiceDescriptionVerifyError.missingNodes(let nodes) {
             XCTAssertEqual(nodes, [.binding(QualifiedName(uri: "http://tempuri.org/", localName: "ImportSoapBinding"))])
         } catch {
@@ -35,8 +36,21 @@ class WebServiceDescriptionVerifyTests: XCTestCase {
         let webService = try deserialize("missing_port.wsdl")
         do {
             try webService.verify()
+            XCTFail("Should not verified")
         } catch WebServiceDescriptionVerifyError.missingNodes(let nodes) {
             XCTAssertEqual(nodes, [.port(QualifiedName(uri: "http://tempuri.org/", localName: "ImportSoapType"))])
+        } catch {
+            XCTFail("Failed with error: \(error)")
+        }
+    }
+
+    func testMissingMessageType() throws {
+        let webService = try deserialize("missing_message_type.wsdl")
+        do {
+            try webService.verify()
+            XCTFail("Should not verified")
+        } catch WebServiceDescriptionVerifyError.missingNodes(let nodes) {
+            XCTAssertEqual(nodes, [.type(QualifiedName(uri: "http://tempuri.org/", localName: "MissingType"))])
         } catch {
             XCTFail("Failed with error: \(error)")
         }

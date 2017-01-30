@@ -4,11 +4,13 @@ import Lark
 public struct Message {
     public struct Part {
         public let name: QualifiedName
-        public let element: QualifiedName
+        public let element: QualifiedName?
+        public let type: QualifiedName?
 
         init(deserialize element: XMLElement) throws {
             self.name = QualifiedName(uri: try targetNamespace(ofNode: element), localName: element.attribute(forName: "name")!.stringValue!)
-            self.element = try QualifiedName(type: element.attribute(forName: "element")!.stringValue!, inTree: element)
+            self.element = try element.attribute(forName: "element")?.stringValue.flatMap({ try QualifiedName(type: $0, inTree: element) })
+            self.type = try element.attribute(forName: "type")?.stringValue.flatMap({ try QualifiedName(type: $0, inTree: element) })
         }
     }
 

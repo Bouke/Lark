@@ -23,6 +23,14 @@ extension WebServiceDescription {
     typealias Graph = CodeGenerator.Graph<Node>
     typealias Edge = (from: Node, to: Node)
 
+    /// Verifies whether all type references are valid. It will construct a 
+    /// graph having edges for all references and nodes for all types. The set
+    /// of missing nodes is calculated by comparing the actual nodes with the
+    /// references nodes. The set of base XML Schema types are subtracted. If
+    /// the remaining set of missing nodes is greater then 0, an error will be
+    /// thrown.
+    ///
+    /// - Throws: WebServiceDescriptionVerifyError.missingNodes(Set<Node>)
     public func verify() throws {
         var nodes = Set<Node>()
         var edges: [Edge] = []
@@ -51,9 +59,15 @@ extension WebServiceDescription {
 
         nodes.formUnion(messages.map { .message($0.name) })
         edges.append(contentsOf: messages
-            .flatMap { message in
-                message.parts.map { part in
-                    (from: .message(message.name), to: .element(part.element))
+            .flatMap { message -> [Edge] in
+                message.parts.flatMap { part -> Edge? in
+                    if let element = part.element {
+                        return (from: .message(message.name), to: .element(element))
+                    } else if let type = part.type {
+                        return (from: .message(message.name), to: .type(type))
+                    } else {
+                        return nil
+                    }
                 }
             }
         )
