@@ -261,7 +261,7 @@ extension QualifiedName: XMLDeserializable, XMLSerializable {
 }
 
 // Ugh required convenience designated final initializer. Swift is drunk.
-final class AnyType: XMLElement, XMLDeserializable, XMLSerializable {
+public final class AnyType: XMLElement, XMLDeserializable, XMLSerializable {
     public convenience init(deserialize node: XMLElement) throws {
         try self.init(xmlString: node.canonicalXMLStringPreservingComments(true))
     }

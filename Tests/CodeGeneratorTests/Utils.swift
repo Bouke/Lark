@@ -11,7 +11,7 @@ func deserialize(_ input: String) throws -> Schema {
 
 func deserializeWebServiceDescription(_ input: String) throws -> WebServiceDescription {
     let url = URL(fileURLWithPath: #file).deletingLastPathComponent().appendingPathComponent("Inputs").appendingPathComponent(input)
-    return try parseWebServiceDefinition(contentsOf: url)
+    return try parseWebServiceDescription(contentsOf: url)
 }
 
 func readlines(_ input: String) throws -> [String] {

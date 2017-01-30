@@ -27,6 +27,7 @@ custom_categories:
       - XMLDeserializationError
   - name: Base Types
     children:
+      - AnyType
       - Bool
       - Data
       - Date
@@ -49,7 +50,7 @@ custom_categories:
       - Result
   - name: XML Tooling
     children:
-      - NS_SOAP
+      - NS_SOAP_ENVELOPE
       - NS_XSI
       - QualifiedName
       - XMLElement
