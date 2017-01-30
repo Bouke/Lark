@@ -50,7 +50,7 @@ class WebServiceDescriptionVerifyTests: XCTestCase {
             try webService.verify()
             XCTFail("Should not verified")
         } catch WebServiceDescriptionVerifyError.missingNodes(let nodes) {
-            XCTAssertEqual(nodes, [.port(QualifiedName(uri: "http://tempuri.org/", localName: "ImportSoapType"))])
+            XCTAssertEqual(nodes, [.type(QualifiedName(uri: "http://tempuri.org/", localName: "MissingType"))])
         } catch {
             XCTFail("Failed with error: \(error)")
         }

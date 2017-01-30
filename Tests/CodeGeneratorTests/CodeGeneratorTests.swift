@@ -175,7 +175,7 @@ class CodeGeneratorTests: XCTestCase {
     func testMessageWithType() throws {
         let webService = try deserializeWebServiceDescription("message_with_type.wsdl")
         let expected = try readlines("message_with_type.txt")
-        XCTAssertCode(actual: try generate(webService: webService, service: webService.services.first!).components(separatedBy: "\n"),
-                      expected: expected)
+        let actual = try generate(webService: webService, service: webService.services.first!).components(separatedBy: "\n")
+        XCTAssertCode(actual: actual, expected: expected)
     }
 }
