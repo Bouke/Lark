@@ -22,6 +22,8 @@ extension ComplexType {
             case let .extension(`extension`): content = `extension`
             }
             switch content {
+            case .empty:
+                (properties, nestedTypes) = ([], [])
             case let .sequence(sequence):
                 (properties, nestedTypes) = sequenceToSwift(name: name, sequence: sequence, mapping: mapping, types: types)
             }

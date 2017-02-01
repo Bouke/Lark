@@ -130,6 +130,7 @@ extension WebServiceDescription {
         case let .extension(`extension`): content = `extension`
         }
         switch content {
+        case .empty: break
         case let .sequence(sequence): edges.append(contentsOf: sequence.elements.flatMap { createEdges(from: from, to: $0) })
         }
         return edges

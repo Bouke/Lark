@@ -247,14 +247,20 @@ public struct ComplexType: NamedType {
         public struct ComplexContent {
             public enum Content {
                 public enum Content {
+                    case empty
                     case sequence(Sequence)
 
                     init(deserialize node: XMLElement) throws {
-                        if let sequence = node.elements(forLocalName: "sequence", uri: NS_XS).first {
+                        if let _ = node.elements(forLocalName: "group", uri: NS_XS).first {
+                            throw SchemaParseError.complexContentContentNotSupported
+                        } else if let _ = node.elements(forLocalName: "all", uri: NS_XS).first {
+                            throw SchemaParseError.complexContentContentNotSupported
+                        } else if let _ = node.elements(forLocalName: "choice", uri: NS_XS).first {
+                            throw SchemaParseError.complexContentContentNotSupported
+                        } else if let sequence = node.elements(forLocalName: "sequence", uri: NS_XS).first {
                             self = .sequence(try .init(deserialize: sequence))
                         } else {
-                            // there's a few others (e.g. choice)
-                            throw SchemaParseError.complexContentContentNotSupported
+                            self = .empty
                         }
                     }
                 }
