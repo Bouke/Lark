@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions name="Import" targetNamespace="http://tempuri.org/" xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:tns="http://tempuri.org/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
     <binding name="ImportSoapBinding" type="tns:ImportSoapType">
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
     </binding>
     <service name="Import">
         <port binding="tns:ImportSoapBinding" name="ImportSoap">

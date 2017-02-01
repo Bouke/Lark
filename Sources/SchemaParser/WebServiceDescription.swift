@@ -48,6 +48,35 @@ public struct PortType {
 }
 
 public struct Binding {
+    public enum ParseError: Error, CustomStringConvertible {
+        case unsupportedTransport(String)
+        case noTransport
+        case unsupportedOperation(QualifiedName)
+        case bindingOperationMissingInput(QualifiedName)
+        case bindingOperationMissingOutput(QualifiedName)
+        case unsupportedBindingOperationEncoding(QualifiedName)
+        case invalidOperationStyleForBindingOperation(QualifiedName)
+
+        public var description: String {
+            switch self {
+            case let .unsupportedTransport(transport):
+                return "Unsupported transport type '\(transport)', must be '\(SOAP_HTTP)'"
+            case .noTransport:
+                return "No transport type, must be: '\(SOAP_HTTP)'"
+            case let .unsupportedOperation(operation):
+                return "binding operation '\(operation)' is invalid. The operation must be either (\(NS_SOAP))operation or (\(NS_SOAP12))operation."
+            case let .bindingOperationMissingInput(operation):
+                return "binding operation '\(operation)' contains an operation without an input."
+            case let .bindingOperationMissingOutput(operation):
+                return "binding operation '\(operation)' contains an operation without an output."
+            case let .unsupportedBindingOperationEncoding(operation):
+                return "binding operation '\(operation)' contains a message with unsupported encoding."
+            case let .invalidOperationStyleForBindingOperation(operation):
+                return "binding operation '\(operation)' has an invalid operation style."
+            }
+        }
+    }
+
     public struct Operation {
         public enum Style: String {
             case document
@@ -74,17 +103,17 @@ public struct Binding {
             if let operation = element.elements(forLocalName: "operation", uri: NS_SOAP).first {
                 action = URL(string: operation.attribute(forName: "soapAction")!.stringValue!)
                 guard let style = operation.attribute(forName: "style")?.stringValue.flatMap({ Style(rawValue: $0) }) else {
-                    throw WebServiceDescriptionParseError.invalidOperationStyleForBindingOperation(name)
+                    throw ParseError.invalidOperationStyleForBindingOperation(name)
                 }
                 self.style = style
             } else if let operation = element.elements(forLocalName: "operation", uri: NS_SOAP12).first {
                 action = URL(string: operation.attribute(forName: "soapAction")!.stringValue!)
                 guard let style = operation.attribute(forName: "style")?.stringValue.flatMap({ Style(rawValue: $0) }) else {
-                    throw WebServiceDescriptionParseError.invalidOperationStyleForBindingOperation(name)
+                    throw ParseError.invalidOperationStyleForBindingOperation(name)
                 }
                 self.style = style
             } else {
-                throw WebServiceDescriptionParseError.unsupportedOperation(name)
+                throw ParseError.unsupportedOperation(name)
             }
 
             let use = { (element: XMLElement) -> Use? in
@@ -104,18 +133,18 @@ public struct Binding {
             }
 
             guard let input = element.elements(forLocalName: "input", uri: NS_WSDL).first else {
-                throw WebServiceDescriptionParseError.bindingOperationMissingInput(name)
+                throw ParseError.bindingOperationMissingInput(name)
             }
             guard let inputUse = use(input) else {
-                throw WebServiceDescriptionParseError.unsupportedBindingOperationEncoding(name)
+                throw ParseError.unsupportedBindingOperationEncoding(name)
             }
             self.input = inputUse
 
             guard let output = element.elements(forLocalName: "output", uri: NS_WSDL).first else {
-                throw WebServiceDescriptionParseError.bindingOperationMissingOutput(name)
+                throw ParseError.bindingOperationMissingOutput(name)
             }
             guard let outputUse = use(output) else {
-                throw WebServiceDescriptionParseError.unsupportedBindingOperationEncoding(name)
+                throw ParseError.unsupportedBindingOperationEncoding(name)
             }
             self.output = outputUse
         }
@@ -126,9 +155,27 @@ public struct Binding {
     public let operations: [Operation]
 
     init(deserialize element: XMLElement) throws {
+        if let transport = element.elements(forLocalName: "binding", uri: NS_SOAP).first?.attribute(forName: "transport")?.stringValue {
+            guard transport == SOAP_HTTP else {
+                throw ParseError.unsupportedTransport(transport)
+            }
+        } else if let transport = element.elements(forLocalName: "binding", uri: NS_SOAP12).first?.attribute(forName: "transport")?.stringValue {
+            guard transport == SOAP_HTTP else {
+                throw ParseError.unsupportedTransport(transport)
+            }
+        } else {
+            throw ParseError.noTransport
+        }
+
         self.name = QualifiedName(uri: try targetNamespace(ofNode: element), localName: element.attribute(forName: "name")!.stringValue!)
         self.type = try QualifiedName(type: element.attribute(forName: "type")!.stringValue!, inTree: element)
-        self.operations = try element.elements(forLocalName: "operation", uri: NS_WSDL).map(Operation.init(deserialize:))
+        self.operations = try element.elements(forLocalName: "operation", uri: NS_WSDL).flatMap {
+            do {
+                return try Operation.init(deserialize: $0)
+            } catch ParseError.unsupportedOperation {
+                return nil
+            }
+        }
     }
 }
 
@@ -163,7 +210,13 @@ public struct Service {
     init(deserialize element: XMLElement) throws {
         self.name = QualifiedName(uri: try targetNamespace(ofNode: element), localName: element.attribute(forName: "name")!.stringValue!)
         self.documentation = element.elements(forLocalName: "documentation", uri: NS_WSDL).first?.stringValue
-        self.ports = try element.elements(forLocalName: "port", uri: NS_WSDL).map(Port.init(deserialize:))
+        self.ports = try element.elements(forLocalName: "port", uri: NS_WSDL).flatMap {
+            do {
+                return try Port.init(deserialize: $0)
+            } catch WebServiceDescriptionParseError.unsupportedPortAddress {
+                return nil
+            }
+        }
     }
 }
 
@@ -238,7 +291,15 @@ public struct WebServiceDescription {
         self.schema = Schema(nodes: nodes)
         messages = try element.elements(forLocalName: "message", uri: NS_WSDL).map(Message.init(deserialize:))
         portTypes = try element.elements(forLocalName: "portType", uri: NS_WSDL).map(PortType.init(deserialize:))
-        bindings = try element.elements(forLocalName: "binding", uri: NS_WSDL).map(Binding.init(deserialize:))
+        bindings = try element.elements(forLocalName: "binding", uri: NS_WSDL).flatMap {
+            do {
+                return try Binding.init(deserialize: $0)
+            } catch Binding.ParseError.noTransport {
+                return nil
+            } catch let error as Binding.ParseError {
+                throw WebServiceDescriptionParseError.bindingParseError(error)
+            }
+        }
         services = try element.elements(forLocalName: "service", uri: NS_WSDL).map(Service.init(deserialize:))
     }
 }
@@ -253,14 +314,10 @@ fileprivate func targetNamespace(ofNode node: XMLElement) throws -> String {
 public enum WebServiceDescriptionParseError: Error {
     case incorrectRootElement
     case unsupportedPortAddress(QualifiedName)
-    case unsupportedOperation(QualifiedName)
-    case bindingOperationMissingInput(QualifiedName)
-    case bindingOperationMissingOutput(QualifiedName)
-    case unsupportedBindingOperationEncoding(QualifiedName)
-    case invalidOperationStyleForBindingOperation(QualifiedName)
     case nodeWithoutTargetNamespace
     case schemaWithoutTargetNamespace
     case missingImportedNamespaces(Set<String>)
+    case bindingParseError(Binding.ParseError)
 }
 
 extension WebServiceDescriptionParseError: CustomStringConvertible {
@@ -270,22 +327,14 @@ extension WebServiceDescriptionParseError: CustomStringConvertible {
             return "incorrect root element. The root element of the WSDL should be (\(NS_WSDL))definitions."
         case let .unsupportedPortAddress(port):
             return "port address of port '\(port)' is unsupported. The port address must be either (\(NS_SOAP))address or (\(NS_SOAP12))address."
-        case let .unsupportedOperation(operation):
-            return "binding operation '\(operation)' is invalid. The operation must be either (\(NS_SOAP))operation or (\(NS_SOAP12))operation."
-        case let .bindingOperationMissingInput(operation):
-            return "binding operation '\(operation)' contains an operation without an input."
-        case let .bindingOperationMissingOutput(operation):
-            return "binding operation '\(operation)' contains an operation without an output."
-        case let .unsupportedBindingOperationEncoding(operation):
-            return "binding operation '\(operation)' contains a message with unsupported encoding."
-        case let .invalidOperationStyleForBindingOperation(operation):
-            return "binding operation '\(operation)' has an invalid operation style."
         case .nodeWithoutTargetNamespace:
             return "schema node must have a target namespace."
         case .schemaWithoutTargetNamespace:
             return "schema must have a target namespace."
         case let .missingImportedNamespaces(namespaces):
             return "some namespaces were required, but have not been imported: \(namespaces)."
+        case let .bindingParseError(error):
+            return "a binding could not be parsed, the underlying error: \(error)"
         }
     }
 }

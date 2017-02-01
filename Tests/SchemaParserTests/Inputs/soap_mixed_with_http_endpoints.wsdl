@@ -1,0 +1,119 @@
+<wsdl:definitions targetNamespace="http://tempuri.org/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:tns="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+    <wsdl:types>
+        <s:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/">
+            <s:element name="GetSMSCodes">
+                <s:complexType>
+                    <s:sequence>
+                        <s:element maxOccurs="1" minOccurs="0" name="identifier" type="s:string"/>
+                    </s:sequence>
+                </s:complexType>
+            </s:element>
+            <s:element name="GetSMSCodesResponse">
+                <s:complexType>
+                    <s:sequence>
+                        <s:element maxOccurs="1" minOccurs="0" name="GetSMSCodesResult" type="s:string"/>
+                    </s:sequence>
+                </s:complexType>
+            </s:element>
+            <s:element name="string" nillable="true" type="s:string"/>
+        </s:schema>
+    </wsdl:types>
+    <wsdl:message name="GetSMSCodesSoapIn">
+        <wsdl:part element="tns:GetSMSCodes" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="GetSMSCodesSoapOut">
+        <wsdl:part element="tns:GetSMSCodesResponse" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="GetSMSCodesHttpGetIn">
+        <wsdl:part name="identifier" type="s:string"/>
+    </wsdl:message>
+    <wsdl:message name="GetSMSCodesHttpGetOut">
+        <wsdl:part element="tns:string" name="Body"/>
+    </wsdl:message>
+    <wsdl:message name="GetSMSCodesHttpPostIn">
+        <wsdl:part name="identifier" type="s:string"/>
+    </wsdl:message>
+    <wsdl:message name="GetSMSCodesHttpPostOut">
+        <wsdl:part element="tns:string" name="Body"/>
+    </wsdl:message>
+    <wsdl:portType name="ExampleSoap">
+        <wsdl:operation name="GetSMSCodes">
+            <wsdl:input message="tns:GetSMSCodesSoapIn"/>
+            <wsdl:output message="tns:GetSMSCodesSoapOut"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:portType name="ExampleHttpGet">
+        <wsdl:operation name="GetSMSCodes">
+            <wsdl:input message="tns:GetSMSCodesHttpGetIn"/>
+            <wsdl:output message="tns:GetSMSCodesHttpGetOut"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:portType name="ExampleHttpPost">
+        <wsdl:operation name="GetSMSCodes">
+            <wsdl:input message="tns:GetSMSCodesHttpPostIn"/>
+            <wsdl:output message="tns:GetSMSCodesHttpPostOut"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="ExampleSoap" type="tns:ExampleSoap">
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="GetSMSCodes">
+            <soap:operation soapAction="http://tempuri.org/GetSMSCodes" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="ExampleSoap12" type="tns:ExampleSoap">
+        <soap12:binding transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="GetSMSCodes">
+            <soap12:operation soapAction="http://tempuri.org/GetSMSCodes" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="ExampleHttpGet" type="tns:ExampleHttpGet">
+        <http:binding verb="GET"/>
+        <wsdl:operation name="GetSMSCodes">
+            <http:operation location="/GetSMSCodes"/>
+            <wsdl:input>
+                <http:urlEncoded/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:mimeXml part="Body"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="ExampleHttpPost" type="tns:ExampleHttpPost">
+        <http:binding verb="POST"/>
+        <wsdl:operation name="GetSMSCodes">
+            <http:operation location="/GetSMSCodes"/>
+            <wsdl:input>
+                <mime:content type="application/x-www-form-urlencoded"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:mimeXml part="Body"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="Example">
+        <wsdl:port binding="tns:ExampleSoap" name="ExampleSoap">
+            <soap:address location="http://tempuri.org/Example.asmx"/>
+        </wsdl:port>
+        <wsdl:port binding="tns:ExampleSoap12" name="ExampleSoap12">
+            <soap12:address location="http://tempuri.org/Example.asmx"/>
+        </wsdl:port>
+        <wsdl:port binding="tns:ExampleHttpGet" name="ExampleHttpGet">
+            <http:address location="http://tempuri.org/Example.asmx"/>
+        </wsdl:port>
+        <wsdl:port binding="tns:ExampleHttpPost" name="ExampleHttpPost">
+            <http:address location="http://tempuri.org/Example.asmx"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

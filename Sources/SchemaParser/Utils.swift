@@ -13,6 +13,7 @@ public let NS_XS = "http://www.w3.org/2001/XMLSchema"
 /// SOAP 1.2 Namespace URI
 public let NS_SOAP12 = "http://schemas.xmlsoap.org/wsdl/soap12/"
 
+internal let SOAP_HTTP = "http://schemas.xmlsoap.org/soap/http"
 
 extension Sequence {
     public func dictionary<Key, Value>(_ pair: (Iterator.Element) -> (Key, Value)) -> [Key: Value] where Key: Hashable {

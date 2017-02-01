@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:tns="http://www.dataaccess.com/webservicesserver/" name="NumberConversion" targetNamespace="http://www.dataaccess.com/webservicesserver/">
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:tns="http://tempuri.org/" name="NumberConversion" targetNamespace="http://tempuri.org/">
   <types>
-    <xs:schema elementFormDefault="qualified" targetNamespace="http://www.dataaccess.com/webservicesserver/">
+    <xs:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/">
       <xs:element name="NumberToWords">
         <xs:complexType>
           <xs:sequence>
@@ -101,10 +101,10 @@
   <service name="NumberConversion">
     <documentation>The Number Conversion Web Service, implemented with DataFlex, provides functions that convert numbers into words or dollar amounts.</documentation>
     <port name="NumberConversionSoap" binding="tns:NumberConversionSoapBinding">
-      <soap:address location="http://www.dataaccess.com/webservicesserver/numberconversion.wso"/>
+      <soap:address location="http://tempuri.org/numberconversion.wso"/>
     </port>
     <port name="NumberConversionSoap12" binding="tns:NumberConversionSoapBinding12">
-      <soap12:address location="http://www.dataaccess.com/webservicesserver/numberconversion.wso"/>
+      <soap12:address location="http://tempuri.org/numberconversion.wso"/>
     </port>
   </service>
 </definitions>

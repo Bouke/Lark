@@ -178,4 +178,11 @@ class CodeGeneratorTests: XCTestCase {
         let actual = try generate(webService: webService, service: webService.services.first!).components(separatedBy: "\n")
         XCTAssertCode(actual: actual, expected: expected)
     }
+
+    func testSOAPMixedWithHTTPEndpoints() throws {
+        let webService = try deserializeWebServiceDescription("soap_mixed_with_http_endpoints.wsdl")
+        let expected = try readlines("soap_mixed_with_http_endpoints.txt")
+        let actual = try generate(webService: webService, service: webService.services.first!).components(separatedBy: "\n")
+        XCTAssertCode(actual: actual, expected: expected)
+    }
 }

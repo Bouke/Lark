@@ -13,7 +13,7 @@ class WebServiceDescriptionTests: XCTestCase {
     }
 
     func qname(_ localName: String) -> QualifiedName {
-        return QualifiedName(uri: "http://www.dataaccess.com/webservicesserver/", localName: localName)
+        return QualifiedName(uri: "http://tempuri.org/", localName: localName)
     }
 
     func testNumberConversion() throws {
@@ -77,5 +77,32 @@ class WebServiceDescriptionTests: XCTestCase {
         } catch {
             XCTFail("Parse error: \(error)")
         }
+    }
+
+    func testSOAPMixedWithHTTPEndpoints() {
+        let webService: WebServiceDescription
+        do {
+            webService = try deserialize("soap_mixed_with_http_endpoints.wsdl")
+        } catch {
+            return XCTFail("Could not parse WSDL: \(error)")
+        }
+        XCTAssertEqual(webService.bindings.count, 2)
+        XCTAssertEqual(webService.bindings.first?.name, qname("ExampleSoap"))
+        XCTAssertEqual(webService.bindings.map({ $0.operations }).count, 2)
+
+        XCTAssertEqual(webService.messages.count, 6)
+        XCTAssertEqual(webService.messages.first?.name, qname("GetSMSCodesSoapIn"))
+        XCTAssertEqual(webService.messages.flatMap({ $0.parts }).count, 6)
+
+        XCTAssertEqual(webService.portTypes.count, 3)
+        XCTAssertEqual(webService.portTypes.first?.name, qname("ExampleSoap"))
+        XCTAssertEqual(webService.portTypes.flatMap({ $0.operations }).count, 3)
+
+        XCTAssertEqual(webService.schema.count, 3)
+        XCTAssertEqual(webService.schema.first?.element?.name, qname("GetSMSCodes"))
+
+        XCTAssertEqual(webService.services.count, 1)
+        XCTAssertEqual(webService.services.first?.name, qname("Example"))
+        XCTAssertEqual(webService.services.flatMap({ $0.ports }).count, 2)
     }
 }
