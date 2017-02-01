@@ -416,7 +416,7 @@ extension SwiftList {
 extension SwiftClientClass {
     public func toLinesOfCode(at indentation: Indentation) -> [LineOfCode] {
         return indentation.apply(
-            toFirstLine: "class \(name): Client {",
+            toFirstLine: "class \(name): Lark.Client {",
             nestedLines:      linesOfCodeForMembers(at:),
             andLastLine: "}")
     }

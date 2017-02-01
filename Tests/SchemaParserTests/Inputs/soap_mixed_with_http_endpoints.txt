@@ -56,7 +56,7 @@ typealias StringType = String?
 //
 // MARK: - SOAP Client
 //
-class ExampleClient: Client {
+class ExampleClient: Lark.Client {
     static let defaultEndpoint = URL(string: "http://tempuri.org/Example.asmx")!
     override init(endpoint: URL = ExampleClient.defaultEndpoint, sessionManager: SessionManager = SessionManager()) {
         super.init(endpoint: endpoint, sessionManager: sessionManager)

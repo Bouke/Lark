@@ -12,7 +12,7 @@ import Lark
 //
 // MARK: - SOAP Client
 //
-class TestClient: Client {
+class TestClient: Lark.Client {
     static let defaultEndpoint = URL(string: "http://localhost")!
     override init(endpoint: URL = TestClient.defaultEndpoint, sessionManager: SessionManager = SessionManager()) {
         super.init(endpoint: endpoint, sessionManager: sessionManager)
