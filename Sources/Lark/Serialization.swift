@@ -226,20 +226,43 @@ extension Data: XMLDeserializable, XMLSerializable {
 }
 
 extension Date: XMLDeserializable, XMLSerializable {
-    static let isoDateFormatter: DateFormatter = {
+    static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(identifier: "UTC")!
         formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
         return formatter
     }()
+
+    static let fallbackDateFormatters: [DateFormatter] = [
+        {
+            let formatter = DateFormatter()
+            formatter.locale = Locale(identifier: "en_US_POSIX")
+            formatter.timeZone = TimeZone(identifier: "UTC")!
+            formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+            return formatter
+        }()
+    ]
+
     public init(deserialize node: XMLElement) throws {
-        guard let value = Date.isoDateFormatter.date(from: node.stringValue ?? "") else {
+        guard let stringValue = node.stringValue else {
             throw XMLDeserializationError.cannotDeserialize
         }
-        self = value
+        if let value = Date.dateFormatter.date(from: stringValue) {
+            self = value
+            return
+        }
+        for fallback in Date.fallbackDateFormatters {
+            guard let value = fallback.date(from: stringValue) else {
+                continue
+            }
+            self = value
+            return
+        }
+        throw XMLDeserializationError.cannotDeserialize
     }
     public func serialize(_ element: XMLElement) throws {
-        element.stringValue = Date.isoDateFormatter.string(from: self)
+        element.stringValue = Date.dateFormatter.string(from: self)
     }
 }
 
