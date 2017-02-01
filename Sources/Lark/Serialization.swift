@@ -236,10 +236,27 @@ extension Date: XMLDeserializable, XMLSerializable {
 
     static let fallbackDateFormatters: [DateFormatter] = [
         {
+            // formatter with milliseconds
+            let formatter = DateFormatter()
+            formatter.locale = Locale(identifier: "en_US_POSIX")
+            formatter.timeZone = TimeZone(identifier: "UTC")!
+            formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ"
+            return formatter
+        }(),
+        {
+            // formatter without timezone identifier
             let formatter = DateFormatter()
             formatter.locale = Locale(identifier: "en_US_POSIX")
             formatter.timeZone = TimeZone(identifier: "UTC")!
             formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+            return formatter
+        }(),
+        {
+            // formatter with milliseconds and without timezone identifier
+            let formatter = DateFormatter()
+            formatter.locale = Locale(identifier: "en_US_POSIX")
+            formatter.timeZone = TimeZone(identifier: "UTC")!
+            formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS"
             return formatter
         }()
     ]

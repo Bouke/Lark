@@ -124,17 +124,27 @@ class TypesTests: XCTestCase {
     }
 
     func testDate() {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ"
+
         test(value: Date(timeIntervalSinceReferenceDate: 0), expected: "<test>2001-01-01T00:00:00Z</test>")
         test(serialized: "<test>2001-01-01T00:00:00Z</test>", expected: Date(timeIntervalSinceReferenceDate: 0))
 
         Date.dateFormatter.timeZone = TimeZone(identifier: "Europe/Amsterdam")!
         test(value: Date(timeIntervalSinceReferenceDate: 0), expected: "<test>2001-01-01T01:00:00+01:00</test>")
         test(serialized: "<test>2001-01-01T00:00:00Z</test>", expected: Date(timeIntervalSinceReferenceDate: 0))
+        Date.dateFormatter.timeZone = TimeZone(identifier: "UTC")!
 
         // needs a fallback dateformatter as the timezone is missing
         test(serialized: "<test>2001-01-01T00:00:00</test>", expected: Date(timeIntervalSinceReferenceDate: 0))
 
-        Date.dateFormatter.timeZone = TimeZone(identifier: "UTC")!
+        // needs a fallback dateformatter as it contains milliseconds
+        test(serialized: "<test>2014-04-11T09:01:33.241Z</test>",
+             expected: formatter.date(from: "2014-04-11T09:01:33.241Z")!)
+
+        // needs a fallback dateformatter as it contains milliseconds and no timezone identifier
+        test(serialized: "<test>2014-04-11T09:01:33.241</test>",
+             expected: formatter.date(from: "2014-04-11T09:01:33.241Z")!)
     }
 
     func testQualifiedName() {
