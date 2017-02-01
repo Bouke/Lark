@@ -237,6 +237,10 @@ public struct ComplexType: NamedType {
     public enum Content {
         public struct Sequence {
             public let elements: [Element]
+
+            init(deserialize node: XMLElement) throws {
+                elements = try node.elements(forLocalName: "element", uri: NS_XS).map(Element.init(deserialize:))
+            }
         }
         case sequence(Sequence)
 
@@ -244,6 +248,15 @@ public struct ComplexType: NamedType {
             public enum Content {
                 public enum Content {
                     case sequence(Sequence)
+
+                    init(deserialize node: XMLElement) throws {
+                        if let sequence = node.elements(forLocalName: "sequence", uri: NS_XS).first {
+                            self = .sequence(try .init(deserialize: sequence))
+                        } else {
+                            // there's a few others (e.g. choice)
+                            throw SchemaParseError.complexContentContentNotSupported
+                        }
+                    }
                 }
 
                 case restriction(Content)
@@ -251,6 +264,19 @@ public struct ComplexType: NamedType {
             }
             public let base: QualifiedName
             public let content: Content
+
+            init(deserialize node: XMLElement) throws {
+                if let restriction = node.elements(forLocalName: "restriction", uri: NS_XS).first {
+                    base = try .init(type: restriction.attribute(forName: "base")!.stringValue!, inTree: node)
+                    content = .restriction(try .init(deserialize: restriction))
+                } else if let `extension` = node.elements(forLocalName: "extension", uri: NS_XS).first {
+                    base = try .init(type: `extension`.attribute(forName: "base")!.stringValue!, inTree: node)
+                    content = .`extension`(try .init(deserialize: `extension`))
+                } else {
+                    // should not happen, restriction and extension are the only valid content types
+                    throw SchemaParseError.invalidComplexContentContent
+                }
+            }
         }
         case complex(ComplexContent)
         case empty
@@ -258,9 +284,7 @@ public struct ComplexType: NamedType {
 
     public let name: QualifiedName?
     public let content: Content
-}
 
-extension ComplexType {
     init(deserialize node: XMLElement) throws {
         name = try .name(ofElement: node)
 
@@ -278,38 +302,6 @@ extension ComplexType {
             content = .sequence(try Content.Sequence(deserialize: sequence))
         } else {
             content = .empty
-        }
-    }
-}
-
-extension ComplexType.Content.Sequence {
-    init(deserialize node: XMLElement) throws {
-        elements = try node.elements(forLocalName: "element", uri: NS_XS).map(Element.init(deserialize:))
-    }
-}
-
-extension ComplexType.Content.ComplexContent {
-    init(deserialize node: XMLElement) throws {
-        if let restriction = node.elements(forLocalName: "restriction", uri: NS_XS).first {
-            base = try .init(type: restriction.attribute(forName: "base")!.stringValue!, inTree: node)
-            content = .restriction(try .init(deserialize: restriction))
-        } else if let `extension` = node.elements(forLocalName: "extension", uri: NS_XS).first {
-            base = try .init(type: `extension`.attribute(forName: "base")!.stringValue!, inTree: node)
-            content = .`extension`(try .init(deserialize: `extension`))
-        } else {
-            // should not happen, restriction and extension are the only valid content types
-            throw SchemaParseError.invalidComplexContentContent
-        }
-    }
-}
-
-extension ComplexType.Content.ComplexContent.Content.Content {
-    init(deserialize node: XMLElement) throws {
-        if let sequence = node.elements(forLocalName: "sequence", uri: NS_XS).first {
-            self = .sequence(try .init(deserialize: sequence))
-        } else {
-            // there's a few others (e.g. choice)
-            throw SchemaParseError.complexContentContentNotSupported
         }
     }
 }
