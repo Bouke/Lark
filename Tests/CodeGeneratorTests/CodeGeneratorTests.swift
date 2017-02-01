@@ -172,6 +172,12 @@ class CodeGeneratorTests: XCTestCase {
         XCTAssertCode(actual: try schema.generateCode(), expected: expected)
     }
 
+    func testComplexNestedType() throws {
+        let schema = try deserialize("complex_nested_type.xsd")
+        let expected = try readlines("complex_nested_type.txt")
+        XCTAssertCode(actual: try schema.generateCode(), expected: expected)
+    }
+
     func testMessageWithType() throws {
         let webService = try deserializeWebServiceDescription("message_with_type.wsdl")
         let expected = try readlines("message_with_type.txt")

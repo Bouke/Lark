@@ -1,0 +1,36 @@
+class Foo: XMLDeserializable {
+    let bar: Bar
+    init(bar: Bar) {
+        self.bar = bar
+    }
+    required init(deserialize element: XMLElement) throws {
+        do {
+            guard let node = element.elements(forLocalName: "bar", uri: "http://tempuri.org/tns").first else {
+                throw XMLDeserializationError.noElementWithName(QualifiedName(uri: "http://tempuri.org/tns", localName: "bar"))
+            }
+            self.bar = try Bar(deserialize: node)
+        }
+    }
+    func serialize(_ element: XMLElement) throws {
+        let barNode = element.createChildElement(localName: "bar", uri: "http://tempuri.org/tns")
+        try bar.serialize(barNode)
+    }
+    class Bar: XMLDeserializable {
+        let buz: String
+        init(buz: String) {
+            self.buz = buz
+        }
+        required init(deserialize element: XMLElement) throws {
+            do {
+                guard let node = element.elements(forLocalName: "buz", uri: "http://tempuri.org/tns").first else {
+                    throw XMLDeserializationError.noElementWithName(QualifiedName(uri: "http://tempuri.org/tns", localName: "buz"))
+                }
+                self.buz = try String(deserialize: node)
+            }
+        }
+        func serialize(_ element: XMLElement) throws {
+            let buzNode = element.createChildElement(localName: "buz", uri: "http://tempuri.org/tns")
+            try buz.serialize(buzNode)
+        }
+    }
+}

@@ -6,6 +6,8 @@ import Lark
 
 extension ComplexType {
     public func toSwift(name: String? = nil, mapping: TypeMapping, types: Types) -> SwiftTypeClass {
+        precondition(name != nil || self.name != nil, "No name specified for complexType")
+
         let name = name ?? mapping[.type(self.name!)]!
         let base: SwiftTypeClass?
         let properties: [SwiftProperty]
@@ -45,10 +47,13 @@ extension ComplexType {
                     type: .init(type: mapping[.type(base)]!, element: element),
                     element: element))
             case let .complex(complex):
-                nestedTypes.append(complex.toSwift(mapping: mapping, types: types))
+                // @todo don't generate type name here, but delegate to something 
+                // like a `Scope` type that handles inherited scope as well.
+                let type = element.name.localName.toSwiftTypeName()
+                nestedTypes.append(complex.toSwift(name: type, mapping: mapping, types: types))
                 properties.append(SwiftProperty(
                     name: element.name.localName.toSwiftPropertyName(),
-                    type: .init(type: "UNNAMED", element: element),
+                    type: .init(type: type, element: element),
                     element: element))
             }
         }

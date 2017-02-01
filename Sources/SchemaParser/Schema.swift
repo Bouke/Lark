@@ -238,6 +238,9 @@ public struct ComplexType: NamedType {
         public struct Sequence {
             public let elements: [Element]
 
+            init(elements: [Element]) {
+                self.elements = elements
+            }
             init(deserialize node: XMLElement) throws {
                 elements = try node.elements(forLocalName: "element", uri: NS_XS).map(Element.init(deserialize:))
             }
@@ -290,6 +293,11 @@ public struct ComplexType: NamedType {
 
     public let name: QualifiedName?
     public let content: Content
+
+    init(name: QualifiedName?, content: Content) {
+        self.name = name
+        self.content = content
+    }
 
     init(deserialize node: XMLElement) throws {
         name = try .name(ofElement: node)
