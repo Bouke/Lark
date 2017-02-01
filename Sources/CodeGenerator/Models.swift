@@ -2,7 +2,7 @@ import Foundation
 import SchemaParser
 import Lark
 
-// MARK:- SOAP Types
+// MARK: - SOAP Types
 
 indirect enum SwiftType {
     case identifier(Identifier)
@@ -31,7 +31,7 @@ indirect enum SwiftType {
 }
 
 extension SwiftType: Equatable {
-    static func ==(lhs: SwiftType, rhs: SwiftType) -> Bool {
+    static func == (lhs: SwiftType, rhs: SwiftType) -> Bool {
         switch (lhs, rhs) {
         case let (.identifier(lhs), .identifier(rhs)): return lhs == rhs
         case let (.optional(lhs), .optional(rhs)): return lhs == rhs
@@ -64,7 +64,13 @@ public class SwiftTypeClass: SwiftMetaType {
     let nestedTypes: [SwiftMetaType]
     let members: [LinesOfCodeConvertible]
 
-    init(name: String, base: SwiftTypeClass? = nil, protocols: [String] = [], properties: [SwiftProperty] = [], nestedTypes: [SwiftMetaType] = [], members: [LinesOfCodeConvertible] = []) {
+    init(
+        name: String,
+        base: SwiftTypeClass? = nil,
+        protocols: [String] = [],
+        properties: [SwiftProperty] = [],
+        nestedTypes: [SwiftMetaType] = [],
+        members: [LinesOfCodeConvertible] = []) {
         self.name = name
         self.base = base
         self.protocols = protocols

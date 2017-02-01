@@ -53,7 +53,7 @@ extension StringSerializableList {
 
 extension StringSerializableList where Element: Equatable {
     /// Returns `true` if these lists contain the same elements.
-    public static func ==(lhs: Self, rhs: Self) -> Bool {
+    public static func == (lhs: Self, rhs: Self) -> Bool {
         return lhs._contents == rhs._contents
     }
 }

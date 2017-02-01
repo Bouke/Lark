@@ -12,12 +12,10 @@ enum ChangeType {
     case insert, delete, noop
 
     var description: String {
-        get {
-            switch self {
-            case .insert: return "+"
-            case .delete: return "-"
-            case .noop: return "="
-            }
+        switch self {
+        case .insert: return "+"
+        case .delete: return "-"
+        case .noop: return "="
         }
     }
 }
@@ -32,15 +30,13 @@ struct Change<T> {
     }
 
     var description: String {
-        get {
-            switch type {
-            case .insert:
-                return "[+\(elementsString)]"
-            case .delete:
-                return "[-\(elementsString)]"
-            default:
-                return "\(elementsString)"
-            }
+        switch type {
+        case .insert:
+            return "[+\(elementsString)]"
+        case .delete:
+            return "[-\(elementsString)]"
+        default:
+            return "\(elementsString)"
         }
     }
 }

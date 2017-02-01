@@ -1,7 +1,6 @@
 import Alamofire
 import Foundation
 
-
 extension DataRequest {
     func validateSOAP() -> Self {
         return validate { _, response, data in
@@ -22,7 +21,6 @@ extension DataRequest {
         }
     }
 }
-
 
 /// Typed error message returned by the server.
 ///
@@ -55,7 +53,7 @@ public struct Fault: Error, CustomStringConvertible {
         return "Fault(code=\(faultcode), actor=\(actor), string=\(faultstring), detail=\(detail))"
     }
 
-    // MARK:- Internal API
+    // MARK: - Internal API
 
     /// Deserializes a `<soap:fault/>` into a `Fault` instance.
     ///

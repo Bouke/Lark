@@ -40,7 +40,7 @@ extension Type {
 }
 
 extension Type: Equatable, Hashable {
-    public static func ==(lhs: Type, rhs: Type) -> Bool {
+    public static func == (lhs: Type, rhs: Type) -> Bool {
         switch(lhs, rhs) {
         case let (.element(lhs), .element(rhs)): return lhs == rhs
         case let (.type(lhs), .type(rhs)): return lhs == rhs
@@ -75,7 +75,6 @@ enum ElementHierarchy {
     typealias Graph = CodeGenerator.Graph<Node>
 }
 
-
 public func generate(webService: WebServiceDescription, service: Service) throws -> String {
     // Verify service has a SOAP 1.1 port.
     guard let port = service.ports.first(where: { if case .soap11 = $0.address { return true } else { return false } }) else {
@@ -100,7 +99,6 @@ public func generate(webService: WebServiceDescription, service: Service) throws
 
     return SwiftCodeGenerator.generateCode(for: Array(types.values), clients)
 }
-
 
 func generateTypes(inSchema schema: Schema) throws -> Types {
     var mapping: TypeMapping = baseTypes.dictionary { (Type.type($0), $1) }
@@ -226,10 +224,9 @@ let baseTypes: [QualifiedName: Identifier] = [
     QualifiedName(uri: NS_XS, localName: "dateTime"): "Date",
     QualifiedName(uri: NS_XS, localName: "duration"): "TimeInterval",
     QualifiedName(uri: NS_XS, localName: "QName"): "QualifiedName",
-    QualifiedName(uri: NS_XS, localName: "anyType"): "AnyType",
+    QualifiedName(uri: NS_XS, localName: "anyType"): "AnyType"
 ]
 
 let globalScope: Set<String> = Set(baseTypes.values + [
-    "Lark",
+    "Lark"
     ])
-

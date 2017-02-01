@@ -1,3 +1,5 @@
+// swiftlint:disable nesting
+
 import Foundation
 import Lark
 
@@ -231,7 +233,6 @@ extension SimpleType {
         }
     }
 }
-
 
 public struct ComplexType: NamedType {
     public enum Content {

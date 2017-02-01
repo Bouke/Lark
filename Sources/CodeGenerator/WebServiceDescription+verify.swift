@@ -147,7 +147,7 @@ extension WebServiceDescription {
 }
 
 extension WebServiceDescription.Node: Equatable, Hashable {
-    static func ==(lhs: WebServiceDescription.Node, rhs: WebServiceDescription.Node) -> Bool {
+    static func == (lhs: WebServiceDescription.Node, rhs: WebServiceDescription.Node) -> Bool {
         switch(lhs, rhs) {
         case let (.service(lhs), .service(rhs)): return lhs == rhs
         case let (.binding(lhs), .binding(rhs)): return lhs == rhs

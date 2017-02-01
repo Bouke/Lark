@@ -12,7 +12,7 @@ extension XMLDeserializable {
 
 class TypesTests: XCTestCase {
 
-    //MARK: Signed integers
+    // MARK: Signed integers
 
     func testInt8() {
         test(value: Int8(-128), expected: "<test>-128</test>")
@@ -41,7 +41,7 @@ class TypesTests: XCTestCase {
         test(value: Int64(1234), expected: "<test>1234</test>")
     }
 
-    //MARK: Unsigned integers
+    // MARK: Unsigned integers
 
     func testUInt8() {
         test(value: UInt8(0), expected: "<test>0</test>")
@@ -63,7 +63,7 @@ class TypesTests: XCTestCase {
         test(value: UInt64(1234), expected: "<test>1234</test>")
     }
 
-    //MARK: Numeric types
+    // MARK: Numeric types
 
     func testBool() {
         test(value: Bool(true), expected: "<test>true</test>")
@@ -105,7 +105,7 @@ class TypesTests: XCTestCase {
         test(value: Decimal(1234), expected: "<test>1234</test>")
     }
 
-    //MARK: Other types
+    // MARK: Other types
 
     func testString() {
         test(value: "foo", expected: "<test>foo</test>")
@@ -183,7 +183,6 @@ class TypesTests: XCTestCase {
     }
 }
 
-
 /// Asserts that the given serialization deserializes into the expected value
 ///
 /// - Parameters:
@@ -201,7 +200,6 @@ func test<T>(serialized: String, expected: T, file: StaticString = #file, line: 
     }
 }
 
-
 /// Asserts that the given value serializes into the expected serialization, and deserializes back to the original value
 ///
 /// - Parameters:
@@ -215,7 +213,7 @@ func test<T>(value: T, expected: String, file: StaticString = #file, line: UInt 
         try value.serialize(element)
         XCTAssertEqual(element.xmlString, expected, "serialization failed", file: file, line: line)
         let deserialized = try T(deserialize: element)
-        XCTAssertEqual(deserialized, value, "deserialization failed",file: file, line: line)
+        XCTAssertEqual(deserialized, value, "deserialization failed", file: file, line: line)
     } catch {
         XCTFail("Failed with error: \(error)", file: file, line: line)
     }

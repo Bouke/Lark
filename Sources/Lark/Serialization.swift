@@ -25,8 +25,8 @@ public protocol StringSerializable {
     func serialize() throws -> String
 }
 
-//MARK: - Base type serialization
-//MARK: Signed integers
+// MARK: - Base type serialization
+// MARK: Signed integers
 
 extension Int8: XMLDeserializable, XMLSerializable {
     public init(deserialize node: XMLElement) throws {
@@ -75,7 +75,7 @@ extension Int64: XMLDeserializable, XMLSerializable {
     }
 }
 
-//MARK: Unsigned integers
+// MARK: Unsigned integers
 
 extension UInt8: XMLDeserializable, XMLSerializable {
     public init(deserialize node: XMLElement) throws {
@@ -124,7 +124,7 @@ extension UInt64: XMLDeserializable, XMLSerializable {
     }
 }
 
-//MARK: Numeric types
+// MARK: Numeric types
 
 extension Bool: XMLDeserializable, XMLSerializable {
     public init(deserialize node: XMLElement) throws {
@@ -187,7 +187,7 @@ extension Decimal: XMLDeserializable, XMLSerializable {
     }
 }
 
-//MARK: Other types
+// MARK: Other types
 
 extension String: XMLDeserializable, XMLSerializable {
     public init(deserialize node: XMLElement) throws {
@@ -234,24 +234,21 @@ extension Date: XMLDeserializable, XMLSerializable {
         return formatter
     }()
 
-    static let fallbackDateFormatters: [DateFormatter] = [
-        {
+    static let fallbackDateFormatters: [DateFormatter] = [ {
             // formatter with milliseconds
             let formatter = DateFormatter()
             formatter.locale = Locale(identifier: "en_US_POSIX")
             formatter.timeZone = TimeZone(identifier: "UTC")!
             formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ"
             return formatter
-        }(),
-        {
+        }(), {
             // formatter without timezone identifier
             let formatter = DateFormatter()
             formatter.locale = Locale(identifier: "en_US_POSIX")
             formatter.timeZone = TimeZone(identifier: "UTC")!
             formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
             return formatter
-        }(),
-        {
+        }(), {
             // formatter with milliseconds and without timezone identifier
             let formatter = DateFormatter()
             formatter.locale = Locale(identifier: "en_US_POSIX")

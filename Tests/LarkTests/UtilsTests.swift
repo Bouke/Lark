@@ -17,13 +17,13 @@ class XMLElementTests: XCTestCase {
     func testCreateElement() throws {
         do {
             let root = XMLElement(name: "test")
-            let foo = root.createChildElement(localName: "foo", uri: namespaces[0])
+            _ = root.createChildElement(localName: "foo", uri: namespaces[0])
             XCTAssertEqual(root.xmlString, "<test xmlns:ns1=\"http://tempuri.org/0\"><ns1:foo></ns1:foo></test>")
         }
         do {
             let root = XMLElement(name: "test")
             let foo = root.createChildElement(localName: "foo", uri: namespaces[0])
-            let bar = foo.createChildElement(localName: "bar", uri: namespaces[1])
+            _ = foo.createChildElement(localName: "bar", uri: namespaces[1])
             XCTAssertEqual(root.xmlString, "<test xmlns:ns1=\"http://tempuri.org/0\"><ns1:foo xmlns:ns1=\"http://tempuri.org/1\"><ns1:bar></ns1:bar></ns1:foo></test>")
         }
     }

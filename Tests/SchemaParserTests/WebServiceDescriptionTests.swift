@@ -56,7 +56,9 @@ class WebServiceDescriptionTests: XCTestCase {
             XCTFail("Parsing WSDL with broken import should fail")
         } catch let error as NSError where error.code == 260 {
         } catch let error as NSError where error.code == -1014 {
-            XCTFail("Should have thrown error code 260 (file not found), not -1014 (zero byte resource). Possible cause is that a relative path was not resolved correctly.")
+            XCTFail("Should have thrown error code 260 (file not found), not "
+                    + "-1014 (zero byte resource). Possible cause is that a "
+                    + "relative path was not resolved correctly.")
         }
     }
 

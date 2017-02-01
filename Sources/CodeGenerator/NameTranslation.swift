@@ -4,7 +4,7 @@ internal extension String {
     static let caseRegex = {
         return try! NSRegularExpression(pattern: "([A-Z]+(?=$|[A-Z][a-z])|[A-Z]?[a-z]+)", options: [])
     }()
-    
+
     func toSwiftTypeName() -> String {
         let name = capitalizedWithoutInvalidChars.prefixedWithUnderscoreIfNecessary
         return name.isEmpty ? "DefaultStructName" : name

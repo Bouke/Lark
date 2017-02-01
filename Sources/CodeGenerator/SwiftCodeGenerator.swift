@@ -1,3 +1,5 @@
+// swiftlint:disable line_length
+
 import SchemaParser
 
 public typealias SwiftCode = String
@@ -94,7 +96,7 @@ extension SwiftBuiltin {
     }
 }
 
-// MARK:- SOAP Types
+// MARK: - SOAP Types
 
 extension SwiftTypeClass {
     public func toLinesOfCode(at indentation: Indentation) -> [LineOfCode] {
@@ -191,7 +193,8 @@ extension SwiftTypeClass {
                     case let .optional(.nillable(.identifier(identifier))):
                         return [
                             "do {",
-                            "    if let node = element.elements(forLocalName: \"\(element.localName)\", uri: \"\(element.uri)\").first, node.attribute(forLocalName: \"nil\", uri: NS_XSI)?.stringValue != \"true\" {",
+                            "    if let node = element.elements(forLocalName: \"\(element.localName)\", uri: \"\(element.uri)\").first,",
+                            "            node.attribute(forLocalName: \"nil\", uri: NS_XSI)?.stringValue != \"true\" {",
                             "        self.\(property.name) = try \(identifier)(deserialize: node)",
                             "    } else {",
                             "        self.\(property.name) = nil",
@@ -233,7 +236,7 @@ extension SwiftTypeClass {
                 case .identifier:
                     return [
                         "let \(property.name)Node = element.createChildElement(localName: \"\(element.localName)\", uri: \"\(element.uri)\")",
-                        "try \(property.name).serialize(\(property.name)Node)",
+                        "try \(property.name).serialize(\(property.name)Node)"
                     ]
                 case .optional(.identifier), .optional(.nillable(.identifier)):
                     return [
@@ -351,7 +354,7 @@ extension SwiftEnum {
     }
 
     private var sortedCases: [(String, String)] {
-        return cases.sorted(by: { return $0.key < $1.key } )
+        return cases.sorted(by: { return $0.key < $1.key })
     }
 
     private func linesOfCodeForXMLDeserializer(at indentation: Indentation) -> [LineOfCode] {
@@ -411,7 +414,7 @@ extension SwiftList {
     }
 }
 
-// MARK:- SOAP Client
+// MARK: - SOAP Client
 
 extension SwiftClientClass {
     public func toLinesOfCode(at indentation: Indentation) -> [LineOfCode] {
@@ -451,7 +454,7 @@ extension ServiceMethod: LinesOfCodeConvertible {
     func toLinesOfCode(at indentation: Indentation) -> [LineOfCode] {
         return syncCall(at: indentation) + asyncCall(at: indentation)
     }
-    
+
     func syncCall(at indentation: Indentation) -> [LineOfCode] {
         return indentation.apply(
             toFirstLine: "@discardableResult func \(name)(_ parameter: \(input.type)) throws -> \(output.type) {",
@@ -469,11 +472,11 @@ extension ServiceMethod: LinesOfCodeConvertible {
                 "        let node = envelope.body.elements(forLocalName: \"\(output.element.localName)\", uri: \"\(output.element.uri)\").first!",
                 "        return try \(output.type)(deserialize: node)",
                 "    })",
-                "return try response.result.resolve()",
+                "return try response.result.resolve()"
                 ],
             andLastLine: "}")
     }
-    
+
     func asyncCall(at indentation: Indentation) -> [LineOfCode] {
         return indentation.apply(
             toFirstLine: "@discardableResult func \(name)Async(_ parameter: \(input.type), completionHandler: @escaping (Result<\(output.type)>) -> Void) -> DataRequest {",
@@ -491,9 +494,8 @@ extension ServiceMethod: LinesOfCodeConvertible {
                 "        let node = envelope.body.elements(forLocalName: \"\(output.element.localName)\", uri: \"\(output.element.uri)\").first!",
                 "        return try \(output.type)(deserialize: node)",
                 "    },",
-                "    completionHandler: completionHandler)",
+                "    completionHandler: completionHandler)"
                 ],
             andLastLine: "}")
     }
 }
-

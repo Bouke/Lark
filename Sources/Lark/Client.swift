@@ -118,7 +118,6 @@ open class Client {
     }
 }
 
-
 struct Call: URLRequestConvertible {
     let endpoint: URL
     let action: URL
@@ -145,14 +144,12 @@ struct Call: URLRequestConvertible {
     }
 }
 
-
 extension DataRequest {
     @discardableResult
     func responseSOAP(
         queue: DispatchQueue? = nil,
         completionHandler: @escaping (_ response: DataResponse<Envelope>) -> Void)
-        -> Self
-    {
+        -> Self {
         return response(queue: queue, responseSerializer: EnvelopeDeserializer(), completionHandler: completionHandler)
     }
 }

@@ -2,7 +2,7 @@ import Foundation
 import SchemaParser
 import Lark
 
-// MARK:- SOAP Types
+// MARK: - SOAP Types
 
 extension ComplexType {
     public func toSwift(name: String? = nil, mapping: TypeMapping, types: Types) -> SwiftTypeClass {
@@ -36,7 +36,13 @@ extension ComplexType {
         return SwiftTypeClass(name: name, base: base, properties: properties, nestedTypes: nestedTypes)
     }
 
-    func sequenceToSwift(name: Identifier, sequence: Content.Sequence, mapping: TypeMapping, types: Types) -> (properties: [SwiftProperty], nested: [SwiftMetaType])  {
+    func sequenceToSwift(
+        name: Identifier,
+        sequence: Content.Sequence,
+        mapping: TypeMapping,
+        types: Types)
+        -> (properties: [SwiftProperty], nested: [SwiftMetaType])
+    {
         var properties: [SwiftProperty] = []
         var nestedTypes: [SwiftMetaType] = []
         for element in sequence.elements {
@@ -97,8 +103,7 @@ extension Element {
     }
 }
 
-
-// MARK:- SOAP Client
+// MARK: - SOAP Client
 
 extension Service {
     public func toSwift(webService: WebServiceDescription, types: Types) -> SwiftClientClass {
@@ -123,11 +128,16 @@ extension Service {
 
         //TODO: zip operations first; combinding port.operation and binding.operation
         let methods = portType.operations
-            .map { operation in (port: operation, binding: binding.operations.first(where: { $0.name == operation.name })!) }
+            .map { operation in
+                (port: operation, binding: binding.operations.first(where: { $0.name == operation.name })!)
+            }
             .map { operation -> ServiceMethod in
                 let input = message(operation.port.inputMessage)
                 let output = message(operation.port.outputMessage)
-                return ServiceMethod(operation: operation.port, input: input, output: output, action: operation.binding.action)
+                return ServiceMethod(operation: operation.port,
+                                     input: input,
+                                     output: output,
+                                     action: operation.binding.action)
             }
 
         return SwiftClientClass(name: name, methods: methods, port: port)

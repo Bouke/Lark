@@ -46,7 +46,6 @@ public struct Envelope {
     }
 }
 
-
 struct EnvelopeDeserializer: DataResponseSerializerProtocol {
     typealias SerializedObject = Envelope
     let serializeResponse: (URLRequest?, HTTPURLResponse?, Data?, Error?) -> Alamofire.Result<Envelope> = {
@@ -65,7 +64,6 @@ struct EnvelopeDeserializer: DataResponseSerializerProtocol {
     }
 }
 
-
 /// Adopt this protocol to create a custom SOAP header.
 /// 
 /// See also `Header` which provides a basic SOAP header.
@@ -79,7 +77,6 @@ public protocol HeaderSerializable {
     /// - Throws: can throw any error
     func serialize() throws -> XMLElement
 }
-
 
 /// Generic SOAP Header. SOAP provides a flexible mechanism for extending a 
 /// message in a decentralized and modular way without prior knowledge between

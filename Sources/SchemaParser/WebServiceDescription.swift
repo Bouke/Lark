@@ -1,3 +1,5 @@
+// swiftlint:disable nesting
+
 import Foundation
 import Lark
 
@@ -338,4 +340,3 @@ extension WebServiceDescriptionParseError: CustomStringConvertible {
         }
     }
 }
-

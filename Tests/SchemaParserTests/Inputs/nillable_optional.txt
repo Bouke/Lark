@@ -5,7 +5,8 @@ class Employee: XMLDeserializable {
     }
     required init(deserialize element: XMLElement) throws {
         do {
-            if let node = element.elements(forLocalName: "manager", uri: "http://tempuri.org/tns").first, node.attribute(forLocalName: "nil", uri: NS_XSI)?.stringValue != "true" {
+            if let node = element.elements(forLocalName: "manager", uri: "http://tempuri.org/tns").first,
+                    node.attribute(forLocalName: "nil", uri: NS_XSI)?.stringValue != "true" {
                 self.manager = try String(deserialize: node)
             } else {
                 self.manager = nil

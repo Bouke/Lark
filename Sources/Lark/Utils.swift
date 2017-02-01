@@ -84,7 +84,6 @@ extension XMLElement {
     }
 }
 
-
 extension XMLNode {
     /// Creates an attribute XMLNode with the given namespace prefix.
     ///
