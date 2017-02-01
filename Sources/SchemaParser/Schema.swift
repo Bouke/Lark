@@ -155,8 +155,11 @@ extension Element {
             content = .base(try QualifiedName(type: base, inTree: node))
         } else if let complex = node.elements(forLocalName: "complexType", uri: NS_XS).first {
             content = .complex(try ComplexType(deserialize: complex))
-        } else {
+        } else if let _ = node.elements(forLocalName: "simpleType", uri: NS_XS).first {
             throw SchemaParseError.elementContentNotSupported
+        } else {
+            // The default for xs:element/@type is ur-type, otherwise known as anyType.
+            content = .base(QualifiedName(uri: NS_XS, localName: "anyType"))
         }
 
         occurs = Element.range(node.attribute(forLocalName: "minOccurs", uri: nil)?.stringValue,

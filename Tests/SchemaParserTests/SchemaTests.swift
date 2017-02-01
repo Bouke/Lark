@@ -1,5 +1,6 @@
 import XCTest
 
+@testable import Lark
 @testable import SchemaParser
 
 class SchemaTests: XCTestCase {
@@ -46,4 +47,16 @@ class SchemaTests: XCTestCase {
         XCTAssertEqual(sequence.elements[1].nillable, true, "Should parse nillable=true as true")
         XCTAssertEqual(sequence.elements[2].nillable, false, "Should parse absence of nillable as false")
     }
+
+    func testElementWithoutType() throws {
+        let xsd = try deserialize("element_without_type.xsd")
+        XCTAssertEqual(xsd.count, 1)
+
+        guard let element = xsd.flatMap({ $0.element }).first,
+            case let .base(type) = element.content else {
+                return XCTFail("Expected element -> base")
+        }
+        XCTAssertEqual(type, QualifiedName(uri: NS_XS, localName: "anyType"))
+    }
+
 }
