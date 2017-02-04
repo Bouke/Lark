@@ -22,6 +22,9 @@ open class Client {
     /// SOAP headers that will be added on every outgoing `Envelope` (message).
     open var headers: [HeaderSerializable] = []
 
+    /// Optional delegate for this client instance.
+    open weak var delegate: ClientDelegate? = nil
+
     /// Instantiates a `Client`.
     ///
     /// - Parameters:
@@ -54,7 +57,9 @@ open class Client {
     {
         let semaphore = DispatchSemaphore(value: 0)
         var response: DataResponse<T>!
-        request(action: action, serialize: serialize).responseSOAP(queue: DispatchQueue.global(qos: .default)) {
+        let request = self.request(action: action, serialize: serialize)
+        delegate?.client(self, didSend: request)
+        request.responseSOAP(queue: DispatchQueue.global(qos: .default)) {
             response = DataResponse(
                 request: $0.request,
                 response: $0.response,
@@ -85,7 +90,9 @@ open class Client {
         completionHandler: @escaping (Result<T>) -> Void)
         -> DataRequest
     {
-        return request(action: action, serialize: serialize).responseSOAP {
+        let request = self.request(action: action, serialize: serialize)
+        delegate?.client(self, didSend: request)
+        return request.responseSOAP {
             do {
                 completionHandler(.success(try deserialize($0.result.resolve())))
             } catch {
@@ -116,6 +123,31 @@ open class Client {
             .validate(statusCode: [200, 500])
             .validateSOAP()
     }
+}
+
+/// Client delegate protocol. Can be used to inspect incoming and outgoing messages.
+///
+/// For example the following example shows how to print incoming and outgoing messages to
+/// standard output. You can adapt this code to log full message bodies to your logging 
+/// facility. The response completion handler must be scheduled on the global queue if there
+/// is no runloop (e.g. CLI applications).
+///
+///     class Logger: ClientDelegate {
+///         func client(_ client: Client, didSend request: DataRequest) {
+///             guard let httpRequest = request.request, let identifier = request.task?.taskIdentifier else {
+///                 return
+///             }
+///             print("[\(identifier)] > \(httpRequest) \(httpRequest.httpBody)")
+///             request.response(queue: DispatchQueue.global(qos: .default)) {
+///                 guard let httpResponse = $0.response else {
+///                     return
+///                 }
+///                 print("[\(identifier)] < \(httpResponse.statusCode) \($0.data)")
+///             }
+///         }
+///     }
+public protocol ClientDelegate: class {
+    func client(_: Client, didSend request: DataRequest)
 }
 
 struct Call: URLRequestConvertible {
