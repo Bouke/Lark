@@ -132,20 +132,22 @@ open class Client {
 /// facility. The response completion handler must be scheduled on the global queue if there
 /// is no runloop (e.g. CLI applications).
 ///
-///     class Logger: ClientDelegate {
-///         func client(_ client: Client, didSend request: DataRequest) {
-///             guard let httpRequest = request.request, let identifier = request.task?.taskIdentifier else {
+/// ```swift
+/// class Logger: ClientDelegate {
+///     func client(_ client: Client, didSend request: DataRequest) {
+///         guard let httpRequest = request.request, let identifier = request.task?.taskIdentifier else {
+///             return
+///         }
+///         print("[\(identifier)] > \(httpRequest) \(httpRequest.httpBody)")
+///         request.response(queue: DispatchQueue.global(qos: .default)) {
+///             guard let httpResponse = $0.response else {
 ///                 return
 ///             }
-///             print("[\(identifier)] > \(httpRequest) \(httpRequest.httpBody)")
-///             request.response(queue: DispatchQueue.global(qos: .default)) {
-///                 guard let httpResponse = $0.response else {
-///                     return
-///                 }
-///                 print("[\(identifier)] < \(httpResponse.statusCode) \($0.data)")
-///             }
+///             print("[\(identifier)] < \(httpResponse.statusCode) \($0.data)")
 ///         }
 ///     }
+/// }
+/// ```
 public protocol ClientDelegate: class {
 
     /// Will be called when a request has been sent. To see the response to the message,
