@@ -14,7 +14,7 @@
     <a title="Client Class Reference"></a>
     <header>
       <div class="content-wrapper">
-        <p><a href="../index.html">Lark Docs</a> (36% documented)</p>
+        <p><a href="../index.html">Lark Docs</a> (37% documented)</p>
         <p class="header-right"><a href="https://github.com/Bouke/Lark"><img src="../img/gh.png"/>View on GitHub</a></p>
         <p class="header-right"><a href="dash-feed://http%3A%2F%2Fboukehaarsma%2Enl%2FLark%2FLark%2Exml"><img src="../img/dash.png"/>Install in Dash</a></p>
       </div>
@@ -34,6 +34,9 @@
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a href="../Classes/Client.html">Client</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Protocols/ClientDelegate.html">ClientDelegate</a>
               </li>
               <li class="nav-group-task">
                 <a href="../Structs/Envelope.html">Envelope</a>
@@ -276,6 +279,33 @@ change without further warning.</p>
                 <li class="item">
                   <div>
                     <code>
+                    <a name="/s:vC4Lark6Client8delegateXwGSqPS_14ClientDelegate__"></a>
+                    <a name="//apple_ref/swift/Property/delegate" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vC4Lark6Client8delegateXwGSqPS_14ClientDelegate__">delegate</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Optional delegate for this client instance.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="n">open</span> <span class="k">weak</span> <span class="k">var</span> <span class="nv">delegate</span><span class="p">:</span> <span class="kt"><a href="../Protocols/ClientDelegate.html">ClientDelegate</a></span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
                     <a name="/s:FC4Lark6ClientcFT8endpointV10Foundation3URL14sessionManagerC9Alamofire14SessionManager_S0_"></a>
                     <a name="//apple_ref/swift/Method/init(endpoint:sessionManager:)" class="dashAnchor"></a>
                     <a class="token" href="#/s:FC4Lark6ClientcFT8endpointV10Foundation3URL14sessionManagerC9Alamofire14SessionManager_S0_">init(endpoint:sessionManager:)</a>
@@ -450,9 +480,9 @@ service was unable to process the request.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC4Lark6Client9callAsyncurFT6actionV10Foundation3URL9serializeFzVS_8EnvelopeS3_11deserializeFzS3_x17completionHandlerFGO9Alamofire6Resultx_T__CS4_11DataRequest"></a>
-                    <a name="//apple_ref/swift/Method/callAsync(action:serialize:deserialize:completionHandler:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC4Lark6Client9callAsyncurFT6actionV10Foundation3URL9serializeFzVS_8EnvelopeS3_11deserializeFzS3_x17completionHandlerFGO9Alamofire6Resultx_T__CS4_11DataRequest">callAsync(action:serialize:deserialize:completionHandler:)</a>
+                    <a name="/s:FC4Lark6Client4callurFT6actionV10Foundation3URL9serializeFzVS_8EnvelopeS3_11deserializeFzS3_x17completionHandlerFGO9Alamofire6Resultx_T__CS4_11DataRequest"></a>
+                    <a name="//apple_ref/swift/Method/call(action:serialize:deserialize:completionHandler:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC4Lark6Client4callurFT6actionV10Foundation3URL9serializeFzVS_8EnvelopeS3_11deserializeFzS3_x17completionHandlerFGO9Alamofire6Resultx_T__CS4_11DataRequest">call(action:serialize:deserialize:completionHandler:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -484,7 +514,7 @@ response handlers and to facilitate logging.</p>
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="n">open</span> <span class="kd">func</span> <span class="n">callAsync</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span><span class="p">(</span>
+                          <pre class="highlight"><code><span class="n">open</span> <span class="kd">func</span> <span class="n">call</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span><span class="p">(</span>
         <span class="nv">action</span><span class="p">:</span> <span class="kt">URL</span><span class="p">,</span>
         <span class="nv">serialize</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="p">(</span><span class="kt"><a href="../Structs/Envelope.html">Envelope</a></span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Structs/Envelope.html">Envelope</a></span><span class="p">,</span>
         <span class="nv">deserialize</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="p">(</span><span class="kt"><a href="../Structs/Envelope.html">Envelope</a></span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">T</span><span class="p">,</span>
@@ -565,7 +595,7 @@ response handlers and to facilitate logging.</p>
           </section>
         </section>
         <section id="footer">
-          <p>&copy; 2017 <a class="link" href="https://twitter.com/BoukeHaarsma" target="_blank" rel="external">Bouke Haarsma</a>. All rights reserved. (Last updated: 2017-01-30)</p>
+          <p>&copy; 2017 <a class="link" href="https://twitter.com/BoukeHaarsma" target="_blank" rel="external">Bouke Haarsma</a>. All rights reserved. (Last updated: 2017-02-04)</p>
           <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.3</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
         </section>
       </article>
