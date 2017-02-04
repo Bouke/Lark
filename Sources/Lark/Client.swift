@@ -147,6 +147,9 @@ open class Client {
 ///         }
 ///     }
 public protocol ClientDelegate: class {
+
+    /// Will be called when a request has been sent. To see the response to the message,
+    /// append a response handler; e.g. `request.response { ... }`.
     func client(_: Client, didSend request: DataRequest)
 }
 
