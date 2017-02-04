@@ -17,7 +17,8 @@ class TestClient: Lark.Client {
     override init(endpoint: URL = TestClient.defaultEndpoint, sessionManager: SessionManager = SessionManager()) {
         super.init(endpoint: endpoint, sessionManager: sessionManager)
     }
-    @discardableResult func test(_ parameter: String) throws -> String {
+    /// Call test synchronously
+    func test(_ parameter: String) throws -> String {
         let response = try call(
             action: URL(string: "")!,
             serialize: { envelope in
@@ -33,8 +34,9 @@ class TestClient: Lark.Client {
             })
         return try response.result.resolve()
     }
-    @discardableResult func testAsync(_ parameter: String, completionHandler: @escaping (Result<String>) -> Void) -> DataRequest {
-        return callAsync(
+    /// Call test asynchronously
+    @discardableResult func test(_ parameter: String, completionHandler: @escaping (Result<String>) -> Void) -> DataRequest {
+        return call(
             action: URL(string: "")!,
             serialize: { envelope in
                 let node = XMLElement(prefix: "ns0", localName: "string", uri: "http://www.w3.org/2001/XMLSchema")

@@ -83,7 +83,7 @@ open class Client {
     ///     be called with a `Result.failure(Error)` value.
     /// - Returns: an `Alamofire.DataRequest` instance for chaining additional
     ///   response handlers and to facilitate logging.
-    open func callAsync<T>(
+    open func call<T>(
         action: URL,
         serialize: @escaping (Envelope) throws -> Envelope,
         deserialize: @escaping (Envelope) throws -> T,

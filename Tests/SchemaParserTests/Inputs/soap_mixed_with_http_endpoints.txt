@@ -61,7 +61,8 @@ class ExampleClient: Lark.Client {
     override init(endpoint: URL = ExampleClient.defaultEndpoint, sessionManager: SessionManager = SessionManager()) {
         super.init(endpoint: endpoint, sessionManager: sessionManager)
     }
-    @discardableResult func getSMSCodes(_ parameter: GetSMSCodes) throws -> GetSMSCodesResponse {
+    /// Call getSMSCodes synchronously
+    func getSMSCodes(_ parameter: GetSMSCodes) throws -> GetSMSCodesResponse {
         let response = try call(
             action: URL(string: "http://tempuri.org/GetSMSCodes")!,
             serialize: { envelope in
@@ -77,8 +78,9 @@ class ExampleClient: Lark.Client {
             })
         return try response.result.resolve()
     }
-    @discardableResult func getSMSCodesAsync(_ parameter: GetSMSCodes, completionHandler: @escaping (Result<GetSMSCodesResponse>) -> Void) -> DataRequest {
-        return callAsync(
+    /// Call getSMSCodes asynchronously
+    @discardableResult func getSMSCodes(_ parameter: GetSMSCodes, completionHandler: @escaping (Result<GetSMSCodesResponse>) -> Void) -> DataRequest {
+        return call(
             action: URL(string: "http://tempuri.org/GetSMSCodes")!,
             serialize: { envelope in
                 let node = XMLElement(prefix: "ns0", localName: "GetSMSCodes", uri: "http://tempuri.org/")
