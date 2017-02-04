@@ -235,20 +235,20 @@ standard output. You can adapt this code to log full message bodies to your logg
 facility. The response completion handler must be scheduled on the global queue if there
 is no runloop (e.g. CLI applications).</p>
 
-<pre class="highlight plaintext"><code>class Logger: ClientDelegate {
-    func client(_ client: Client, didSend request: DataRequest) {
-        guard let httpRequest = request.request, let identifier = request.task?.taskIdentifier else {
-            return
-        }
-        print("[\(identifier)] &gt; \(httpRequest) \(httpRequest.httpBody)")
-        request.response(queue: DispatchQueue.global(qos: .default)) {
-            guard let httpResponse = $0.response else {
-                return
-            }
-            print("[\(identifier)] &lt; \(httpResponse.statusCode) \($0.data)")
-        }
-    }
-}
+<pre class="highlight swift"><code><span class="kd">class</span> <span class="kt">Logger</span><span class="p">:</span> <span class="kt">ClientDelegate</span> <span class="p">{</span>
+    <span class="kd">func</span> <span class="nf">client</span><span class="p">(</span><span class="n">_</span> <span class="nv">client</span><span class="p">:</span> <span class="kt">Client</span><span class="p">,</span> <span class="n">didSend</span> <span class="nv">request</span><span class="p">:</span> <span class="kt">DataRequest</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">guard</span> <span class="k">let</span> <span class="nv">httpRequest</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">request</span><span class="p">,</span> <span class="k">let</span> <span class="nv">identifier</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">task</span><span class="p">?</span><span class="o">.</span><span class="n">taskIdentifier</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="k">return</span>
+        <span class="p">}</span>
+        <span class="nf">print</span><span class="p">(</span><span class="s">"[</span><span class="se">\(</span><span class="n">identifier</span><span class="se">)</span><span class="s">] &gt; </span><span class="se">\(</span><span class="n">httpRequest</span><span class="se">)</span><span class="s"> </span><span class="se">\(</span><span class="n">httpRequest</span><span class="o">.</span><span class="n">httpBody</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+        <span class="n">request</span><span class="o">.</span><span class="nf">response</span><span class="p">(</span><span class="nv">queue</span><span class="p">:</span> <span class="kt">DispatchQueue</span><span class="o">.</span><span class="nf">global</span><span class="p">(</span><span class="nv">qos</span><span class="p">:</span> <span class="o">.</span><span class="k">default</span><span class="p">))</span> <span class="p">{</span>
+            <span class="k">guard</span> <span class="k">let</span> <span class="nv">httpResponse</span> <span class="o">=</span> <span class="nv">$0</span><span class="o">.</span><span class="n">response</span> <span class="k">else</span> <span class="p">{</span>
+                <span class="k">return</span>
+            <span class="p">}</span>
+            <span class="nf">print</span><span class="p">(</span><span class="s">"[</span><span class="se">\(</span><span class="n">identifier</span><span class="se">)</span><span class="s">] &lt; </span><span class="se">\(</span><span class="n">httpResponse</span><span class="o">.</span><span class="n">statusCode</span><span class="se">)</span><span class="s"> </span><span class="se">\(</span><span class="nv">$0</span><span class="o">.</span><span class="n">data</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
 </code></pre>
 
                         <a href="Protocols/ClientDelegate.html" class="slightly-smaller">See more</a>
