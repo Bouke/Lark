@@ -12,9 +12,11 @@ custom_categories:
   - name: Client
     children:
       - Client
+      - ClientDelegate
       - Envelope
       - Header
       - Fault
+      - ServerError
   - name: Serialization
     children:
       - HeaderSerializable

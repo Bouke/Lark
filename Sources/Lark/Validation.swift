@@ -46,10 +46,10 @@ public struct Fault: Error, CustomStringConvertible {
     /// Provides information about who caused the fault to happen within the message path.
     public let faultactor: URL?
 
-    /// Carries application specific error information related to the Body element.
+    /// Carries application specific error information related to the `Body` element.
     public let detail: [XMLNode]
 
-    /// A textual representation of this Fault instance.
+    /// A textual representation of this `Fault` instance.
     public var description: String {
         let actor = faultactor?.absoluteString ?? "nil"
         let detail = self.detail.map({ $0.xmlString }).joined(separator: ", ")
@@ -110,9 +110,10 @@ public struct Fault: Error, CustomStringConvertible {
 /// as the response is unspecified. It's up to the caller to make sense of the
 /// `Data` returned by the server.
 public enum ServerError: Error, CustomStringConvertible {
+    /// The response could not be deserialized into a `Fault`.
     case cannotDeserializeFault(Data)
 
-    /// A textual representation of this Fault instance.
+    /// A textual representation of this `Fault` instance.
     public var description: String {
         switch self {
         case .cannotDeserializeFault: return "Server responded with a HTTP 500 status code, but the expected Fault could not be deserialized. The error's data might contain additional information."
