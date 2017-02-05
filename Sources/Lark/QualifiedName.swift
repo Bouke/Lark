@@ -23,7 +23,7 @@ extension QualifiedName: CustomDebugStringConvertible {
 
 extension QualifiedName: Equatable {
     public static func == (lhs: QualifiedName, rhs: QualifiedName) -> Bool {
-        return lhs.uri == rhs.uri && lhs.localName == rhs.localName
+        return lhs.localName == rhs.localName && lhs.uri == rhs.uri
     }
 }
 
