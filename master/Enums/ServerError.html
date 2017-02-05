@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>UInt32 Extension Reference</title>
+    <title>ServerError Enum Reference</title>
     <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
     <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
     <meta charset='utf-8'>
@@ -10,8 +10,8 @@
     
   </head>
   <body>
-    <a name="//apple_ref/swift/Extension/UInt32" class="dashAnchor"></a>
-    <a title="UInt32 Extension Reference"></a>
+    <a name="//apple_ref/swift/Enum/ServerError" class="dashAnchor"></a>
+    <a title="ServerError Enum Reference"></a>
     <header>
       <div class="content-wrapper">
         <p><a href="../index.html">Lark Docs</a> (39% documented)</p>
@@ -23,7 +23,7 @@
       <p id="breadcrumbs">
         <a href="../index.html">Lark Reference</a>
         <img id="carat" src="../img/carat.png" />
-        UInt32 Extension Reference
+        ServerError Enum Reference
       </p>
     </div>
     <div class="content-wrapper">
@@ -176,14 +176,20 @@
       <article class="main-content">
         <section>
           <section class="section">
-            <h1>UInt32</h1>
+            <h1>ServerError</h1>
               <div class="declaration">
                 <div class="language">
-                  <pre class="highlight"><code><span class="kd">struct</span> <span class="kt">UInt32</span> <span class="p">:</span> <span class="kt">UnsignedInteger</span><span class="p">,</span> <span class="kt">Comparable</span><span class="p">,</span> <span class="kt">Equatable</span></code></pre>
+                  <pre class="highlight"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">ServerError</span><span class="p">:</span> <span class="kt">Error</span><span class="p">,</span> <span class="kt">CustomStringConvertible</span></code></pre>
 
                 </div>
               </div>
-            
+            <p>Unspecified / untyped error message returned by the server.</p>
+
+<p>If server produces an uncaught internal server error, it might not return
+a <code><a href="../Structs/Fault.html">Fault</a></code>. In such cases, the processing of the server response might fail
+as the response is unspecified. It&rsquo;s up to the caller to make sense of the
+<code>Data</code> returned by the server.</p>
+
           </section>
           <section class="section task-group-section">
             <div class="task-group">
@@ -191,9 +197,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FE4LarkVs6UInt32cFzT11deserializeCSo10XMLElement_S0_"></a>
-                    <a name="//apple_ref/swift/Method/init(deserialize:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FE4LarkVs6UInt32cFzT11deserializeCSo10XMLElement_S0_">init(deserialize:)</a>
+                    <a name="/s:FO4Lark11ServerError22cannotDeserializeFaultFMS0_FV10Foundation4DataS0_"></a>
+                    <a name="//apple_ref/swift/Element/cannotDeserializeFault" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FO4Lark11ServerError22cannotDeserializeFaultFMS0_FV10Foundation4DataS0_">cannotDeserializeFault</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -201,26 +207,30 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>The response could not be deserialized into a <code><a href="../Structs/Fault.html">Fault</a></code>.</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">struct</span> <span class="kt">UInt32</span> <span class="p">:</span> <span class="kt">UnsignedInteger</span><span class="p">,</span> <span class="kt">Comparable</span><span class="p">,</span> <span class="kt">Equatable</span></code></pre>
+                          <pre class="highlight"><code><span class="k">case</span> <span class="nf">cannotDeserializeFault</span><span class="p">(</span><span class="kt">Data</span><span class="p">)</span></code></pre>
 
                         </div>
                       </div>
                     </section>
                   </div>
                 </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <ul>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FE4LarkVs6UInt329serializeFzCSo10XMLElementT_"></a>
-                    <a name="//apple_ref/swift/Method/serialize(_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FE4LarkVs6UInt329serializeFzCSo10XMLElementT_">serialize(_:)</a>
+                    <a name="/s:vO4Lark11ServerError11descriptionSS"></a>
+                    <a name="//apple_ref/swift/Property/description" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vO4Lark11ServerError11descriptionSS">description</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -228,14 +238,14 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>A textual representation of this <code><a href="../Structs/Fault.html">Fault</a></code> instance.</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">struct</span> <span class="kt">UInt32</span> <span class="p">:</span> <span class="kt">UnsignedInteger</span><span class="p">,</span> <span class="kt">Comparable</span><span class="p">,</span> <span class="kt">Equatable</span></code></pre>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">description</span><span class="p">:</span> <span class="kt">String</span></code></pre>
 
                         </div>
                       </div>
