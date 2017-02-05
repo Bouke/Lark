@@ -133,8 +133,8 @@ open class Client {
 /// is no runloop (e.g. CLI applications).
 ///
 /// ```swift
-/// class Logger: ClientDelegate {
-///     func client(_ client: Client, didSend request: DataRequest) {
+/// class Logger: Lark.ClientDelegate {
+///     func client(_ client: Lark.Client, didSend request: Alamofire.DataRequest) {
 ///         guard let httpRequest = request.request, let identifier = request.task?.taskIdentifier else {
 ///             return
 ///         }
