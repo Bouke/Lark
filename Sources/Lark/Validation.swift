@@ -9,8 +9,11 @@ extension DataRequest {
             case 500:
                 do {
                     let document = try XMLDocument(data: data!, options: 0)
-                    let envelope = Envelope(document: document)
-                    let fault = try Fault(deserialize: envelope.body.elements(forLocalName: "Fault", uri: NS_SOAP_ENVELOPE).first!)
+                    let envelope = try Envelope(document: document)
+                    guard let faultElement = envelope.body.elements(forLocalName: "Fault", uri: NS_SOAP_ENVELOPE).first else {
+                        return .failure(ServerError.cannotDeserializeFault(data!))
+                    }
+                    let fault = try Fault(deserialize: faultElement)
                     return .failure(fault)
                 } catch {
                     return .failure(error)
@@ -25,7 +28,7 @@ extension DataRequest {
 /// Typed error message returned by the server.
 ///
 /// If the message was received by the server, but could somehow not be 
-/// processed, it will return a `Fault`. The issue could for example that the
+/// processed, it should return a `Fault`. The issue could for example that the
 /// provided data is invalid, some object could not be deserialized, the
 /// server performed an illegal operation.
 ///
@@ -50,7 +53,7 @@ public struct Fault: Error, CustomStringConvertible {
     public var description: String {
         let actor = faultactor?.absoluteString ?? "nil"
         let detail = self.detail.map({ $0.xmlString }).joined(separator: ", ")
-        return "Fault(code=\(faultcode), actor=\(actor), string=\(faultstring), detail=\(detail))"
+        return "Server returned a fault: Fault(code=\(faultcode), actor=\(actor), string=\(faultstring), detail=\(detail))"
     }
 
     // MARK: - Internal API
@@ -96,6 +99,23 @@ public struct Fault: Error, CustomStringConvertible {
         let detailNode = XMLElement(name: "detail")
         for child in detail {
             detailNode.addChild(child)
+        }
+    }
+}
+
+/// Unspecified / untyped error message returned by the server.
+///
+/// If server produces an uncaught internal server error, it might not return
+/// a `Fault`. In such cases, the processing of the server response might fail
+/// as the response is unspecified. It's up to the caller to make sense of the
+/// `Data` returned by the server.
+public enum ServerError: Error, CustomStringConvertible {
+    case cannotDeserializeFault(Data)
+
+    /// A textual representation of this Fault instance.
+    public var description: String {
+        switch self {
+        case .cannotDeserializeFault: return "Server responded with a HTTP 500 status code, but the expected Fault could not be deserialized. The error's data might contain additional information."
         }
     }
 }

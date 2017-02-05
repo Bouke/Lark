@@ -12,11 +12,14 @@ public let NS_XSI = "http://www.w3.org/2001/XMLSchema-instance"
 public struct Envelope {
     let document: XMLDocument
 
+    /// SOAP body.
+    public let body: XMLElement
+
     init() {
         let root = XMLElement.element(withName: "soap:Envelope", uri: NS_SOAP_ENVELOPE) as! XMLElement
         root.addNamespace(XMLElement.namespace(withName: "soap", stringValue: NS_SOAP_ENVELOPE) as! XMLNode)
         root.addNamespace(XMLElement.namespace(withName: "xsi", stringValue: NS_XSI) as! XMLNode)
-        let body = XMLElement.element(withName: "soap:Body", uri: NS_SOAP_ENVELOPE) as! XMLElement
+        body = XMLElement.element(withName: "soap:Body", uri: NS_SOAP_ENVELOPE) as! XMLElement
         root.addChild(body)
         document = XMLDocument(rootElement: root)
         document.version = "1.0"
@@ -24,25 +27,22 @@ public struct Envelope {
         document.isStandalone = true
     }
 
-    init(document: XMLDocument) {
+    init(document: XMLDocument) throws {
         self.document = document
-    }
-
-    var root: XMLElement {
-        return document.rootElement()!
+        guard let body = document.rootElement()?.elements(forLocalName: "Body", uri: NS_SOAP_ENVELOPE).first else {
+            throw XMLDeserializationError.noElementWithName(QualifiedName(uri: NS_SOAP_ENVELOPE, localName: "Body"))
+        }
+        self.body = body
     }
 
     public var header: XMLElement {
+        let root = document.rootElement()!
         if let header = root.elements(forLocalName: "Header", uri: NS_SOAP_ENVELOPE).first {
             return header
         }
         let header = XMLElement.element(withName: "soap:Header", uri: NS_SOAP_ENVELOPE) as! XMLElement
         root.insertChild(header, at: 0)
         return header
-    }
-
-    public var body: XMLElement {
-        return root.elements(forLocalName: "Body", uri: NS_SOAP_ENVELOPE).first!
     }
 }
 
@@ -55,7 +55,7 @@ struct EnvelopeDeserializer: DataResponseSerializerProtocol {
         do {
             if let data = $2 {
                 let document = try XMLDocument(data: data, options: 0)
-                return .success(Envelope(document: document))
+                return .success(try Envelope(document: document))
             }
         } catch {
             return .failure(error)

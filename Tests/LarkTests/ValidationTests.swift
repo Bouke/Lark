@@ -24,6 +24,6 @@ class FaultTests: XCTestCase {
                           faultstring: "version>=4",
                           faultactor: nil,
                           detail: [])
-        XCTAssertEqual(fault.description, "Fault(code=(http://schemas.xmlsoap.org/soap/envelope/)VersionMismatch, actor=nil, string=version>=4, detail=)")
+        XCTAssertEqual(fault.description, "Server returned a fault: Fault(code=(http://schemas.xmlsoap.org/soap/envelope/)VersionMismatch, actor=nil, string=version>=4, detail=)")
     }
 }
