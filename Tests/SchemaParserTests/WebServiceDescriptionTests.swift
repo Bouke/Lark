@@ -76,6 +76,13 @@ class WebServiceDescriptionTests: XCTestCase {
             let webService = try deserialize("message_with_type.wsdl")
             XCTAssertNil(webService.messages.first?.parts.first?.element)
             XCTAssertNotNil(webService.messages.first?.parts.first?.type)
+            XCTAssertEqual(webService.portTypes.first?.operations.first?.documentation, [
+                "",
+                "                This is the description of the `Test` operation.",
+                "                Parameters:",
+                "                * echo the `xs:string` to echo",
+                "            "
+                ].joined(separator: "\n"))
         } catch {
             XCTFail("Parse error: \(error)")
         }

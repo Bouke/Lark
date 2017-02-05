@@ -4,6 +4,11 @@
     </message>
     <portType name="Test">
         <operation name="Test">
+            <documentation>
+                This is the description of the `Test` operation.
+                Parameters:
+                * echo the `xs:string` to echo
+            </documentation>
             <input message="tns:Message"/>
             <output message="tns:Message"/>
         </operation>
