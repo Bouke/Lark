@@ -29,7 +29,9 @@ class TestClient: Lark.Client {
                 return envelope
             },
             deserialize: { envelope -> String in
-                let node = envelope.body.elements(forLocalName: "string", uri: "http://www.w3.org/2001/XMLSchema").first!
+                guard let node = envelope.body.elements(forLocalName: "string", uri: "http://www.w3.org/2001/XMLSchema").first else {
+                    throw XMLDeserializationError.noElementWithName(QualifiedName(uri: "http://www.w3.org/2001/XMLSchema", localName: "string"))
+                }
                 return try String(deserialize: node)
             })
         return try response.result.resolve()
@@ -46,7 +48,9 @@ class TestClient: Lark.Client {
                 return envelope
             },
             deserialize: { envelope in
-                let node = envelope.body.elements(forLocalName: "string", uri: "http://www.w3.org/2001/XMLSchema").first!
+                guard let node = envelope.body.elements(forLocalName: "string", uri: "http://www.w3.org/2001/XMLSchema").first else {
+                    throw XMLDeserializationError.noElementWithName(QualifiedName(uri: "http://www.w3.org/2001/XMLSchema", localName: "string"))
+                }
                 return try String(deserialize: node)
             },
             completionHandler: completionHandler)
