@@ -139,29 +139,43 @@ extension Bool: XMLDeserializable, XMLSerializable {
     }
 }
 
-extension Float: XMLDeserializable, XMLSerializable {
+protocol FloatingPointSerialization: FloatingPoint, XMLSerializable, XMLDeserializable {
+    init?(_: String)
+}
+
+extension FloatingPointSerialization {
     public init(deserialize node: XMLElement) throws {
-        guard let value = Float(node.stringValue ?? "") else {
+        guard let stringValue = node.stringValue else {
             throw XMLDeserializationError.cannotDeserialize
         }
-        self = value
+        switch stringValue {
+        case "NaN": self = .nan
+        case "INF": self = .infinity
+        case "-INF": self = -.infinity
+        default:
+            guard let value = Self(stringValue) else {
+                throw XMLDeserializationError.cannotDeserialize
+            }
+            self = value
+        }
     }
+
     public func serialize(_ element: XMLElement) throws {
-        element.stringValue = "\(self)"
+        if isNaN {
+            element.stringValue = "NaN"
+        } else if self == .infinity {
+            element.stringValue = "INF"
+        } else if self == -.infinity {
+            element.stringValue = "-INF"
+        } else {
+            element.stringValue = "\(self)".replacingOccurrences(of: "+", with: "")
+        }
     }
 }
 
-extension Double: XMLDeserializable, XMLSerializable {
-    public init(deserialize node: XMLElement) throws {
-        guard let value = Double(node.stringValue ?? "") else {
-            throw XMLDeserializationError.cannotDeserialize
-        }
-        self = value
-    }
-    public func serialize(_ element: XMLElement) throws {
-        element.stringValue = "\(self)"
-    }
-}
+extension Float: FloatingPointSerialization { }
+
+extension Double: FloatingPointSerialization { }
 
 extension Int: XMLDeserializable, XMLSerializable {
     public init(deserialize node: XMLElement) throws {

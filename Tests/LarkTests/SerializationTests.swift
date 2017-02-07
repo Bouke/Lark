@@ -79,6 +79,25 @@ class TypesTests: XCTestCase {
         test(value: Float(12.34), expected: "<test>12.34</test>")
         test(value: Float(-1234), expected: "<test>-1234.0</test>")
         test(value: Float(1234), expected: "<test>1234.0</test>")
+
+        test(value: Float(1.23e13), expected: "<test>1.23e13</test>")
+        test(value: Float(1.23e-13), expected: "<test>1.23e-13</test>")
+        test(value: Float(-1.23e13), expected: "<test>-1.23e13</test>")
+        test(value: Float(-1.23e-13), expected: "<test>-1.23e-13</test>")
+        test(value: Float.infinity, expected: "<test>INF</test>")
+        test(value: -Float.infinity, expected: "<test>-INF</test>")
+
+        test(serialized: "<test>1.23E13</test>", expected: Float(1.23e13))
+        test(serialized: "<test>-0</test>", expected: Float(0))
+
+        do {
+            let element = XMLElement(name: "test")
+            try Float.nan.serialize(element)
+            XCTAssertEqual(element.xmlString, "<test>NaN</test>")
+            XCTAssertTrue(try Float(deserialize: element).isNaN)
+        } catch {
+            XCTFail("\(error)")
+        }
     }
 
     func testDouble() {
@@ -88,6 +107,26 @@ class TypesTests: XCTestCase {
         test(value: Double(12.34), expected: "<test>12.34</test>")
         test(value: Double(-1234), expected: "<test>-1234.0</test>")
         test(value: Double(1234), expected: "<test>1234.0</test>")
+
+        test(value: Double(1.23e45), expected: "<test>1.23e45</test>")
+        test(value: Double(1.23e-45), expected: "<test>1.23e-45</test>")
+        test(value: Double(-1.23e45), expected: "<test>-1.23e45</test>")
+        test(value: Double(-1.23e-45), expected: "<test>-1.23e-45</test>")
+        test(value: Double.infinity, expected: "<test>INF</test>")
+        test(value: -Double.infinity, expected: "<test>-INF</test>")
+
+        test(serialized: "<test>1.23E13</test>", expected: Double(1.23e13))
+        test(serialized: "<test>-0</test>", expected: Double(0))
+
+        do {
+            let element = XMLElement(name: "test")
+            try Double.nan.serialize(element)
+            XCTAssertEqual(element.xmlString, "<test>NaN</test>")
+            XCTAssertTrue(try Double(deserialize: element).isNaN)
+        } catch {
+            XCTFail("\(error)")
+        }
+
     }
 
     func testInt() {
