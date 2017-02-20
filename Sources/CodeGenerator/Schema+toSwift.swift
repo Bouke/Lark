@@ -127,9 +127,10 @@ extension Service {
         }
 
         //TODO: zip operations first; combinding port.operation and binding.operation
+        //TODO: compare operation signature instead (and resolve nmtoken correctly)
         let methods = portType.operations
             .map { operation in
-                (port: operation, binding: binding.operations.first(where: { $0.name == operation.name })!)
+                (port: operation, binding: binding.operations.first(where: { $0.name.localName == operation.name.localName })!)
             }
             .map { operation -> ServiceMethod in
                 let input = message(operation.port.inputMessage)
