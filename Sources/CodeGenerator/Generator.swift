@@ -76,6 +76,9 @@ enum ElementHierarchy {
 }
 
 public func generate(webService: WebServiceDescription, service: Service) throws -> String {
+    // Verify that all the types can be satisfied.
+    try webService.verify()
+
     // Verify service has a SOAP 1.1 port.
     guard let port = service.ports.first(where: { if case .soap11 = $0.address { return true } else { return false } }) else {
         throw GeneratorError.noSOAP11Port
@@ -86,9 +89,6 @@ public func generate(webService: WebServiceDescription, service: Service) throws
     guard binding.operations.first(where: { $0.style == .rpc || $0.input == .encoded || $0.output == .encoded }) == nil else {
         throw GeneratorError.rpcNotSupported
     }
-
-    // Verify that all the types can be satisfied.
-    try webService.verify()
 
     let types = try generateTypes(inSchema: webService.schema)
 
