@@ -223,11 +223,21 @@ public struct Service {
 }
 
 public struct WebServiceDescription {
+    internal let imports: [(namespace: URL, location: URL)]
     public let schema: Schema
     public let messages: [Message]
     public let portTypes: [PortType]
     public let bindings: [Binding]
     public let services: [Service]
+
+    internal init(schema: Schema, messages: [Message], portTypes: [PortType], bindings: [Binding], services: [Service]) {
+        self.imports = []
+        self.schema = schema
+        self.messages = messages
+        self.portTypes = portTypes
+        self.bindings = bindings
+        self.services = services
+    }
 
     /// Deserialize a WebServiceDescription from an XMLElement
     ///
@@ -238,6 +248,16 @@ public struct WebServiceDescription {
     init(deserialize element: XMLElement, relativeTo url: URL?) throws {
         guard element.localName == "definitions" && element.uri == NS_WSDL else {
             throw WebServiceDescriptionParseError.incorrectRootElement
+        }
+
+        imports = try element.elements(forLocalName: "import", uri: NS_WSDL).map {
+            guard let namespace = $0.attribute(forName: "namespace")?.stringValue.flatMap({ URL(string: $0) }) else {
+                throw WebServiceDescriptionParseError.unsupportedImport
+            }
+            guard let location = $0.attribute(forName: "location")?.stringValue.flatMap({ URL(string: $0, relativeTo: url) }) else {
+                throw WebServiceDescriptionParseError.unsupportedImport
+            }
+            return (namespace, location)
         }
 
         var nodes: [Schema.Node] = []
@@ -314,6 +334,7 @@ fileprivate func targetNamespace(ofNode node: XMLElement) throws -> String {
 }
 
 public enum WebServiceDescriptionParseError: Error {
+    case unsupportedImport
     case incorrectRootElement
     case unsupportedPortAddress(QualifiedName)
     case nodeWithoutTargetNamespace
@@ -325,6 +346,8 @@ public enum WebServiceDescriptionParseError: Error {
 extension WebServiceDescriptionParseError: CustomStringConvertible {
     public var description: String {
         switch self {
+        case .unsupportedImport:
+            return "incorrect definition import. It should contain both namespace and location attributes."
         case .incorrectRootElement:
             return "incorrect root element. The root element of the WSDL should be (\(NS_WSDL))definitions."
         case let .unsupportedPortAddress(port):
