@@ -179,30 +179,22 @@ class CodeGeneratorTests: XCTestCase {
     }
 
     func testMessageWithType() throws {
-        let webService = try deserializeWebServiceDescription("message_with_type.wsdl")
-        let expected = try readlines("message_with_type.txt")
-        let actual = try generate(webService: webService, service: webService.services.first!).components(separatedBy: "\n")
-        XCTAssertCode(actual: actual, expected: expected)
+        XCTAssertCode(definitionFile: fixture("message_with_type.wsdl"),
+                      expectedCodeFile: fixture("message_with_type.txt"))
     }
 
     func testSOAPMixedWithHTTPEndpoints() throws {
-        let webService = try deserializeWebServiceDescription("soap_mixed_with_http_endpoints.wsdl")
-        let expected = try readlines("soap_mixed_with_http_endpoints.txt")
-        let actual = try generate(webService: webService, service: webService.services.first!).components(separatedBy: "\n")
-        XCTAssertCode(actual: actual, expected: expected)
+        XCTAssertCode(definitionFile: fixture("soap_mixed_with_http_endpoints.wsdl"),
+                      expectedCodeFile: fixture("soap_mixed_with_http_endpoints.txt"))
     }
 
     func testBindingWithOtherNamespace() throws {
-        let webService = try deserializeWebServiceDescription("binding_with_other_namespace.wsdl")
-        let expected = try readlines("binding_with_other_namespace.txt")
-        let actual = try generate(webService: webService, service: webService.services.first!).components(separatedBy: "\n")
-        XCTAssertCode(actual: actual, expected: expected)
+        XCTAssertCode(definitionFile: fixture("binding_with_other_namespace.wsdl"),
+                      expectedCodeFile: fixture("binding_with_other_namespace.txt"))
     }
 
-    func testImportBindingInOtherNamespace() throws {
-        let webService = try deserializeWebServiceDescription("import_binding_in_other_namespace.wsdl")
-        let expected = try readlines("import_binding_in_other_namespace.txt")
-        let actual = try generate(webService: webService, service: webService.services.first!).components(separatedBy: "\n")
-        XCTAssertCode(actual: actual, expected: expected)
+    func testImportBindingInOtherNamespace() {
+        XCTAssertCode(definitionFile: fixture("import_binding_in_other_namespace.wsdl"),
+                      expectedCodeFile: fixture("import_binding_in_other_namespace.txt"))
     }
 }
