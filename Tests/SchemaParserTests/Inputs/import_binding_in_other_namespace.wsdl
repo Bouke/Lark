@@ -1,0 +1,26 @@
+<definitions xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://tempuri.org/" xmlns="http://schemas.xmlsoap.org/wsdl/" targetNamespace="http://tempuri.org/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:other="http://tempuri.org/other">
+    <import namespace="http://tempuri.org/other" location="import_binding_in_other_namespace_0.wsdl" />
+    <types>
+        <xs:schema targetNamespace="http://tempuri.org/">
+            <xs:element name="MessageType">
+                <xs:complexType>
+                    <xs:sequence/>
+                </xs:complexType>
+            </xs:element>
+        </xs:schema>
+    </types>
+    <message name="Message">
+        <part name="parameter" element="tns:MessageType"/>
+    </message>
+    <portType name="Test">
+        <operation name="Test">
+            <input message="tns:Message"/>
+            <output message="tns:Message"/>
+        </operation>
+    </portType>
+    <service name="Test">
+        <port name="Test" binding="other:Test">
+            <soap:address location="http://localhost"/>
+        </port>
+    </service>
+</definitions>

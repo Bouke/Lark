@@ -141,4 +141,31 @@ class WebServiceDescriptionTests: XCTestCase {
         XCTAssertEqual(webService.services.first?.name, qname("Test"))
         XCTAssertEqual(webService.services.flatMap({ $0.ports }).count, 1)
     }
+
+    func testImportBindingInOtherNamespace() {
+        let webService: WebServiceDescription
+        do {
+            webService = try deserialize("import_binding_in_other_namespace.wsdl")
+        } catch {
+            return XCTFail("Could not parse WSDL: \(error)")
+        }
+        XCTAssertEqual(webService.bindings.count, 1)
+        XCTAssertEqual(webService.bindings.first?.name, QualifiedName(uri: "http://tempuri.org/other", localName: "Test"))
+        XCTAssertEqual(webService.bindings.map({ $0.operations }).count, 1)
+
+        XCTAssertEqual(webService.messages.count, 1)
+        XCTAssertEqual(webService.messages.first?.name, qname("Message"))
+        XCTAssertEqual(webService.messages.flatMap({ $0.parts }).count, 1)
+
+        XCTAssertEqual(webService.portTypes.count, 1)
+        XCTAssertEqual(webService.portTypes.first?.name, qname("Test"))
+        XCTAssertEqual(webService.portTypes.flatMap({ $0.operations }).count, 1)
+
+        XCTAssertEqual(webService.schema.count, 1)
+        XCTAssertEqual(webService.schema.first?.element?.name, qname("MessageType"))
+
+        XCTAssertEqual(webService.services.count, 1)
+        XCTAssertEqual(webService.services.first?.name, qname("Test"))
+        XCTAssertEqual(webService.services.flatMap({ $0.ports }).count, 1)
+    }
 }

@@ -1,0 +1,14 @@
+<definitions xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://tempuri.org/" xmlns="http://schemas.xmlsoap.org/wsdl/" targetNamespace="http://tempuri.org/other" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:base="http://tempuri.org/">
+    <binding name="Test" type="base:Test">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <operation name="Test">
+            <soap:operation soapAction="" style="document"/>
+            <input>
+                <soap:body use="literal"/>
+            </input>
+            <output>
+                <soap:body use="literal"/>
+            </output>
+        </operation>
+    </binding>
+</definitions>
