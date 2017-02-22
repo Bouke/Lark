@@ -191,4 +191,11 @@ class CodeGeneratorTests: XCTestCase {
         let actual = try generate(webService: webService, service: webService.services.first!).components(separatedBy: "\n")
         XCTAssertCode(actual: actual, expected: expected)
     }
+
+    func testBindingWithOtherNamespace() throws {
+        let webService = try deserializeWebServiceDescription("binding_with_other_namespace.wsdl")
+        let expected = try readlines("binding_with_other_namespace.txt")
+        let actual = try generate(webService: webService, service: webService.services.first!).components(separatedBy: "\n")
+        XCTAssertCode(actual: actual, expected: expected)
+    }
 }

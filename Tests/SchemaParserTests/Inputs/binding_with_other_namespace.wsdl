@@ -1,0 +1,37 @@
+<definitions xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://tempuri.org/" xmlns="http://schemas.xmlsoap.org/wsdl/" targetNamespace="http://tempuri.org/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:other="http://tempuri.org/other">
+    <types>
+        <xs:schema targetNamespace="http://tempuri.org/">
+            <xs:element name="MessageType">
+                <xs:complexType>
+                    <xs:sequence/>
+                </xs:complexType>
+            </xs:element>
+        </xs:schema>
+    </types>
+    <message name="Message">
+        <part name="parameter" element="tns:MessageType"/>
+    </message>
+    <portType name="Test">
+        <operation name="Test">
+            <input message="tns:Message"/>
+            <output message="tns:Message"/>
+        </operation>
+    </portType>
+    <binding name="Test" type="tns:Test" targetNamespace="http://tempuri.org/other">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <operation name="Test">
+            <soap:operation soapAction="" style="document"/>
+            <input>
+                <soap:body use="literal"/>
+            </input>
+            <output>
+                <soap:body use="literal"/>
+            </output>
+        </operation>
+    </binding>
+    <service name="Test">
+        <port name="Test" binding="other:Test">
+            <soap:address location="http://localhost"/>
+        </port>
+    </service>
+</definitions>
