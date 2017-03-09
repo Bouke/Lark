@@ -4,178 +4,203 @@
     <title>Int32 Extension Reference</title>
     <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
     <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
-    <meta charset='utf-8'>
+    <meta charset="utf-8">
     <script src="../js/jquery.min.js" defer></script>
     <script src="../js/jazzy.js" defer></script>
     
+    <script src="../js/lunr.min.js" defer></script>
+    <script src="../js/typeahead.jquery.js" defer></script>
+    <script src="../js/jazzy.search.js" defer></script>
   </head>
   <body>
+
     <a name="//apple_ref/swift/Extension/Int32" class="dashAnchor"></a>
+
     <a title="Int32 Extension Reference"></a>
-    <header>
-      <div class="content-wrapper">
-        <p><a href="../index.html">Lark Docs</a> (39% documented)</p>
-        <p class="header-right"><a href="https://github.com/Bouke/Lark"><img src="../img/gh.png"/>View on GitHub</a></p>
-        <p class="header-right"><a href="dash-feed://http%3A%2F%2Fboukehaarsma%2Enl%2FLark%2FLark%2Exml"><img src="../img/dash.png"/>Install in Dash</a></p>
-      </div>
-    </header>
-    <div class="content-wrapper">
-      <p id="breadcrumbs">
-        <a href="../index.html">Lark Reference</a>
-        <img id="carat" src="../img/carat.png" />
-        Int32 Extension Reference
+
+    <header class="header">
+      <p class="header-col header-col--primary">
+        <a class="header-link" href="../index.html">
+          Lark Docs
+        </a>
+         (39% documented)
       </p>
-    </div>
+    
+      <p class="header-col--secondary">
+        <form role="search" action="../search.json">
+          <input type="text" placeholder="Search documentation" data-typeahead>
+        </form>
+      </p>
+    
+        <p class="header-col header-col--secondary">
+          <a class="header-link" href="https://github.com/Bouke/Lark">
+            <img class="header-icon" src="../img/gh.png"/>
+            View on GitHub
+          </a>
+        </p>
+    
+        <p class="header-col header-col--secondary">
+          <a class="header-link" href="dash-feed://http%3A%2F%2Fboukehaarsma%2Enl%2FLark%2FLark%2Exml">
+            <img class="header-icon" src="../img/dash.png"/>
+            Install in Dash
+          </a>
+        </p>
+    </header>
+
+    <p class="breadcrumbs">
+      <a class="breadcrumb" href="../index.html">Lark Reference</a>
+      <img class="carat" src="../img/carat.png" />
+      Int32 Extension Reference
+    </p>
+
     <div class="content-wrapper">
-      <nav class="sidebar">
+      <nav class="navigation">
         <ul class="nav-groups">
           <li class="nav-group-name">
-            <a href="../Client.html">Client</a>
+            <a class="nav-group-name-link" href="../Client.html">Client</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
-                <a href="../Classes/Client.html">Client</a>
+                <a class="nav-group-task-link" href="../Classes/Client.html">Client</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Protocols/ClientDelegate.html">ClientDelegate</a>
+                <a class="nav-group-task-link" href="../Protocols/ClientDelegate.html">ClientDelegate</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Structs/Envelope.html">Envelope</a>
+                <a class="nav-group-task-link" href="../Structs/Envelope.html">Envelope</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Structs/Header.html">Header</a>
+                <a class="nav-group-task-link" href="../Structs/Header.html">Header</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Structs/Fault.html">Fault</a>
+                <a class="nav-group-task-link" href="../Structs/Fault.html">Fault</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Enums/ServerError.html">ServerError</a>
+                <a class="nav-group-task-link" href="../Enums/ServerError.html">ServerError</a>
               </li>
             </ul>
           </li>
           <li class="nav-group-name">
-            <a href="../Serialization.html">Serialization</a>
+            <a class="nav-group-name-link" href="../Serialization.html">Serialization</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
-                <a href="../Protocols/HeaderSerializable.html">HeaderSerializable</a>
+                <a class="nav-group-task-link" href="../Protocols/HeaderSerializable.html">HeaderSerializable</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Protocols/StringSerializable.html">StringSerializable</a>
+                <a class="nav-group-task-link" href="../Protocols/StringSerializable.html">StringSerializable</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Protocols/StringSerializableList.html">StringSerializableList</a>
+                <a class="nav-group-task-link" href="../Protocols/StringSerializableList.html">StringSerializableList</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Protocols/StringDeserializable.html">StringDeserializable</a>
+                <a class="nav-group-task-link" href="../Protocols/StringDeserializable.html">StringDeserializable</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Protocols/XMLSerializable.html">XMLSerializable</a>
+                <a class="nav-group-task-link" href="../Protocols/XMLSerializable.html">XMLSerializable</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Protocols/XMLDeserializable.html">XMLDeserializable</a>
+                <a class="nav-group-task-link" href="../Protocols/XMLDeserializable.html">XMLDeserializable</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Enums/XMLSerializationError.html">XMLSerializationError</a>
+                <a class="nav-group-task-link" href="../Enums/XMLSerializationError.html">XMLSerializationError</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Enums/XMLDeserializationError.html">XMLDeserializationError</a>
+                <a class="nav-group-task-link" href="../Enums/XMLDeserializationError.html">XMLDeserializationError</a>
               </li>
             </ul>
           </li>
           <li class="nav-group-name">
-            <a href="../Base Types.html">Base Types</a>
+            <a class="nav-group-name-link" href="../Base Types.html">Base Types</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
-                <a href="../Classes/AnyType.html">AnyType</a>
+                <a class="nav-group-task-link" href="../Classes/AnyType.html">AnyType</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Extensions/Bool.html">Bool</a>
+                <a class="nav-group-task-link" href="../Extensions/Bool.html">Bool</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Extensions/Data.html">Data</a>
+                <a class="nav-group-task-link" href="../Extensions/Data.html">Data</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Extensions/Date.html">Date</a>
+                <a class="nav-group-task-link" href="../Extensions/Date.html">Date</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Extensions/Decimal.html">Decimal</a>
+                <a class="nav-group-task-link" href="../Extensions/Decimal.html">Decimal</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Extensions/Double.html">Double</a>
+                <a class="nav-group-task-link" href="../Extensions/FloatingPointSerialization.html">FloatingPointSerialization</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Extensions/Float.html">Float</a>
+                <a class="nav-group-task-link" href="../Extensions/Int.html">Int</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Extensions/Int.html">Int</a>
+                <a class="nav-group-task-link" href="../Extensions/Int8.html">Int8</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Extensions/Int8.html">Int8</a>
+                <a class="nav-group-task-link" href="../Extensions/Int16.html">Int16</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Extensions/Int16.html">Int16</a>
+                <a class="nav-group-task-link" href="../Extensions/Int32.html">Int32</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Extensions/Int32.html">Int32</a>
+                <a class="nav-group-task-link" href="../Extensions/Int64.html">Int64</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Extensions/Int64.html">Int64</a>
+                <a class="nav-group-task-link" href="../Extensions/String.html">String</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Extensions/String.html">String</a>
+                <a class="nav-group-task-link" href="../Extensions/UInt8.html">UInt8</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Extensions/UInt8.html">UInt8</a>
+                <a class="nav-group-task-link" href="../Extensions/UInt16.html">UInt16</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Extensions/UInt16.html">UInt16</a>
+                <a class="nav-group-task-link" href="../Extensions/UInt32.html">UInt32</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Extensions/UInt32.html">UInt32</a>
+                <a class="nav-group-task-link" href="../Extensions/UInt64.html">UInt64</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Extensions/UInt64.html">UInt64</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="../Extensions/URL.html">URL</a>
+                <a class="nav-group-task-link" href="../Extensions/URL.html">URL</a>
               </li>
             </ul>
           </li>
           <li class="nav-group-name">
-            <a href="../Extensions.html">Extensions</a>
+            <a class="nav-group-name-link" href="../Extensions.html">Extensions</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
-                <a href="../Extensions/Result.html">Result</a>
+                <a class="nav-group-task-link" href="../Extensions/Result.html">Result</a>
               </li>
             </ul>
           </li>
           <li class="nav-group-name">
-            <a href="../XML Tooling.html">XML Tooling</a>
+            <a class="nav-group-name-link" href="../XML Tooling.html">XML Tooling</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
-                <a href="../XML Tooling.html#/s:v4Lark16NS_SOAP_ENVELOPESS">NS_SOAP_ENVELOPE</a>
+                <a class="nav-group-task-link" href="../XML Tooling.html#/s:v4Lark16NS_SOAP_ENVELOPESS">NS_SOAP_ENVELOPE</a>
               </li>
               <li class="nav-group-task">
-                <a href="../XML Tooling.html#/s:v4Lark6NS_XSISS">NS_XSI</a>
+                <a class="nav-group-task-link" href="../XML Tooling.html#/s:v4Lark6NS_XSISS">NS_XSI</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Structs/QualifiedName.html">QualifiedName</a>
+                <a class="nav-group-task-link" href="../Structs/QualifiedName.html">QualifiedName</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Structs/QualifiedName/Error.html">– Error</a>
+                <a class="nav-group-task-link" href="../Structs/QualifiedName/Error.html">– Error</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Extensions/XMLElement.html">XMLElement</a>
+                <a class="nav-group-task-link" href="../Extensions/XMLElement.html">XMLElement</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Extensions/XMLNode.html">XMLNode</a>
+                <a class="nav-group-task-link" href="../Extensions/XMLNode.html">XMLNode</a>
               </li>
             </ul>
           </li>
         </ul>
       </nav>
       <article class="main-content">
-        <section>
-          <section class="section">
+
+        <section class="section">
+          <div class="section-content">
             <h1>Int32</h1>
               <div class="declaration">
                 <div class="language">
@@ -184,10 +209,13 @@
                 </div>
               </div>
             
-          </section>
-          <section class="section task-group-section">
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-content">
             <div class="task-group">
-              <ul>
+              <ul class="item-container">
                 <li class="item">
                   <div>
                     <code>
@@ -244,14 +272,15 @@
                 </li>
               </ul>
             </div>
-          </section>
+          </div>
         </section>
-        <section id="footer">
-          <p>&copy; 2017 <a class="link" href="https://twitter.com/BoukeHaarsma" target="_blank" rel="external">Bouke Haarsma</a>. All rights reserved. (Last updated: 2017-02-05)</p>
-          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.3</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
-        </section>
+
       </article>
     </div>
+    <section class="footer">
+      <p>&copy; 2017 <a class="link" href="https://twitter.com/BoukeHaarsma" target="_blank" rel="external">Bouke Haarsma</a>. All rights reserved. (Last updated: 2017-03-09)</p>
+      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.4</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+    </section>
   </body>
 </div>
 </html>
