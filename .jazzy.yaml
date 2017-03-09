@@ -5,6 +5,7 @@ module: Lark
 author: Bouke Haarsma
 author_url: https://twitter.com/BoukeHaarsma
 output: ../Lark-Docs/master
+theme: fullwidth
 clean: true
 github_url: https://github.com/Bouke/Lark
 dash_url: http://boukehaarsma.nl/Lark/Lark.xml
@@ -36,6 +37,7 @@ custom_categories:
       - Decimal
       - Double
       - Float
+      - FloatingPointSerialization
       - Int
       - Int8
       - Int16

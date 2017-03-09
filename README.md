@@ -59,6 +59,8 @@ client.sayHelloAsync(SayHello(name: "World", times: 2)) { result in
 }
 ```
 
+More information can be found in the [documentation](http://boukehaarsma.nl/Lark).
+
 ## Example
 
 See the [Lark-Example](https://github.com/Bouke/Lark-Example) repository for an
