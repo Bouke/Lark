@@ -1,7 +1,7 @@
 class Employee: XMLDeserializable {
-    let firstname: String
-    let lastname: String
-    let tussenvoegsel: String?
+    var firstname: String
+    var lastname: String
+    var tussenvoegsel: String?
     init(firstname: String, tussenvoegsel: String? = nil, lastname: String) {
         self.firstname = firstname
         self.tussenvoegsel = tussenvoegsel

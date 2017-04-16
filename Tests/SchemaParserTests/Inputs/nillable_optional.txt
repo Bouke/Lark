@@ -1,5 +1,5 @@
 class Employee: XMLDeserializable {
-    let manager: String?
+    var manager: String?
     init(manager: String? = nil) {
         self.manager = manager
     }

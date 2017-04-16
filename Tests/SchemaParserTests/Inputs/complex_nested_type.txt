@@ -1,5 +1,5 @@
 class Foo: XMLDeserializable {
-    let bar: Bar
+    var bar: Bar
     init(bar: Bar) {
         self.bar = bar
     }
@@ -16,7 +16,7 @@ class Foo: XMLDeserializable {
         try bar.serialize(barNode)
     }
     class Bar: XMLDeserializable {
-        let buz: String
+        var buz: String
         init(buz: String) {
             self.buz = buz
         }

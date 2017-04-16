@@ -1,10 +1,10 @@
 typealias MyElement = MyType
 class MyType: XMLDeserializable {
-    let a: String
-    let b: String?
-    let c: String
-    let d: [String]
-    let e: [String]
+    var a: String
+    var b: String?
+    var c: String
+    var d: [String]
+    var e: [String]
     init(a: String, b: String? = nil, c: String, d: [String], e: [String]) {
         self.a = a
         self.b = b

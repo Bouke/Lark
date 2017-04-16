@@ -1,6 +1,6 @@
 typealias MyElement = MyType
 class MyType: XMLDeserializable {
-    let a: String
+    var a: String
     init(a: String) {
         self.a = a
     }

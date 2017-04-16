@@ -8,7 +8,7 @@ import Lark
 // MARK: - SOAP Structures
 //
 class GetSMSCodesResponse: XMLDeserializable {
-    let getSMSCodesResult: String?
+    var getSMSCodesResult: String?
     init(getSMSCodesResult: String? = nil) {
         self.getSMSCodesResult = getSMSCodesResult
     }
@@ -30,7 +30,7 @@ class GetSMSCodesResponse: XMLDeserializable {
 }
 
 class GetSMSCodes: XMLDeserializable {
-    let identifier: String?
+    var identifier: String?
     init(identifier: String? = nil) {
         self.identifier = identifier
     }

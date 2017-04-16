@@ -1,8 +1,8 @@
 typealias Employee = Fullpersoninfo
 class Fullpersoninfo: Personinfo {
-    let address: String
-    let city: String
-    let country: String
+    var address: String
+    var city: String
+    var country: String
     init(firstname: String, lastname: String, address: String, city: String, country: String) {
         self.address = address
         self.city = city
@@ -41,8 +41,8 @@ class Fullpersoninfo: Personinfo {
     }
 }
 class Personinfo: XMLDeserializable {
-    let firstname: String
-    let lastname: String
+    var firstname: String
+    var lastname: String
     init(firstname: String, lastname: String) {
         self.firstname = firstname
         self.lastname = lastname

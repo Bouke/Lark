@@ -321,7 +321,7 @@ extension SwiftType {
 
 extension SwiftProperty {
     func toLineOfCode() -> LineOfCode {
-        return "let \(name): \(type.toSwiftCode())"
+        return "var \(name): \(type.toSwiftCode())"
     }
 }
 
