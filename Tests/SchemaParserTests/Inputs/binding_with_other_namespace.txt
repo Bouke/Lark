@@ -25,10 +25,11 @@ class TestClient: Lark.Client {
         super.init(endpoint: endpoint, sessionManager: sessionManager)
     }
     /// Call test synchronously
-    func test(_ parameter: MessageType) throws -> MessageType {
+    func test() throws -> MessageType {
         let response = try call(
             action: URL(string: "")!,
             serialize: { envelope in
+                let parameter = MessageType()
                 let node = XMLElement(prefix: "ns0", localName: "MessageType", uri: "http://tempuri.org/")
                 node.addNamespace(XMLNode.namespace(withName: "ns0", stringValue: "http://tempuri.org/") as! XMLNode)
                 try parameter.serialize(node)
@@ -39,26 +40,29 @@ class TestClient: Lark.Client {
                 guard let node = envelope.body.elements(forLocalName: "MessageType", uri: "http://tempuri.org/").first else {
                     throw XMLDeserializationError.noElementWithName(QualifiedName(uri: "http://tempuri.org/", localName: "MessageType"))
                 }
-                return try MessageType(deserialize: node)
+                let result = try MessageType(deserialize: node)
+                return result
             })
         return try response.result.resolve()
     }
     /// Call test asynchronously
-    @discardableResult func test(_ parameter: MessageType, completionHandler: @escaping (Result<MessageType>) -> Void) -> DataRequest {
+    @discardableResult func test(completionHandler: @escaping (Result<MessageType>) -> Void) -> DataRequest {
         return call(
             action: URL(string: "")!,
             serialize: { envelope in
+                let parameter = MessageType()
                 let node = XMLElement(prefix: "ns0", localName: "MessageType", uri: "http://tempuri.org/")
                 node.addNamespace(XMLNode.namespace(withName: "ns0", stringValue: "http://tempuri.org/") as! XMLNode)
                 try parameter.serialize(node)
                 envelope.body.addChild(node)
                 return envelope
             },
-            deserialize: { envelope in
+            deserialize: { envelope -> MessageType in
                 guard let node = envelope.body.elements(forLocalName: "MessageType", uri: "http://tempuri.org/").first else {
                     throw XMLDeserializationError.noElementWithName(QualifiedName(uri: "http://tempuri.org/", localName: "MessageType"))
                 }
-                return try MessageType(deserialize: node)
+                let result = try MessageType(deserialize: node)
+                return result
             },
             completionHandler: completionHandler)
     }

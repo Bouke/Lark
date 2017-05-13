@@ -117,6 +117,18 @@ extension SwiftTypeClass {
         lines += members.flatMap { $0.toLinesOfCode(at: indentation) }
         return lines
     }
+    
+    internal var arguments: [SwiftCode] {
+        return allProperties.map {
+                let base = "\($0.name): \($0.type.toSwiftCode())"
+                let `default`: String
+                switch $0.type {
+                case .optional, .nillable: `default` = " = nil"
+                default: `default` = ""
+                }
+                return "\(base)\(`default`)"
+            }
+    }
 
     private func initializer(at indentation: Indentation) -> [LineOfCode] {
         let superInit: [LineOfCode] = base.map { _ in
@@ -128,17 +140,7 @@ extension SwiftTypeClass {
 
         let override = properties.count == 0 && base != nil ? "override " : ""
 
-        let signature = (inheritedProperties + properties)
-            .map {
-                let base = "\($0.name): \($0.type.toSwiftCode())"
-                let `default`: String
-                switch $0.type {
-                case .optional, .nillable: `default` = " = nil"
-                default: `default` = ""
-                }
-                return "\(base)\(`default`)"
-            }
-            .joined(separator: ", ")
+        let signature = arguments.joined(separator: ", ")
 
         return indentation.apply(
             toFirstLine: "\(override)init(\(signature)) {",
@@ -284,6 +286,11 @@ extension SwiftTypeClass {
             let propertyCode = property.toLineOfCode()
             return indentation.apply(toLineOfCode: propertyCode)
         }
+    }
+    
+    /// This type's inherited properties and it's own properties.
+    internal var allProperties: [SwiftProperty] {
+        return (inheritedProperties + properties)
     }
 
     private var inheritedProperties: [SwiftProperty] {
@@ -454,52 +461,94 @@ extension ServiceMethod: LinesOfCodeConvertible {
     func toLinesOfCode(at indentation: Indentation) -> [LineOfCode] {
         return syncCall(at: indentation) + asyncCall(at: indentation)
     }
-
+    
     func syncCall(at indentation: Indentation) -> [LineOfCode] {
-        return [
+        let signature = input.type.arguments.joined(separator: ", ")
+        
+        let lines = [
             "/// Call \(name) synchronously",
-            "func \(name)(_ parameter: \(input.type.name)) throws -> \(output.type.name) {",
+            "func \(name)(\(signature)) throws -> \(responseType()) {",
             "    let response = try call(",
-            "        action: URL(string: \"\(action?.absoluteString ?? "")\")!,",
-            "        serialize: { envelope in",
-            "            let node = XMLElement(prefix: \"ns0\", localName: \"\(input.element.localName)\", uri: \"\(input.element.uri)\")",
-            "            node.addNamespace(XMLNode.namespace(withName: \"ns0\", stringValue: \"\(input.element.uri)\") as! XMLNode)",
-            "            try parameter.serialize(node)",
-            "            envelope.body.addChild(node)",
-            "            return envelope",
-            "        },",
-            "        deserialize: { envelope -> \(output.type.name) in",
-            "            guard let node = envelope.body.elements(forLocalName: \"\(output.element.localName)\", uri: \"\(output.element.uri)\").first else {",
-            "                throw XMLDeserializationError.noElementWithName(QualifiedName(uri: \"\(output.element.uri)\", localName: \"\(output.element.localName)\"))",
-            "            }",
-            "            return try \(output.type.name)(deserialize: node)",
-            "        })",
+            ] +
+            callActionArgument() +
+            callSerializeArgument() +
+            callDeserializeArgument(isLastArgument: true) +
+            [
             "    return try response.result.resolve()",
             "}"
-        ].map(indentation.apply(toLineOfCode:))
+        ]
+        return lines.map(indentation.apply(toLineOfCode:))
     }
 
     func asyncCall(at indentation: Indentation) -> [LineOfCode] {
-        return [
+        let signature = (input.type.arguments + ["completionHandler: @escaping (Result<\(responseType())>) -> Void"]).joined(separator: ", ")
+        
+        let lines = [
             "/// Call \(name) asynchronously",
-            "@discardableResult func \(name)(_ parameter: \(input.type.name), completionHandler: @escaping (Result<\(output.type.name)>) -> Void) -> DataRequest {",
+            "@discardableResult func \(name)(\(signature)) -> DataRequest {",
             "    return call(",
+            ] +
+            callActionArgument() +
+            callSerializeArgument() +
+            callDeserializeArgument(isLastArgument: false) +
+            [
+            "        completionHandler: completionHandler)",
+            "}",
+        ]
+        return lines.map(indentation.apply(toLineOfCode:))
+    }
+    
+    func responseType() -> SwiftCode {
+        if output.type.allProperties.count == 1 {
+            return output.type.allProperties.first!.type.toSwiftCode()
+        } else {
+            return output.type.name
+        }
+    }
+    
+    func callActionArgument() -> [LineOfCode] {
+        return [
             "        action: URL(string: \"\(action?.absoluteString ?? "")\")!,",
+        ]
+    }
+    
+    func callSerializeArgument() -> [LineOfCode] {
+        let arguments = input.type.allProperties
+            .map { "\($0.name): \($0.name)" }
+            .joined(separator: ", ")
+
+        return [
             "        serialize: { envelope in",
+            "            let parameter = \(input.type.name)(\(arguments))",
             "            let node = XMLElement(prefix: \"ns0\", localName: \"\(input.element.localName)\", uri: \"\(input.element.uri)\")",
             "            node.addNamespace(XMLNode.namespace(withName: \"ns0\", stringValue: \"\(input.element.uri)\") as! XMLNode)",
             "            try parameter.serialize(node)",
             "            envelope.body.addChild(node)",
             "            return envelope",
             "        },",
-            "        deserialize: { envelope in",
+        ]
+    }
+    
+    func callDeserializeArgument(isLastArgument: Bool) -> [LineOfCode] {
+        var lines = [
+            "        deserialize: { envelope -> \(responseType()) in",
             "            guard let node = envelope.body.elements(forLocalName: \"\(output.element.localName)\", uri: \"\(output.element.uri)\").first else {",
             "                throw XMLDeserializationError.noElementWithName(QualifiedName(uri: \"\(output.element.uri)\", localName: \"\(output.element.localName)\"))",
             "            }",
-            "            return try \(output.type.name)(deserialize: node)",
-            "        },",
-            "        completionHandler: completionHandler)",
-            "}",
-        ].map(indentation.apply(toLineOfCode:))
+            "            let result = try \(output.type.name)(deserialize: node)",
+        ]
+        if output.type.allProperties.count == 1 {
+            lines += [
+                "            return result.\(output.type.allProperties.first!.name)"
+            ]
+        } else {
+            lines += [
+                "            return result"
+            ]
+        }
+        lines += [
+            "        }\(isLastArgument ? ")" : ",")",
+        ]
+        return lines
     }
 }

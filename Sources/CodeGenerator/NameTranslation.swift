@@ -74,6 +74,7 @@ private let swiftKeywords: Set<String> = [
     "case",
     "catch",
     "class",
+    "completionHandler",
     "continue",
     "default",
     "defer",
