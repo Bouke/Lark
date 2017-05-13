@@ -178,10 +178,11 @@ class CodeGeneratorTests: XCTestCase {
         XCTAssertCode(actual: try schema.generateCode(), expected: expected)
     }
 
-    func testMessageWithType() throws {
-        XCTAssertCode(definitionFile: fixture("message_with_type.wsdl"),
-                      expectedCodeFile: fixture("message_with_type.txt"))
-    }
+//    This is not WS-I compliant.
+//    func testRPCMessageWithType() throws {
+//        XCTAssertCode(definitionFile: fixture("rpc_message_with_type.wsdl"),
+//                      expectedCodeFile: fixture("rpc_message_with_type.txt"))
+//    }
 
     func testSOAPMixedWithHTTPEndpoints() throws {
         XCTAssertCode(definitionFile: fixture("soap_mixed_with_http_endpoints.wsdl"),

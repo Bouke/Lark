@@ -7,6 +7,7 @@ enum GeneratorError: Error {
     case messageNotFound(QualifiedName)
     case noSOAP11Port
     case rpcNotSupported
+    case messageNotWSICompliant(QualifiedName)
 }
 
 extension GeneratorError: CustomStringConvertible {
@@ -20,6 +21,8 @@ extension GeneratorError: CustomStringConvertible {
             return "no SOAP 1.1 port could be found."
         case .rpcNotSupported:
             return "message style RPC is not supported."
+        case let .messageNotWSICompliant(message):
+            return "the message '\(message)' could not be resolved to a complexType or element and as such is not WS-I compliant."
         }
     }
 }
@@ -89,12 +92,15 @@ public func generate(webService: WebServiceDescription, service: Service) throws
     guard binding.operations.first(where: { $0.style == .rpc || $0.input == .encoded || $0.output == .encoded }) == nil else {
         throw GeneratorError.rpcNotSupported
     }
+    
+    // TODO: Verify that the service is WS-I BP compliant.
+    // e.g. all messages should have 1 part element.
 
     let types = try generateTypes(inSchema: webService.schema)
 
     var clients = [SwiftClientClass]()
     for service in webService.services {
-        clients.append(service.toSwift(webService: webService, types: types))
+        clients.append(try service.toSwift(webService: webService, types: types))
     }
 
     return SwiftCodeGenerator.generateCode(for: Array(types.values), clients)

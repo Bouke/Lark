@@ -458,7 +458,7 @@ extension ServiceMethod: LinesOfCodeConvertible {
     func syncCall(at indentation: Indentation) -> [LineOfCode] {
         return [
             "/// Call \(name) synchronously",
-            "func \(name)(_ parameter: \(input.type)) throws -> \(output.type) {",
+            "func \(name)(_ parameter: \(input.type.name)) throws -> \(output.type.name) {",
             "    let response = try call(",
             "        action: URL(string: \"\(action?.absoluteString ?? "")\")!,",
             "        serialize: { envelope in",
@@ -468,11 +468,11 @@ extension ServiceMethod: LinesOfCodeConvertible {
             "            envelope.body.addChild(node)",
             "            return envelope",
             "        },",
-            "        deserialize: { envelope -> \(output.type) in",
+            "        deserialize: { envelope -> \(output.type.name) in",
             "            guard let node = envelope.body.elements(forLocalName: \"\(output.element.localName)\", uri: \"\(output.element.uri)\").first else {",
             "                throw XMLDeserializationError.noElementWithName(QualifiedName(uri: \"\(output.element.uri)\", localName: \"\(output.element.localName)\"))",
             "            }",
-            "            return try \(output.type)(deserialize: node)",
+            "            return try \(output.type.name)(deserialize: node)",
             "        })",
             "    return try response.result.resolve()",
             "}"
@@ -482,7 +482,7 @@ extension ServiceMethod: LinesOfCodeConvertible {
     func asyncCall(at indentation: Indentation) -> [LineOfCode] {
         return [
             "/// Call \(name) asynchronously",
-            "@discardableResult func \(name)(_ parameter: \(input.type), completionHandler: @escaping (Result<\(output.type)>) -> Void) -> DataRequest {",
+            "@discardableResult func \(name)(_ parameter: \(input.type.name), completionHandler: @escaping (Result<\(output.type.name)>) -> Void) -> DataRequest {",
             "    return call(",
             "        action: URL(string: \"\(action?.absoluteString ?? "")\")!,",
             "        serialize: { envelope in",
@@ -496,7 +496,7 @@ extension ServiceMethod: LinesOfCodeConvertible {
             "            guard let node = envelope.body.elements(forLocalName: \"\(output.element.localName)\", uri: \"\(output.element.uri)\").first else {",
             "                throw XMLDeserializationError.noElementWithName(QualifiedName(uri: \"\(output.element.uri)\", localName: \"\(output.element.localName)\"))",
             "            }",
-            "            return try \(output.type)(deserialize: node)",
+            "            return try \(output.type.name)(deserialize: node)",
             "        },",
             "        completionHandler: completionHandler)",
             "}",

@@ -106,7 +106,7 @@ extension Element {
 // MARK: - SOAP Client
 
 extension Service {
-    public func toSwift(webService: WebServiceDescription, types: Types) -> SwiftClientClass {
+    public func toSwift(webService: WebServiceDescription, types: Types) throws -> SwiftClientClass {
         // SOAP 1.1 port
         let port = ports.first { if case .soap11 = $0.address { return true } else { return false } }!
         let binding = webService.bindings.first { $0.name == port.binding }!
@@ -115,30 +115,36 @@ extension Service {
         let name = "\(self.name.localName.toSwiftTypeName())Client"
 
         // returns the message's {input,output} type and corresponding type identifier
-        let message = { (messageName: QualifiedName) -> (QualifiedName, Identifier) in
+        let message = { (messageName: QualifiedName) throws -> (QualifiedName, SwiftTypeClass) in
             let message = webService.messages.first { $0.name == messageName }!
+            let resolved: (QualifiedName, SwiftMetaType?)
             if let element = message.parts.first!.element {
-                return (element, types[.element(element)]!.name)
+                resolved = (element, types[.element(element)])
             } else if let type = message.parts.first!.type {
-                return (type, types[.type(type)]!.name)
+                resolved = (type, types[.type(type)])
             } else {
-                fatalError("Unsupported element message type")
+                throw GeneratorError.messageNotWSICompliant(messageName)
             }
+            guard let type = resolved.1 as? SwiftTypeClass else {
+                throw GeneratorError.messageNotWSICompliant(messageName)
+            }
+            return (resolved.0, type)
         }
 
         //TODO: zip operations first; combinding port.operation and binding.operation
         //TODO: compare operation signature instead (and resolve nmtoken correctly)
-        let methods = portType.operations
+        let methods = try portType.operations
             .map { operation in
                 (port: operation, binding: binding.operations.first(where: { $0.name.localName == operation.name.localName })!)
             }
             .map { operation -> ServiceMethod in
-                let input = message(operation.port.inputMessage)
-                let output = message(operation.port.outputMessage)
+                let input = try message(operation.port.inputMessage)
+                let output = try message(operation.port.outputMessage)
                 return ServiceMethod(operation: operation.port,
                                      input: input,
                                      output: output,
-                                     action: operation.binding.action)
+                                     action: operation.binding.action,
+                                     documentation: operation.port.documentation)
             }
 
         return SwiftClientClass(name: name, methods: methods, port: port)

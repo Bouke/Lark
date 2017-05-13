@@ -111,17 +111,19 @@ public struct SwiftClientClass: SwiftMetaType {
 }
 
 struct ServiceMethod {
-    typealias Message = (element: QualifiedName, type: Identifier)
+    typealias Message = (element: QualifiedName, type: SwiftTypeClass)
 
     let name: Identifier
     let input: Message
     let output: Message
     let action: URL?
+    let documentation: String?
 
-    init(operation: PortType.Operation, input: Message, output: Message, action: URL?) {
+    init(operation: PortType.Operation, input: Message, output: Message, action: URL?, documentation: String?) {
         name = operation.name.localName.toSwiftPropertyName()
         self.input = input
         self.output = output
         self.action = action
+        self.documentation = documentation
     }
 }

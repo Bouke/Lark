@@ -71,9 +71,9 @@ class WebServiceDescriptionTests: XCTestCase {
         }
     }
 
-    func testMessageWithType() {
+    func testRPCMessageWithType() {
         do {
-            let webService = try deserialize("message_with_type.wsdl")
+            let webService = try deserialize("rpc_message_with_type.wsdl")
             XCTAssertNil(webService.messages.first?.parts.first?.element)
             XCTAssertNotNil(webService.messages.first?.parts.first?.type)
             XCTAssertEqual(webService.portTypes.first?.operations.first?.documentation, [
