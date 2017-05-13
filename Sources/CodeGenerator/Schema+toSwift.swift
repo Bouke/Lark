@@ -125,10 +125,21 @@ extension Service {
             } else {
                 throw GeneratorError.messageNotWSICompliant(messageName)
             }
-            guard let type = resolved.1 as? SwiftTypeClass else {
-                throw GeneratorError.messageNotWSICompliant(messageName)
+
+            if let type = resolved.1 as? SwiftTypeClass {
+                return (resolved.0, type)
             }
-            return (resolved.0, type)
+
+            // try to resolve alias
+            if let alias = resolved.1 as? SwiftTypealias, case let .identifier(aliasFor) = alias.type {
+                for type in types.values {
+                    if let type = type as? SwiftTypeClass, type.name == aliasFor {
+                        return (resolved.0, type)
+                    }
+                }
+            }
+            
+            throw GeneratorError.messageNotWSICompliant(messageName)
         }
 
         //TODO: zip operations first; combinding port.operation and binding.operation

@@ -1,0 +1,261 @@
+<wsdl:definitions name="HelloWorld" targetNamespace="spyne.examples.hello" xmlns:plink="http://schemas.xmlsoap.org/ws/2003/05/partner-link/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soap11enc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soap11env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:soap12enc="http://www.w3.org/2003/05/soap-encoding" xmlns:soap12env="http://www.w3.org/2003/05/soap-envelope" xmlns:tns="spyne.examples.hello" xmlns:wsa="http://schemas.xmlsoap.org/ws/2003/03/addressing" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xop="http://www.w3.org/2004/08/xop/include" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <wsdl:types>
+        <xs:schema elementFormDefault="qualified" targetNamespace="spyne.examples.hello">
+            <xs:complexType name="stringArray">
+                <xs:sequence>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="string" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="fault"/>
+            <xs:complexType name="faultResponse"/>
+            <xs:complexType name="say_nothing"/>
+            <xs:complexType name="say_nothingResponse"/>
+            <xs:complexType name="secret"/>
+            <xs:complexType name="secretResponse"/>
+            <xs:simpleType name="PartOfDay">
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="morning"/>
+                    <xs:enumeration value="afternoon"/>
+                    <xs:enumeration value="evening"/>
+                    <xs:enumeration value="night"/>
+                </xs:restriction>
+            </xs:simpleType>
+            <xs:complexType name="PartOfDayArray">
+                <xs:sequence>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="PartOfDay" nillable="true" type="tns:PartOfDay"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="greet">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="part_of_day" nillable="true" type="tns:PartOfDay"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="greetResponse">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="greetResult" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="greetsResponse">
+                <xs:sequence>
+                    <xs:element name="greetsResult" nillable="true" type="tns:stringArray"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="say_hello">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="times" nillable="true" type="xs:integer"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="say_maybe_nothing">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="say_maybe_nothingResponse">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="say_maybe_nothingResult" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="say_maybe_something">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="say_maybe_somethingResponse">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="say_maybe_somethingResult" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="greets">
+                <xs:sequence>
+                    <xs:element name="part_of_days" nillable="true" type="tns:PartOfDayArray"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="say_helloResponse">
+                <xs:sequence>
+                    <xs:element name="say_helloResult" nillable="true" type="tns:stringArray"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="stringArray" type="tns:stringArray"/>
+            <xs:element name="fault" type="tns:fault"/>
+            <xs:element name="faultResponse" type="tns:faultResponse"/>
+            <xs:element name="say_nothing" type="tns:say_nothing"/>
+            <xs:element name="say_nothingResponse" type="tns:say_nothingResponse"/>
+            <xs:element name="secret" type="tns:secret"/>
+            <xs:element name="secretResponse" type="tns:secretResponse"/>
+            <xs:element name="PartOfDayArray" type="tns:PartOfDayArray"/>
+            <xs:element name="greet" type="tns:greet"/>
+            <xs:element name="greetResponse" type="tns:greetResponse"/>
+            <xs:element name="greetsResponse" type="tns:greetsResponse"/>
+            <xs:element name="say_hello" type="tns:say_hello"/>
+            <xs:element name="say_maybe_nothing" type="tns:say_maybe_nothing"/>
+            <xs:element name="say_maybe_nothingResponse" type="tns:say_maybe_nothingResponse"/>
+            <xs:element name="say_maybe_something" type="tns:say_maybe_something"/>
+            <xs:element name="say_maybe_somethingResponse" type="tns:say_maybe_somethingResponse"/>
+            <xs:element name="greets" type="tns:greets"/>
+            <xs:element name="say_helloResponse" type="tns:say_helloResponse"/>
+        </xs:schema>
+    </wsdl:types>
+    <wsdl:message name="say_hello">
+        <wsdl:part element="tns:say_hello" name="say_hello"/>
+    </wsdl:message>
+    <wsdl:message name="say_helloResponse">
+        <wsdl:part element="tns:say_helloResponse" name="say_helloResponse"/>
+    </wsdl:message>
+    <wsdl:message name="say_maybe_nothing">
+        <wsdl:part element="tns:say_maybe_nothing" name="say_maybe_nothing"/>
+    </wsdl:message>
+    <wsdl:message name="say_maybe_nothingResponse">
+        <wsdl:part element="tns:say_maybe_nothingResponse" name="say_maybe_nothingResponse"/>
+    </wsdl:message>
+    <wsdl:message name="fault">
+        <wsdl:part element="tns:fault" name="fault"/>
+    </wsdl:message>
+    <wsdl:message name="faultResponse">
+        <wsdl:part element="tns:faultResponse" name="faultResponse"/>
+    </wsdl:message>
+    <wsdl:message name="say_maybe_something">
+        <wsdl:part element="tns:say_maybe_something" name="say_maybe_something"/>
+    </wsdl:message>
+    <wsdl:message name="say_maybe_somethingResponse">
+        <wsdl:part element="tns:say_maybe_somethingResponse" name="say_maybe_somethingResponse"/>
+    </wsdl:message>
+    <wsdl:message name="greet">
+        <wsdl:part element="tns:greet" name="greet"/>
+    </wsdl:message>
+    <wsdl:message name="greetResponse">
+        <wsdl:part element="tns:greetResponse" name="greetResponse"/>
+    </wsdl:message>
+    <wsdl:message name="say_nothing">
+        <wsdl:part element="tns:say_nothing" name="say_nothing"/>
+    </wsdl:message>
+    <wsdl:message name="say_nothingResponse">
+        <wsdl:part element="tns:say_nothingResponse" name="say_nothingResponse"/>
+    </wsdl:message>
+    <wsdl:message name="secret">
+        <wsdl:part element="tns:secret" name="secret"/>
+    </wsdl:message>
+    <wsdl:message name="secretResponse">
+        <wsdl:part element="tns:secretResponse" name="secretResponse"/>
+    </wsdl:message>
+    <wsdl:message name="greets">
+        <wsdl:part element="tns:greets" name="greets"/>
+    </wsdl:message>
+    <wsdl:message name="greetsResponse">
+        <wsdl:part element="tns:greetsResponse" name="greetsResponse"/>
+    </wsdl:message>
+    <wsdl:service name="HelloWorldService">
+        <wsdl:port binding="tns:HelloWorld" name="HelloWorld">
+            <soap:address location="http://localhost:8000/"/>
+        </wsdl:port>
+    </wsdl:service>
+    <wsdl:portType name="HelloWorld">
+        <wsdl:operation name="say_hello" parameterOrder="say_hello">
+            <wsdl:input message="tns:say_hello" name="say_hello"/>
+            <wsdl:output message="tns:say_helloResponse" name="say_helloResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="say_maybe_nothing" parameterOrder="say_maybe_nothing">
+            <wsdl:input message="tns:say_maybe_nothing" name="say_maybe_nothing"/>
+            <wsdl:output message="tns:say_maybe_nothingResponse" name="say_maybe_nothingResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="fault" parameterOrder="fault">
+            <wsdl:input message="tns:fault" name="fault"/>
+            <wsdl:output message="tns:faultResponse" name="faultResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="say_maybe_something" parameterOrder="say_maybe_something">
+            <wsdl:input message="tns:say_maybe_something" name="say_maybe_something"/>
+            <wsdl:output message="tns:say_maybe_somethingResponse" name="say_maybe_somethingResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="greet" parameterOrder="greet">
+            <wsdl:input message="tns:greet" name="greet"/>
+            <wsdl:output message="tns:greetResponse" name="greetResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="say_nothing" parameterOrder="say_nothing">
+            <wsdl:input message="tns:say_nothing" name="say_nothing"/>
+            <wsdl:output message="tns:say_nothingResponse" name="say_nothingResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="secret" parameterOrder="secret">
+            <wsdl:input message="tns:secret" name="secret"/>
+            <wsdl:output message="tns:secretResponse" name="secretResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="greets" parameterOrder="greets">
+            <wsdl:input message="tns:greets" name="greets"/>
+            <wsdl:output message="tns:greetsResponse" name="greetsResponse"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="HelloWorld" type="tns:HelloWorld">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="say_hello">
+            <soap:operation soapAction="say_hello" style="document"/>
+            <wsdl:input name="say_hello">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="say_helloResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="say_maybe_nothing">
+            <soap:operation soapAction="say_maybe_nothing" style="document"/>
+            <wsdl:input name="say_maybe_nothing">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="say_maybe_nothingResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="fault">
+            <soap:operation soapAction="fault" style="document"/>
+            <wsdl:input name="fault">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="faultResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="say_maybe_something">
+            <soap:operation soapAction="say_maybe_something" style="document"/>
+            <wsdl:input name="say_maybe_something">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="say_maybe_somethingResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="greet">
+            <soap:operation soapAction="greet" style="document"/>
+            <wsdl:input name="greet">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="greetResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="say_nothing">
+            <soap:operation soapAction="say_nothing" style="document"/>
+            <wsdl:input name="say_nothing">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="say_nothingResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="secret">
+            <soap:operation soapAction="secret" style="document"/>
+            <wsdl:input name="secret">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="secretResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="greets">
+            <soap:operation soapAction="greets" style="document"/>
+            <wsdl:input name="greets">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="greetsResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+</wsdl:definitions>

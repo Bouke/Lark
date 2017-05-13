@@ -198,4 +198,9 @@ class CodeGeneratorTests: XCTestCase {
         XCTAssertCode(definitionFile: fixture("import_binding_in_other_namespace.wsdl"),
                       expectedCodeFile: fixture("import_binding_in_other_namespace.txt"))
     }
+
+    func testHelloWorldService() {
+        XCTAssertCode(definitionFile: fixture("hello_world.wsdl"),
+                      expectedCodeFile: fixture("hello_world.txt"))
+    }
 }
