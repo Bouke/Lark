@@ -13,7 +13,7 @@ public struct Schema {
         case complexType(ComplexType)
 //        case group
 //        case attributeGroup
-        case element(Element)
+        case element(SchemaParser.Element)
 //        case attribute
 //        case notation
 
@@ -66,7 +66,7 @@ public struct Schema {
             case "complexType":
                 nodes.append(try .complexType(ComplexType(deserialize: node)))
             case "element":
-                nodes.append(try .element(Element(deserialize: node)))
+                nodes.append(try .element(SchemaParser.Element(deserialize: node)))
             default:
                 throw SchemaParseError.incorrectTopLevelElement(node.localName!)
             }
