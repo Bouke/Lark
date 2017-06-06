@@ -2,7 +2,13 @@ import Alamofire
 import Foundation
 
 extension DataRequest {
-    func validateSOAP() -> Self {
+    /// Deserializes `Fault` on error responses.
+    ///
+    /// If the response is a 500 response, but not a SOAP `Fault`, it will
+    /// wrap an `Error` instead.
+    ///
+    /// - Returns: self, to chain other response handlers
+    func deserializeFault() -> Self {
         return validate { _, response, data in
             switch response.statusCode {
             case 200: return .success

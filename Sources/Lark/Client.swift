@@ -121,7 +121,7 @@ open class Client {
         return sessionManager.request(call)
             .validate(contentType: ["text/xml"])
             .validate(statusCode: [200, 500])
-            .validateSOAP()
+            .deserializeFault()
     }
 }
 
