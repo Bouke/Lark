@@ -107,7 +107,7 @@ public func generate(webService: WebServiceDescription, service: Service) throws
 }
 
 func generateTypes(inSchema schema: Schema) throws -> Types {
-    var mapping: TypeMapping = baseTypes.dictionary { (Type.type($0), $1) }
+    var mapping: TypeMapping = baseTypes.dictionary { (Type.type($0.0), $0.1) }
     var scope: Set<String> = globalScope
     var hierarchy = ElementHierarchy.Graph()
 
@@ -178,7 +178,7 @@ func generateTypes(inSchema schema: Schema) throws -> Types {
         }
     }
 
-    var types: Types = baseTypes.dictionary { (.type($0), SwiftBuiltin(name: $1)) }
+    var types: Types = baseTypes.dictionary { (.type($0.0), SwiftBuiltin(name: $0.1)) }
     for node in hierarchy.traverse {
         switch node {
         case let .element(name):

@@ -14,7 +14,7 @@ extension DataRequest {
             case 200: return .success
             case 500:
                 do {
-                    let document = try XMLDocument(data: data!, options: 0)
+                    let document = try XMLDocument(data: data!, options: [])
                     let envelope = try Envelope(document: document)
                     guard let faultElement = envelope.body.elements(forLocalName: "Fault", uri: NS_SOAP_ENVELOPE).first else {
                         return .failure(ServerError.cannotDeserializeFault(data!))

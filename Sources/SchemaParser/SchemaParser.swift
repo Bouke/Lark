@@ -12,7 +12,7 @@ public func parseWebServiceDescription(contentsOf url: URL) throws -> WebService
 
     while let url = pending.popFirst() {
         visited.insert(url)
-        let xml = try XMLDocument(contentsOf: url, options: 0)
+        let xml = try XMLDocument(contentsOf: url, options: [])
         let webService = try WebServiceDescription(deserialize: xml.rootElement()!, relativeTo: url)
         for _import in webService.imports {
             if !visited.contains(_import.location) {
@@ -35,6 +35,6 @@ public func parseWebServiceDescription(contentsOf url: URL) throws -> WebService
 }
 
 public func parseSchema(contentsOf url: URL) throws -> Schema {
-    let xml = try XMLDocument(contentsOf: url, options: 0)
+    let xml = try XMLDocument(contentsOf: url, options: [])
     return try Schema(deserialize: xml.rootElement()!)
 }

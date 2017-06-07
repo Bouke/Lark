@@ -42,5 +42,5 @@ extension Sequence {
 }
 
 func importSchema(url: URL) throws -> XMLElement {
-    return try XMLDocument(contentsOf: url, options: 0).rootElement()!
+    return try XMLDocument(contentsOf: url, options: []).rootElement()!
 }

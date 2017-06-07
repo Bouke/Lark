@@ -355,8 +355,8 @@ extension SwiftEnum {
     }
 
     private func linesOfCodeForCases(at indentation: Indentation) -> [LineOfCode] {
-        return sortedCases.map { (name, rawValue) in
-            return indentation.apply(toLineOfCode: "case \(name) = \"\(rawValue)\"")
+        return sortedCases.map {
+            return indentation.apply(toLineOfCode: "case \($0.0) = \"\($0.1)\"")
         }
     }
 

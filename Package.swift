@@ -1,3 +1,4 @@
+// swift-tools-version:3.1
 import PackageDescription
 
 let package = Package(
@@ -9,5 +10,6 @@ let package = Package(
     ],
     dependencies: [
         .Package(url: "https://github.com/Alamofire/Alamofire.git", majorVersion: 4)
-    ]
+    ],
+    swiftLanguageVersions: [3, 4]
 )
