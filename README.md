@@ -68,6 +68,10 @@ example of how to use Lark.
 
 ## FAQ
 
+### Is iOS supported?
+
+No. This library builds on various XMLDocument APIs that are not available on iOS. Switching to another XML library might help here, but I don't have the need for this.
+
 ### Why is it called Lark?
 
 SOAP is sometimes referred to as a fat messaging protocol. Swift is an elegant bird. A Lark sometimes looks like a fat bird.
