@@ -59,4 +59,20 @@ class SchemaTests: XCTestCase {
         XCTAssertEqual(type, QualifiedName(uri: NS_XS, localName: "anyType"))
     }
 
+    func testComplexGeneric() {
+        do {
+            let xsd = try deserialize("complex_generic.xsd")
+            
+            // unwrap into expected type
+            guard case let .element(type)? = xsd.first,
+                case let .complex(complex) = type.content,
+                case let .sequence(sequence) = complex.content else {
+                    return XCTFail("Expected element with complexType with sequence.")
+            }
+
+            complex.annotations
+        } catch {
+            XCTFail("Failed: \(error)")
+        }
+    }
 }

@@ -294,10 +294,12 @@ public struct ComplexType: NamedType {
 
     public let name: QualifiedName?
     public let content: Content
+    public let annotations: [Annotation]
 
-    init(name: QualifiedName?, content: Content) {
+    init(name: QualifiedName?, content: Content, annotations: [Annotation]) {
         self.name = name
         self.content = content
+        self.annotations = annotations
     }
 
     init(deserialize node: XMLElement) throws {
@@ -318,7 +320,13 @@ public struct ComplexType: NamedType {
         } else {
             content = .empty
         }
+
+        annotations = []
     }
+}
+
+public protocol Annotation {
+    
 }
 
 public enum SchemaParseError: Error {
