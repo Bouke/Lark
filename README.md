@@ -68,6 +68,10 @@ example of how to use Lark.
 
 ## FAQ
 
+### Is Linux supported?
+
+Not yet. This library builds on various XMLDocument APIs that are either not available in Swift-Foundation (the Swift port of some Foundation APIs) or behave differently. Also a major dependency, AlamoFire, is not yet supported on iOS. To track the progress on this, subscribe to ticket [22](https://github.com/Bouke/Lark/issues/32).
+
 ### Is iOS supported?
 
 No. This library builds on various XMLDocument APIs that are not available on iOS. Switching to another XML library might help here, but I don't have the need for this.
