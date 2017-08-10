@@ -76,6 +76,10 @@ Not yet. This library builds on various XMLDocument APIs that are either not ava
 
 No. This library builds on various XMLDocument APIs that are not available on iOS. Switching to another XML library might help here, but I don't have the need for this.
 
+### Is CocoaPods / Carthage supported?
+
+No.
+
 ### Why is it called Lark?
 
 SOAP is sometimes referred to as a fat messaging protocol. Swift is an elegant bird. A Lark sometimes looks like a fat bird.
