@@ -74,7 +74,7 @@ Not yet. This library builds on various XMLDocument APIs that are either not ava
 
 ### Is iOS supported?
 
-No. This library builds on various XMLDocument APIs that are not available on iOS. Switching to another XML library might help here, but I don't have the need for this.
+No. This library builds on various XMLDocument APIs that are not available on iOS. Switching to another XML library might help here, but I don't have the need for this. Feel free to reach out to me if you're interested in working on a pull request to change this.
 
 ### Is CocoaPods / Carthage supported?
 
