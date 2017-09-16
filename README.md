@@ -7,7 +7,7 @@ Lark is a SOAP library written in Swift.
 
 ## Features
 
-* [x] Swift 3
+* [x] Swift 4
 * [x] Swift Package Manager 
 * [x] API Client code generation
 * [x] Strictly typed
@@ -65,6 +65,9 @@ More information can be found in the [documentation](http://boukehaarsma.nl/Lark
 
 See the [Lark-Example](https://github.com/Bouke/Lark-Example) repository for an
 example of how to use Lark.
+
+Swift 4 is required with version 1 of this package. Use version 0 if you need 
+Swift 3 compatibility.
 
 ## FAQ
 
