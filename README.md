@@ -66,6 +66,8 @@ More information can be found in the [documentation](http://boukehaarsma.nl/Lark
 See the [Lark-Example](https://github.com/Bouke/Lark-Example) repository for an
 example of how to use Lark.
 
+## Swift Compatibility
+
 Swift 4 is required with version 1 of this package. Use version 0 if you need 
 Swift 3 compatibility.
 
