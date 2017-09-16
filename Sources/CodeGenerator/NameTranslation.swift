@@ -19,11 +19,11 @@ internal extension String {
         let trimmed = trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
         let parts = trimmed
             .components(separatedBy: invalidSwiftNameCharacters)
-            .enumerated().map { (index, word) -> String in
+            .enumerated().map { (pair) -> String in
+                var (index, word) = pair
                 if index > 0 {
                     return word
                 }
-                var word = word
                 if let firstWordRange: Range<String.Index> = String.caseRegex.matches(in: word).first {
                     word.replaceSubrange(firstWordRange, with: word[firstWordRange].lowercased())
                 }

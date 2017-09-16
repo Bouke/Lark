@@ -54,7 +54,7 @@ struct EnvelopeDeserializer: DataResponseSerializerProtocol {
         }
         do {
             if let data = $2 {
-                let document = try XMLDocument(data: data, options: 0)
+                let document = try XMLDocument(data: data, options: [])
                 return .success(try Envelope(document: document))
             }
         } catch {
