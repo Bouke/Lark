@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/tns" xmlns:tns="http://tempuri.org/tns" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="employee">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="tns:FirstName" />
+                <xs:element ref="tns:LastName" />
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="FirstName" type="xs:string"/>
+    <xs:element name="LastName" type="xs:string"/>
+</xs:schema>

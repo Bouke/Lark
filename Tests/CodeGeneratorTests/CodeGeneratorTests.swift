@@ -203,4 +203,22 @@ class CodeGeneratorTests: XCTestCase {
         XCTAssertCode(definitionFile: fixture("hello_world.wsdl"),
                       expectedCodeFile: fixture("hello_world.txt"))
     }
+
+    func testElementRef() throws {
+        let schema = try deserialize("element_ref.xsd")
+        let expected = try readlines("element_ref.txt")
+        XCTAssertCode(actual: try schema.generateCode(), expected: expected)
+    }
+
+    func testComplexSimpleContent() throws {
+        let schema = try deserialize("complex_simple_content.xsd")
+        let expected = try readlines("complex_simple_content.txt")
+        XCTAssertCode(actual: try schema.generateCode(), expected: expected)
+    }
+
+    func testComplexChoice() throws {
+        let schema = try deserialize("complex_choice.xsd")
+        let expected = try readlines("complex_choice.txt")
+        XCTAssertCode(actual: try schema.generateCode(), expected: expected)
+    }
 }
