@@ -4,6 +4,9 @@ import PackageDescription
 
 let package = Package(
     name: "Lark",
+    products: [
+        .library(name: "Lark", targets: ["Lark"]),
+    ],
     dependencies: [
         .package(url: "https://github.com/Alamofire/Alamofire.git", from: "4.5.0")
     ],
