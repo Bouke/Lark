@@ -1,4 +1,6 @@
-## [UNRELEASED]
+## 0.8.0 - 2018-10-21
+### Changes
+- Swift 4.2
 
 ## 0.7.1 - 2017-09-16
 ### Changes
