@@ -23,7 +23,7 @@ open class Client {
     open var headers: [HeaderSerializable] = []
 
     /// Optional delegate for this client instance.
-    open weak var delegate: ClientDelegate? = nil
+    open weak var delegate: ClientDelegate?
 
     /// Instantiates a `Client`.
     ///

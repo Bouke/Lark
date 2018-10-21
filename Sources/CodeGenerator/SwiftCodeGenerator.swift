@@ -117,7 +117,7 @@ extension SwiftTypeClass {
         lines += members.flatMap { $0.toLinesOfCode(at: indentation) }
         return lines
     }
-    
+
     internal var arguments: [SwiftCode] {
         return allProperties.map {
                 let base = "\($0.name): \($0.type.toSwiftCode())"
@@ -287,7 +287,7 @@ extension SwiftTypeClass {
             return indentation.apply(toLineOfCode: propertyCode)
         }
     }
-    
+
     /// This type's inherited properties and it's own properties.
     internal var allProperties: [SwiftProperty] {
         return (inheritedProperties + properties)
@@ -461,14 +461,14 @@ extension ServiceMethod: LinesOfCodeConvertible {
     func toLinesOfCode(at indentation: Indentation) -> [LineOfCode] {
         return syncCall(at: indentation) + asyncCall(at: indentation)
     }
-    
+
     func syncCall(at indentation: Indentation) -> [LineOfCode] {
         let signature = input.type.arguments.joined(separator: ", ")
-        
+
         let lines = [
             "/// Call \(name) synchronously",
             "func \(name)(\(signature)) throws -> \(responseType()) {",
-            "    let response = try call(",
+            "    let response = try call("
             ] +
             callActionArgument() +
             callSerializeArgument() +
@@ -482,22 +482,22 @@ extension ServiceMethod: LinesOfCodeConvertible {
 
     func asyncCall(at indentation: Indentation) -> [LineOfCode] {
         let signature = (input.type.arguments + ["completionHandler: @escaping (Result<\(responseType())>) -> Void"]).joined(separator: ", ")
-        
+
         let lines = [
             "/// Call \(name) asynchronously",
             "@discardableResult func \(name)(\(signature)) -> DataRequest {",
-            "    return call(",
+            "    return call("
             ] +
             callActionArgument() +
             callSerializeArgument() +
             callDeserializeArgument(isLastArgument: false) +
             [
             "        completionHandler: completionHandler)",
-            "}",
+            "}"
         ]
         return lines.map(indentation.apply(toLineOfCode:))
     }
-    
+
     func responseType() -> SwiftCode {
         if output.type.allProperties.count == 1 {
             return output.type.allProperties.first!.type.toSwiftCode()
@@ -505,13 +505,13 @@ extension ServiceMethod: LinesOfCodeConvertible {
             return output.type.name
         }
     }
-    
+
     func callActionArgument() -> [LineOfCode] {
         return [
-            "        action: URL(string: \"\(action?.absoluteString ?? "")\")!,",
+            "        action: URL(string: \"\(action?.absoluteString ?? "")\")!,"
         ]
     }
-    
+
     func callSerializeArgument() -> [LineOfCode] {
         let arguments = input.type.allProperties
             .map { "\($0.name): \($0.name)" }
@@ -525,17 +525,17 @@ extension ServiceMethod: LinesOfCodeConvertible {
             "            try parameter.serialize(node)",
             "            envelope.body.addChild(node)",
             "            return envelope",
-            "        },",
+            "        },"
         ]
     }
-    
+
     func callDeserializeArgument(isLastArgument: Bool) -> [LineOfCode] {
         var lines = [
             "        deserialize: { envelope -> \(responseType()) in",
             "            guard let node = envelope.body.elements(forLocalName: \"\(output.element.localName)\", uri: \"\(output.element.uri)\").first else {",
             "                throw XMLDeserializationError.noElementWithName(QualifiedName(uri: \"\(output.element.uri)\", localName: \"\(output.element.localName)\"))",
             "            }",
-            "            let result = try \(output.type.name)(deserialize: node)",
+            "            let result = try \(output.type.name)(deserialize: node)"
         ]
         if output.type.allProperties.count == 1 {
             lines += [
@@ -547,7 +547,7 @@ extension ServiceMethod: LinesOfCodeConvertible {
             ]
         }
         lines += [
-            "        }\(isLastArgument ? ")" : ",")",
+            "        }\(isLastArgument ? ")" : ",")"
         ]
         return lines
     }

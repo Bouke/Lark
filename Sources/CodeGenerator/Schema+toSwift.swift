@@ -138,7 +138,7 @@ extension Service {
                     }
                 }
             }
-            
+
             throw GeneratorError.messageNotWSICompliant(messageName)
         }
 

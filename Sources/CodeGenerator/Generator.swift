@@ -92,7 +92,7 @@ public func generate(webService: WebServiceDescription, service: Service) throws
     guard binding.operations.first(where: { $0.style == .rpc || $0.input == .encoded || $0.output == .encoded }) == nil else {
         throw GeneratorError.rpcNotSupported
     }
-    
+
     // TODO: Verify that the service is WS-I BP compliant.
     // e.g. all messages should have 1 part element.
 
@@ -166,8 +166,7 @@ func generateTypes(inSchema schema: Schema) throws -> Types {
     for case let .complexType(type) in schema {
         switch type.content {
         case let .complex(complex): hierarchy.insertEdge((.type(type.name!), .type(complex.base)))
-        case .sequence(_): fallthrough // TODO: inspect nested types as well
-        case .empty: hierarchy.nodes.insert(.type(type.name!))
+        case .sequence, .empty: hierarchy.nodes.insert(.type(type.name!))
         }
     }
 

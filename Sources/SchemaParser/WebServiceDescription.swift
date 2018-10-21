@@ -326,7 +326,7 @@ public struct WebServiceDescription {
     }
 }
 
-fileprivate func targetNamespace(ofNode node: XMLElement) throws -> String {
+private func targetNamespace(ofNode node: XMLElement) throws -> String {
     guard let tns = node.targetNamespace else {
         throw WebServiceDescriptionParseError.nodeWithoutTargetNamespace
     }

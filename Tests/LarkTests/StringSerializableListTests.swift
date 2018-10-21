@@ -3,7 +3,7 @@ import XCTest
 
 @testable import Lark
 
-fileprivate struct _Foo: StringSerializableList {
+private struct _Foo: StringSerializableList {
     enum Item: String, StringSerializable, StringDeserializable {
         case bar, baz
         init(string: String) throws {

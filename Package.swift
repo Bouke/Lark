@@ -5,7 +5,7 @@ import PackageDescription
 let package = Package(
     name: "Lark",
     products: [
-        .library(name: "Lark", targets: ["Lark"]),
+        .library(name: "Lark", targets: ["Lark"])
     ],
     dependencies: [
         .package(url: "https://github.com/Alamofire/Alamofire.git", from: "4.5.0")
@@ -17,7 +17,7 @@ let package = Package(
         .target(name: "lark-generate-client", dependencies: ["SchemaParser", "CodeGenerator"]),
         .testTarget(name: "CodeGeneratorTests", dependencies: ["CodeGenerator"]),
         .testTarget(name: "LarkTests", dependencies: ["Lark"]),
-        .testTarget(name: "SchemaParserTests", dependencies: ["SchemaParser"]),
+        .testTarget(name: "SchemaParserTests", dependencies: ["SchemaParser"])
     ],
     swiftLanguageVersions: [4]
 )

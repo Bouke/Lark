@@ -157,7 +157,7 @@ extension Element {
             content = .base(try QualifiedName(type: base, inTree: node))
         } else if let complex = node.elements(forLocalName: "complexType", uri: NS_XS).first {
             content = .complex(try ComplexType(deserialize: complex))
-        } else if let _ = node.elements(forLocalName: "simpleType", uri: NS_XS).first {
+        } else if node.elements(forLocalName: "simpleType", uri: NS_XS).first != nil {
             throw SchemaParseError.elementContentNotSupported
         } else {
             // The default for xs:element/@type is ur-type, otherwise known as anyType.
@@ -255,11 +255,11 @@ public struct ComplexType: NamedType {
                     case sequence(Sequence)
 
                     init(deserialize node: XMLElement) throws {
-                        if let _ = node.elements(forLocalName: "group", uri: NS_XS).first {
+                        if node.elements(forLocalName: "group", uri: NS_XS).first != nil {
                             throw SchemaParseError.complexContentContentNotSupported
-                        } else if let _ = node.elements(forLocalName: "all", uri: NS_XS).first {
+                        } else if node.elements(forLocalName: "all", uri: NS_XS).first != nil {
                             throw SchemaParseError.complexContentContentNotSupported
-                        } else if let _ = node.elements(forLocalName: "choice", uri: NS_XS).first {
+                        } else if node.elements(forLocalName: "choice", uri: NS_XS).first != nil {
                             throw SchemaParseError.complexContentContentNotSupported
                         } else if let sequence = node.elements(forLocalName: "sequence", uri: NS_XS).first {
                             self = .sequence(try .init(deserialize: sequence))
@@ -303,15 +303,15 @@ public struct ComplexType: NamedType {
     init(deserialize node: XMLElement) throws {
         name = try .name(ofElement: node)
 
-        if let _ = node.elements(forLocalName: "simpleContent", uri: NS_XS).first {
+        if node.elements(forLocalName: "simpleContent", uri: NS_XS).first != nil {
             throw SchemaParseError.complexTypeContentNotSupported
         } else if let complexContent = node.elements(forLocalName: "complexContent", uri: NS_XS).first {
             content = .complex(try .init(deserialize: complexContent))
-        } else if let _ = node.elements(forLocalName: "group", uri: NS_XS).first {
+        } else if node.elements(forLocalName: "group", uri: NS_XS).first != nil {
             throw SchemaParseError.complexTypeContentNotSupported
-        } else if let _ = node.elements(forLocalName: "all", uri: NS_XS).first {
+        } else if node.elements(forLocalName: "all", uri: NS_XS).first != nil {
             throw SchemaParseError.complexTypeContentNotSupported
-        } else if let _ = node.elements(forLocalName: "choice", uri: NS_XS).first {
+        } else if node.elements(forLocalName: "choice", uri: NS_XS).first != nil {
             throw SchemaParseError.complexTypeContentNotSupported
         } else if let sequence = node.elements(forLocalName: "sequence", uri: NS_XS).first {
             content = .sequence(try Content.Sequence(deserialize: sequence))
