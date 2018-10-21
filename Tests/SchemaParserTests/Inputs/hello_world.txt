@@ -7,7 +7,18 @@ import Lark
 //
 // MARK: - SOAP Structures
 //
-typealias Secret = SecretType
+typealias Fault = FaultType
+
+typealias FaultResponse = FaultResponseType
+
+class FaultResponseType: XMLDeserializable {
+    init() {
+    }
+    required init(deserialize element: XMLElement) throws {
+    }
+    func serialize(_ element: XMLElement) throws {
+    }
+}
 
 class FaultType: XMLDeserializable {
     init() {
@@ -18,35 +29,9 @@ class FaultType: XMLDeserializable {
     }
 }
 
-typealias Fault = FaultType
+typealias Greet = GreetType
 
-class PartOfDayArrayType: XMLDeserializable {
-    var partOfDay: [PartOfDay?]
-    init(partOfDay: [PartOfDay?]) {
-        self.partOfDay = partOfDay
-    }
-    required init(deserialize element: XMLElement) throws {
-        self.partOfDay = try element.elements(forLocalName: "PartOfDay", uri: "spyne.examples.hello").map { node in
-            if node.attribute(forLocalName: "nil", uri: NS_XSI)?.stringValue != "true" {
-                return try PartOfDay(deserialize: node)
-            } else {
-                return nil
-            }
-        }
-    }
-    func serialize(_ element: XMLElement) throws {
-        for item in partOfDay {
-            let itemNode = element.createChildElement(localName: "PartOfDay", uri: "spyne.examples.hello")
-            if let item = item {
-                try item.serialize(itemNode)
-            } else {
-                itemNode.addAttribute(XMLNode.attribute(prefix: "xsi", localName: "nil", uri: NS_XSI, stringValue: "true"))
-            }
-        }
-    }
-}
-
-typealias PartOfDayArray = PartOfDayArrayType
+typealias GreetResponse = GreetResponseType
 
 class GreetResponseType: XMLDeserializable {
     var greetResult: String?
@@ -71,109 +56,6 @@ class GreetResponseType: XMLDeserializable {
     }
 }
 
-typealias GreetResponse = GreetResponseType
-
-class SayMaybeNothingType: XMLDeserializable {
-    var name: String?
-    init(name: String? = nil) {
-        self.name = name
-    }
-    required init(deserialize element: XMLElement) throws {
-        do {
-            if let node = element.elements(forLocalName: "name", uri: "spyne.examples.hello").first,
-                    node.attribute(forLocalName: "nil", uri: NS_XSI)?.stringValue != "true" {
-                self.name = try String(deserialize: node)
-            } else {
-                self.name = nil
-            }
-        }
-    }
-    func serialize(_ element: XMLElement) throws {
-        if let name = name {
-            let nameNode = element.createChildElement(localName: "name", uri: "spyne.examples.hello")
-            try name.serialize(nameNode)
-        }
-    }
-}
-
-typealias SayMaybeNothing = SayMaybeNothingType
-
-class SayMaybeNothingResponseType: XMLDeserializable {
-    var sayMaybeNothingResult: String?
-    init(sayMaybeNothingResult: String? = nil) {
-        self.sayMaybeNothingResult = sayMaybeNothingResult
-    }
-    required init(deserialize element: XMLElement) throws {
-        do {
-            if let node = element.elements(forLocalName: "say_maybe_nothingResult", uri: "spyne.examples.hello").first,
-                    node.attribute(forLocalName: "nil", uri: NS_XSI)?.stringValue != "true" {
-                self.sayMaybeNothingResult = try String(deserialize: node)
-            } else {
-                self.sayMaybeNothingResult = nil
-            }
-        }
-    }
-    func serialize(_ element: XMLElement) throws {
-        if let sayMaybeNothingResult = sayMaybeNothingResult {
-            let sayMaybeNothingResultNode = element.createChildElement(localName: "say_maybe_nothingResult", uri: "spyne.examples.hello")
-            try sayMaybeNothingResult.serialize(sayMaybeNothingResultNode)
-        }
-    }
-}
-
-typealias SayMaybeNothingResponse = SayMaybeNothingResponseType
-
-class SecretResponseType: XMLDeserializable {
-    init() {
-    }
-    required init(deserialize element: XMLElement) throws {
-    }
-    func serialize(_ element: XMLElement) throws {
-    }
-}
-
-typealias SecretResponse = SecretResponseType
-
-class SayNothingResponseType: XMLDeserializable {
-    init() {
-    }
-    required init(deserialize element: XMLElement) throws {
-    }
-    func serialize(_ element: XMLElement) throws {
-    }
-}
-
-typealias SayNothingResponse = SayNothingResponseType
-
-class SayHelloResponseType: XMLDeserializable {
-    var sayHelloResult: StringArrayType?
-    init(sayHelloResult: StringArrayType? = nil) {
-        self.sayHelloResult = sayHelloResult
-    }
-    required init(deserialize element: XMLElement) throws {
-        do {
-            guard let node = element.elements(forLocalName: "say_helloResult", uri: "spyne.examples.hello").first else {
-                throw XMLDeserializationError.noElementWithName(QualifiedName(uri: "spyne.examples.hello", localName: "say_helloResult"))
-            }
-            if node.attribute(forLocalName: "nil", uri: NS_XSI)?.stringValue != "true" {
-                self.sayHelloResult = try StringArrayType(deserialize: node)
-            } else {
-                self.sayHelloResult = nil
-            }
-        }
-    }
-    func serialize(_ element: XMLElement) throws {
-        let sayHelloResultNode = element.createChildElement(localName: "say_helloResult", uri: "spyne.examples.hello")
-        if let sayHelloResult = sayHelloResult {
-            try sayHelloResult.serialize(sayHelloResultNode)
-        } else {
-            sayHelloResultNode.addAttribute(XMLNode.attribute(prefix: "xsi", localName: "nil", uri: NS_XSI, stringValue: "true"))
-        }
-    }
-}
-
-typealias SayHelloResponse = SayHelloResponseType
-
 class GreetType: XMLDeserializable {
     var partOfDay: PartOfDay?
     init(partOfDay: PartOfDay? = nil) {
@@ -197,115 +79,9 @@ class GreetType: XMLDeserializable {
     }
 }
 
-typealias Greet = GreetType
+typealias Greets = GreetsType
 
-class SayNothingType: XMLDeserializable {
-    init() {
-    }
-    required init(deserialize element: XMLElement) throws {
-    }
-    func serialize(_ element: XMLElement) throws {
-    }
-}
-
-typealias SayNothing = SayNothingType
-
-enum PartOfDay: String, XMLSerializable, XMLDeserializable, StringSerializable, StringDeserializable {
-    case afternoon = "afternoon"
-    case evening = "evening"
-    case morning = "morning"
-    case night = "night"
-    init(deserialize element: XMLElement) throws {
-        self.init(rawValue: element.stringValue!)!
-    }
-    func serialize(_ element: XMLElement) throws {
-        element.stringValue = self.rawValue
-    }
-    init(string: String) throws {
-        self.init(rawValue: string)!
-    }
-    func serialize() throws -> String {
-        return self.rawValue
-    }
-}
-
-class StringArrayType: XMLDeserializable {
-    var string: [String?]
-    init(string: [String?]) {
-        self.string = string
-    }
-    required init(deserialize element: XMLElement) throws {
-        self.string = try element.elements(forLocalName: "string", uri: "spyne.examples.hello").map { node in
-            if node.attribute(forLocalName: "nil", uri: NS_XSI)?.stringValue != "true" {
-                return try String(deserialize: node)
-            } else {
-                return nil
-            }
-        }
-    }
-    func serialize(_ element: XMLElement) throws {
-        for item in string {
-            let itemNode = element.createChildElement(localName: "string", uri: "spyne.examples.hello")
-            if let item = item {
-                try item.serialize(itemNode)
-            } else {
-                itemNode.addAttribute(XMLNode.attribute(prefix: "xsi", localName: "nil", uri: NS_XSI, stringValue: "true"))
-            }
-        }
-    }
-}
-
-typealias StringArray = StringArrayType
-
-class SayMaybeSomethingResponseType: XMLDeserializable {
-    var sayMaybeSomethingResult: String?
-    init(sayMaybeSomethingResult: String? = nil) {
-        self.sayMaybeSomethingResult = sayMaybeSomethingResult
-    }
-    required init(deserialize element: XMLElement) throws {
-        do {
-            if let node = element.elements(forLocalName: "say_maybe_somethingResult", uri: "spyne.examples.hello").first,
-                    node.attribute(forLocalName: "nil", uri: NS_XSI)?.stringValue != "true" {
-                self.sayMaybeSomethingResult = try String(deserialize: node)
-            } else {
-                self.sayMaybeSomethingResult = nil
-            }
-        }
-    }
-    func serialize(_ element: XMLElement) throws {
-        if let sayMaybeSomethingResult = sayMaybeSomethingResult {
-            let sayMaybeSomethingResultNode = element.createChildElement(localName: "say_maybe_somethingResult", uri: "spyne.examples.hello")
-            try sayMaybeSomethingResult.serialize(sayMaybeSomethingResultNode)
-        }
-    }
-}
-
-typealias SayMaybeSomethingResponse = SayMaybeSomethingResponseType
-
-class SayMaybeSomethingType: XMLDeserializable {
-    var name: String?
-    init(name: String? = nil) {
-        self.name = name
-    }
-    required init(deserialize element: XMLElement) throws {
-        do {
-            if let node = element.elements(forLocalName: "name", uri: "spyne.examples.hello").first,
-                    node.attribute(forLocalName: "nil", uri: NS_XSI)?.stringValue != "true" {
-                self.name = try String(deserialize: node)
-            } else {
-                self.name = nil
-            }
-        }
-    }
-    func serialize(_ element: XMLElement) throws {
-        if let name = name {
-            let nameNode = element.createChildElement(localName: "name", uri: "spyne.examples.hello")
-            try name.serialize(nameNode)
-        }
-    }
-}
-
-typealias SayMaybeSomething = SayMaybeSomethingType
+typealias GreetsResponse = GreetsResponseType
 
 class GreetsResponseType: XMLDeserializable {
     var greetsResult: StringArrayType?
@@ -334,7 +110,110 @@ class GreetsResponseType: XMLDeserializable {
     }
 }
 
-typealias GreetsResponse = GreetsResponseType
+class GreetsType: XMLDeserializable {
+    var partOfDays: PartOfDayArrayType?
+    init(partOfDays: PartOfDayArrayType? = nil) {
+        self.partOfDays = partOfDays
+    }
+    required init(deserialize element: XMLElement) throws {
+        do {
+            guard let node = element.elements(forLocalName: "part_of_days", uri: "spyne.examples.hello").first else {
+                throw XMLDeserializationError.noElementWithName(QualifiedName(uri: "spyne.examples.hello", localName: "part_of_days"))
+            }
+            if node.attribute(forLocalName: "nil", uri: NS_XSI)?.stringValue != "true" {
+                self.partOfDays = try PartOfDayArrayType(deserialize: node)
+            } else {
+                self.partOfDays = nil
+            }
+        }
+    }
+    func serialize(_ element: XMLElement) throws {
+        let partOfDaysNode = element.createChildElement(localName: "part_of_days", uri: "spyne.examples.hello")
+        if let partOfDays = partOfDays {
+            try partOfDays.serialize(partOfDaysNode)
+        } else {
+            partOfDaysNode.addAttribute(XMLNode.attribute(prefix: "xsi", localName: "nil", uri: NS_XSI, stringValue: "true"))
+        }
+    }
+}
+
+enum PartOfDay: String, XMLSerializable, XMLDeserializable, StringSerializable, StringDeserializable {
+    case afternoon = "afternoon"
+    case evening = "evening"
+    case morning = "morning"
+    case night = "night"
+    init(deserialize element: XMLElement) throws {
+        self.init(rawValue: element.stringValue!)!
+    }
+    func serialize(_ element: XMLElement) throws {
+        element.stringValue = self.rawValue
+    }
+    init(string: String) throws {
+        self.init(rawValue: string)!
+    }
+    func serialize() throws -> String {
+        return self.rawValue
+    }
+}
+
+typealias PartOfDayArray = PartOfDayArrayType
+
+class PartOfDayArrayType: XMLDeserializable {
+    var partOfDay: [PartOfDay?]
+    init(partOfDay: [PartOfDay?]) {
+        self.partOfDay = partOfDay
+    }
+    required init(deserialize element: XMLElement) throws {
+        self.partOfDay = try element.elements(forLocalName: "PartOfDay", uri: "spyne.examples.hello").map { node in
+            if node.attribute(forLocalName: "nil", uri: NS_XSI)?.stringValue != "true" {
+                return try PartOfDay(deserialize: node)
+            } else {
+                return nil
+            }
+        }
+    }
+    func serialize(_ element: XMLElement) throws {
+        for item in partOfDay {
+            let itemNode = element.createChildElement(localName: "PartOfDay", uri: "spyne.examples.hello")
+            if let item = item {
+                try item.serialize(itemNode)
+            } else {
+                itemNode.addAttribute(XMLNode.attribute(prefix: "xsi", localName: "nil", uri: NS_XSI, stringValue: "true"))
+            }
+        }
+    }
+}
+
+typealias SayHello = SayHelloType
+
+typealias SayHelloResponse = SayHelloResponseType
+
+class SayHelloResponseType: XMLDeserializable {
+    var sayHelloResult: StringArrayType?
+    init(sayHelloResult: StringArrayType? = nil) {
+        self.sayHelloResult = sayHelloResult
+    }
+    required init(deserialize element: XMLElement) throws {
+        do {
+            guard let node = element.elements(forLocalName: "say_helloResult", uri: "spyne.examples.hello").first else {
+                throw XMLDeserializationError.noElementWithName(QualifiedName(uri: "spyne.examples.hello", localName: "say_helloResult"))
+            }
+            if node.attribute(forLocalName: "nil", uri: NS_XSI)?.stringValue != "true" {
+                self.sayHelloResult = try StringArrayType(deserialize: node)
+            } else {
+                self.sayHelloResult = nil
+            }
+        }
+    }
+    func serialize(_ element: XMLElement) throws {
+        let sayHelloResultNode = element.createChildElement(localName: "say_helloResult", uri: "spyne.examples.hello")
+        if let sayHelloResult = sayHelloResult {
+            try sayHelloResult.serialize(sayHelloResultNode)
+        } else {
+            sayHelloResultNode.addAttribute(XMLNode.attribute(prefix: "xsi", localName: "nil", uri: NS_XSI, stringValue: "true"))
+        }
+    }
+}
 
 class SayHelloType: XMLDeserializable {
     var name: String?
@@ -373,38 +252,111 @@ class SayHelloType: XMLDeserializable {
     }
 }
 
-typealias SayHello = SayHelloType
+typealias SayMaybeNothing = SayMaybeNothingType
 
-class GreetsType: XMLDeserializable {
-    var partOfDays: PartOfDayArrayType?
-    init(partOfDays: PartOfDayArrayType? = nil) {
-        self.partOfDays = partOfDays
+typealias SayMaybeNothingResponse = SayMaybeNothingResponseType
+
+class SayMaybeNothingResponseType: XMLDeserializable {
+    var sayMaybeNothingResult: String?
+    init(sayMaybeNothingResult: String? = nil) {
+        self.sayMaybeNothingResult = sayMaybeNothingResult
     }
     required init(deserialize element: XMLElement) throws {
         do {
-            guard let node = element.elements(forLocalName: "part_of_days", uri: "spyne.examples.hello").first else {
-                throw XMLDeserializationError.noElementWithName(QualifiedName(uri: "spyne.examples.hello", localName: "part_of_days"))
-            }
-            if node.attribute(forLocalName: "nil", uri: NS_XSI)?.stringValue != "true" {
-                self.partOfDays = try PartOfDayArrayType(deserialize: node)
+            if let node = element.elements(forLocalName: "say_maybe_nothingResult", uri: "spyne.examples.hello").first,
+                    node.attribute(forLocalName: "nil", uri: NS_XSI)?.stringValue != "true" {
+                self.sayMaybeNothingResult = try String(deserialize: node)
             } else {
-                self.partOfDays = nil
+                self.sayMaybeNothingResult = nil
             }
         }
     }
     func serialize(_ element: XMLElement) throws {
-        let partOfDaysNode = element.createChildElement(localName: "part_of_days", uri: "spyne.examples.hello")
-        if let partOfDays = partOfDays {
-            try partOfDays.serialize(partOfDaysNode)
-        } else {
-            partOfDaysNode.addAttribute(XMLNode.attribute(prefix: "xsi", localName: "nil", uri: NS_XSI, stringValue: "true"))
+        if let sayMaybeNothingResult = sayMaybeNothingResult {
+            let sayMaybeNothingResultNode = element.createChildElement(localName: "say_maybe_nothingResult", uri: "spyne.examples.hello")
+            try sayMaybeNothingResult.serialize(sayMaybeNothingResultNode)
         }
     }
 }
 
-typealias Greets = GreetsType
+class SayMaybeNothingType: XMLDeserializable {
+    var name: String?
+    init(name: String? = nil) {
+        self.name = name
+    }
+    required init(deserialize element: XMLElement) throws {
+        do {
+            if let node = element.elements(forLocalName: "name", uri: "spyne.examples.hello").first,
+                    node.attribute(forLocalName: "nil", uri: NS_XSI)?.stringValue != "true" {
+                self.name = try String(deserialize: node)
+            } else {
+                self.name = nil
+            }
+        }
+    }
+    func serialize(_ element: XMLElement) throws {
+        if let name = name {
+            let nameNode = element.createChildElement(localName: "name", uri: "spyne.examples.hello")
+            try name.serialize(nameNode)
+        }
+    }
+}
 
-class FaultResponseType: XMLDeserializable {
+typealias SayMaybeSomething = SayMaybeSomethingType
+
+typealias SayMaybeSomethingResponse = SayMaybeSomethingResponseType
+
+class SayMaybeSomethingResponseType: XMLDeserializable {
+    var sayMaybeSomethingResult: String?
+    init(sayMaybeSomethingResult: String? = nil) {
+        self.sayMaybeSomethingResult = sayMaybeSomethingResult
+    }
+    required init(deserialize element: XMLElement) throws {
+        do {
+            if let node = element.elements(forLocalName: "say_maybe_somethingResult", uri: "spyne.examples.hello").first,
+                    node.attribute(forLocalName: "nil", uri: NS_XSI)?.stringValue != "true" {
+                self.sayMaybeSomethingResult = try String(deserialize: node)
+            } else {
+                self.sayMaybeSomethingResult = nil
+            }
+        }
+    }
+    func serialize(_ element: XMLElement) throws {
+        if let sayMaybeSomethingResult = sayMaybeSomethingResult {
+            let sayMaybeSomethingResultNode = element.createChildElement(localName: "say_maybe_somethingResult", uri: "spyne.examples.hello")
+            try sayMaybeSomethingResult.serialize(sayMaybeSomethingResultNode)
+        }
+    }
+}
+
+class SayMaybeSomethingType: XMLDeserializable {
+    var name: String?
+    init(name: String? = nil) {
+        self.name = name
+    }
+    required init(deserialize element: XMLElement) throws {
+        do {
+            if let node = element.elements(forLocalName: "name", uri: "spyne.examples.hello").first,
+                    node.attribute(forLocalName: "nil", uri: NS_XSI)?.stringValue != "true" {
+                self.name = try String(deserialize: node)
+            } else {
+                self.name = nil
+            }
+        }
+    }
+    func serialize(_ element: XMLElement) throws {
+        if let name = name {
+            let nameNode = element.createChildElement(localName: "name", uri: "spyne.examples.hello")
+            try name.serialize(nameNode)
+        }
+    }
+}
+
+typealias SayNothing = SayNothingType
+
+typealias SayNothingResponse = SayNothingResponseType
+
+class SayNothingResponseType: XMLDeserializable {
     init() {
     }
     required init(deserialize element: XMLElement) throws {
@@ -413,7 +365,27 @@ class FaultResponseType: XMLDeserializable {
     }
 }
 
-typealias FaultResponse = FaultResponseType
+class SayNothingType: XMLDeserializable {
+    init() {
+    }
+    required init(deserialize element: XMLElement) throws {
+    }
+    func serialize(_ element: XMLElement) throws {
+    }
+}
+
+typealias Secret = SecretType
+
+typealias SecretResponse = SecretResponseType
+
+class SecretResponseType: XMLDeserializable {
+    init() {
+    }
+    required init(deserialize element: XMLElement) throws {
+    }
+    func serialize(_ element: XMLElement) throws {
+    }
+}
 
 class SecretType: XMLDeserializable {
     init() {
@@ -421,6 +393,34 @@ class SecretType: XMLDeserializable {
     required init(deserialize element: XMLElement) throws {
     }
     func serialize(_ element: XMLElement) throws {
+    }
+}
+
+typealias StringArray = StringArrayType
+
+class StringArrayType: XMLDeserializable {
+    var string: [String?]
+    init(string: [String?]) {
+        self.string = string
+    }
+    required init(deserialize element: XMLElement) throws {
+        self.string = try element.elements(forLocalName: "string", uri: "spyne.examples.hello").map { node in
+            if node.attribute(forLocalName: "nil", uri: NS_XSI)?.stringValue != "true" {
+                return try String(deserialize: node)
+            } else {
+                return nil
+            }
+        }
+    }
+    func serialize(_ element: XMLElement) throws {
+        for item in string {
+            let itemNode = element.createChildElement(localName: "string", uri: "spyne.examples.hello")
+            if let item = item {
+                try item.serialize(itemNode)
+            } else {
+                itemNode.addAttribute(XMLNode.attribute(prefix: "xsi", localName: "nil", uri: NS_XSI, stringValue: "true"))
+            }
+        }
     }
 }
 

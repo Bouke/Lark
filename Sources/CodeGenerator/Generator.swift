@@ -103,7 +103,9 @@ public func generate(webService: WebServiceDescription, service: Service) throws
         clients.append(try service.toSwift(webService: webService, types: types))
     }
 
-    return SwiftCodeGenerator.generateCode(for: Array(types.values), clients)
+    let sortedTypes = types.values.sorted(by: { $0.name <= $1.name })
+
+    return SwiftCodeGenerator.generateCode(for: sortedTypes, clients)
 }
 
 func generateTypes(inSchema schema: Schema) throws -> Types {
@@ -201,8 +203,8 @@ func generateTypes(inSchema schema: Schema) throws -> Types {
 
 extension Schema {
     public func generateCode() throws -> [LineOfCode] {
-        let types = try generateTypes(inSchema: self)
-        return Array(types.values).flatMap { $0.toLinesOfCode(at: Indentation(chars: "    ")) }
+        let types = try generateTypes(inSchema: self).values.sorted(by: { $0.name <= $1.name })
+        return Array(types).flatMap { $0.toLinesOfCode(at: Indentation(chars: "    ")) }
     }
 }
 

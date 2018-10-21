@@ -208,7 +208,8 @@ class TypesTests: XCTestCase {
             let element = AnyType(name: "test", stringValue: "bar")
             test(value: element, expected: "<test>bar</test>")
 
-            element.setAttributesWith(["hello": "world", "baz": "buz"])
+            element.addAttribute(XMLNode.attribute(withName: "hello", stringValue: "world") as! XMLNode)
+            element.addAttribute(XMLNode.attribute(withName: "baz", stringValue: "buz") as! XMLNode)
             test(value: element, expected: "<test hello=\"world\" baz=\"buz\">bar</test>")
         }
         do {
