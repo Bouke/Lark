@@ -14,10 +14,10 @@ import Foundation
 open class Client {
 
     /// URL of the service to send the HTTP messages.
-    open let endpoint: URL
+    public let endpoint: URL
 
     /// `Alamofire.SessionManager` that manages the the underlying `URLSession`.
-    open let sessionManager: SessionManager
+    public let sessionManager: SessionManager
 
     /// SOAP headers that will be added on every outgoing `Envelope` (message).
     open var headers: [HeaderSerializable] = []

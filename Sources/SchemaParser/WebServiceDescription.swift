@@ -171,7 +171,7 @@ public struct Binding {
 
         self.name = QualifiedName(uri: try targetNamespace(ofNode: element), localName: element.attribute(forName: "name")!.stringValue!)
         self.type = try QualifiedName(type: element.attribute(forName: "type")!.stringValue!, inTree: element)
-        self.operations = try element.elements(forLocalName: "operation", uri: NS_WSDL).flatMap {
+        self.operations = try element.elements(forLocalName: "operation", uri: NS_WSDL).compactMap {
             do {
                 return try Operation.init(deserialize: $0)
             } catch ParseError.unsupportedOperation {
@@ -212,7 +212,7 @@ public struct Service {
     init(deserialize element: XMLElement) throws {
         self.name = QualifiedName(uri: try targetNamespace(ofNode: element), localName: element.attribute(forName: "name")!.stringValue!)
         self.documentation = element.elements(forLocalName: "documentation", uri: NS_WSDL).first?.stringValue
-        self.ports = try element.elements(forLocalName: "port", uri: NS_WSDL).flatMap {
+        self.ports = try element.elements(forLocalName: "port", uri: NS_WSDL).compactMap {
             do {
                 return try Port.init(deserialize: $0)
             } catch WebServiceDescriptionParseError.unsupportedPortAddress {
@@ -313,7 +313,7 @@ public struct WebServiceDescription {
         self.schema = Schema(nodes: nodes)
         messages = try element.elements(forLocalName: "message", uri: NS_WSDL).map(Message.init(deserialize:))
         portTypes = try element.elements(forLocalName: "portType", uri: NS_WSDL).map(PortType.init(deserialize:))
-        bindings = try element.elements(forLocalName: "binding", uri: NS_WSDL).flatMap {
+        bindings = try element.elements(forLocalName: "binding", uri: NS_WSDL).compactMap {
             do {
                 return try Binding.init(deserialize: $0)
             } catch Binding.ParseError.noTransport {

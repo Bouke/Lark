@@ -123,9 +123,9 @@ func generateTypes(inSchema schema: Schema) throws -> Types {
     // Note that we could collapse elements having only a base type. At the moment we handle
     // this using inheritance.
 
-    let elements = schema.flatMap { $0.element }.dictionary { ($0.name, $0) }
-    let complexes = schema.flatMap { $0.complexType }.dictionary { ($0.name!, $0) }
-    let simples = schema.flatMap { $0.simpleType }.dictionary { ($0.name!, $0) }
+    let elements = schema.compactMap { $0.element }.dictionary { ($0.name, $0) }
+    let complexes = schema.compactMap { $0.complexType }.dictionary { ($0.name!, $0) }
+    let simples = schema.compactMap { $0.simpleType }.dictionary { ($0.name!, $0) }
 
     for element in elements.values {
         let className: String

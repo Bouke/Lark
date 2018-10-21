@@ -49,7 +49,7 @@ internal extension String {
 
     private func modifyFirstCharacter(byApplying characterTransform: (Character) -> String) -> String {
         guard isEmpty == false else { return self }
-        let firstChar = characters.first!
+        let firstChar = first!
         let modifiedFirstChar = characterTransform(firstChar)
         let rangeOfFirstRange = Range(uncheckedBounds: (lower: startIndex, upper: index(after: startIndex)))
         return replacingCharacters(in: rangeOfFirstRange, with: modifiedFirstChar)

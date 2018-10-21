@@ -16,7 +16,7 @@ class SchemaTests: XCTestCase {
         let xsd = try deserialize("complex_extension.xsd")
         XCTAssertEqual(xsd.count, 3)
 
-        let full = xsd.flatMap { $0.complexType }.first { $0.name?.localName == "fullpersoninfo" }!
+        let full = xsd.compactMap { $0.complexType }.first { $0.name?.localName == "fullpersoninfo" }!
         guard case let .complex(complex) = full.content,
               case let .extension(_extension) = complex.content,
               case let .sequence(sequence) = _extension else {
@@ -52,7 +52,7 @@ class SchemaTests: XCTestCase {
         let xsd = try deserialize("element_without_type.xsd")
         XCTAssertEqual(xsd.count, 1)
 
-        guard let element = xsd.flatMap({ $0.element }).first,
+        guard let element = xsd.compactMap({ $0.element }).first,
             case let .base(type) = element.content else {
                 return XCTFail("Expected element -> base")
         }

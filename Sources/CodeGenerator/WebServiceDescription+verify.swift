@@ -60,7 +60,7 @@ extension WebServiceDescription {
         nodes.formUnion(messages.map { .message($0.name) })
         edges.append(contentsOf: messages
             .flatMap { message -> [Edge] in
-                message.parts.flatMap { part -> Edge? in
+                message.parts.compactMap { part -> Edge? in
                     if let element = part.element {
                         return (from: .message(message.name), to: .element(element))
                     } else if let type = part.type {
@@ -72,7 +72,7 @@ extension WebServiceDescription {
             }
         )
 
-        nodes.formUnion(schema.flatMap { node in
+        nodes.formUnion(schema.compactMap { node in
             switch node {
             case let .element(element): return .element(element.name)
             case let .simpleType(simple): return .type(simple.name!)

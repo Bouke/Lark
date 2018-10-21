@@ -42,8 +42,9 @@ func XCTAssertCode(actual: [String], expected: [String], file: StaticString = #f
     if actual == expected {
         return
     }
+    print(actual.joined(separator: "\n"))
     XCTFail("Generated code did not match expectations", file: file, line: line)
-    let toCharacters: ((String) -> [String]) = { $0.characters.map({ "\($0)" }) }
+    let toCharacters: ((String) -> [String]) = { $0.map({ "\($0)" }) }
     let actual = toCharacters(actual.joined(separator: "\n"))
     let expected = toCharacters(expected.joined(separator: "\n"))
     let changes = simplediff(before: expected, after: actual)
